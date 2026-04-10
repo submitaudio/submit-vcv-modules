@@ -3,7 +3,7 @@
 // Correct normalizations: Slope->Multiply, Contour->Dynamics
 #include "plugin.hpp"
 
-struct ZeroCoastV2 : Module {
+struct Drift : Module {
     enum ParamId {
         PITCH_PARAM, FINE_PARAM, OVERTONE_PARAM, MULTIPLY_PARAM,
         RISE_PARAM, FALL_PARAM, TIME_PARAM, LOGEXP_PARAM, CYCLE_PARAM,
