@@ -14,20 +14,9 @@
   "changelogUrl": "",
   "modules": [
     {
-      "slug": "ZeroCoast",
-      "name": "0-Coast",
-      "description": "0-Coast clone",
-      "tags": [
-        "Oscillator",
-        "Envelope generator",
-        "Waveshaper",
-        "Dynamics"
-      ]
-    },
-    {
-      "slug": "ZeroCoastV2",
-      "name": "0-Coast V2",
-      "description": "0-Coast clone with correct normalizations - Slope to Multiply, Contour to Dynamics",
+      "slug": "Drift13",
+      "name": "Drift 1.3",
+      "description": "Drift V1.3 with sustain-influenced timbre",
       "tags": [
         "Oscillator",
         "Envelope generator",
