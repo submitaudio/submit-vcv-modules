@@ -1,17 +1,10 @@
-name: Build (VCV Rack plugins)
+name: Build Drift beta
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
-
-# Important: this workflow is a starting point.
-# It is designed to not fail while the repo is still a skeleton.
-# Once Makefile/plugin.json exist, the real builds will run.
 
 env:
   RACK_SDK_VERSION: "2.5.0"
@@ -26,35 +19,27 @@ jobs:
       matrix:
         include:
           - target: win-x64
-            rack_sdk_platform: win
           - target: lin-x64
-            rack_sdk_platform: lin
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Build (skip if Makefile is missing)
+      - name: Build Drift
         shell: bash
         run: |
-          if [ ! -f Makefile ]; then
-            echo "Makefile missing - skipping real build (skeleton repo)"
-            mkdir -p dist && echo "skeleton" > dist/placeholder
-            exit 0
-          fi
-
+          cd drift
           echo "TARGET=${{ matrix.target }}" >> $GITHUB_ENV
           make -j$(nproc)
 
-      - name: Upload artifact
+      - name: Upload Drift artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.target }}
-          path: |
-            dist
-            # keep the job green even if dist doesn't exist (skeleton repo)
-          if-no-files-found: ignore
+          name: drift-${{ matrix.target }}
+          path: drift/dist
+          if-no-files-found: error
 
   build-mac:
     runs-on: macos-latest
@@ -63,6 +48,7 @@ jobs:
         include:
           - target: mac-x64
           - target: mac-arm64
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -71,24 +57,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
-          # Use a fixed SDK version to avoid accidental workflow breakage.
-          # This URL pattern may change in the future.
           curl -L -o Rack-SDK.zip "https://vcvrack.com/downloads/Rack-SDK-${RACK_SDK_VERSION}-mac.zip"
           mkdir -p deps
           unzip -q Rack-SDK.zip -d deps
-          ls deps
 
-      - name: Build (skip if Makefile is missing)
+      - name: Build Drift
         shell: bash
         run: |
-          if [ ! -f Makefile ]; then
-            echo "Makefile missing - skipping real build (skeleton repo)"
-            mkdir -p dist && echo "skeleton" > dist/placeholder
-            exit 0
-          fi
-
-          export RACK_SDK_PATH=$PWD/deps/Rack-SDK
+          cd drift
+          export RACK_SDK_PATH=$PWD/../deps/Rack-SDK
           echo "TARGET=${{ matrix.target }}" >> $GITHUB_ENV
 
           if command -v sysctl >/dev/null; then
@@ -99,11 +76,9 @@ jobs:
 
           make -j${CORES}
 
-      - name: Upload artifact
+      - name: Upload Drift artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.target }}
-          path: |
-            dist
-            # keep the job green even if dist doesn't exist (skeleton repo)
-          if-no-files-found: ignore
+          name: drift-${{ matrix.target }}
+          path: drift/dist
+          if-no-files-found: error
