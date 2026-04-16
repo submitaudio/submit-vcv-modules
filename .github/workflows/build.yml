@@ -47,3 +47,26 @@ jobs:
         with:
           name: Submit-windows
           path: dist/*.vcvplugin
+
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Rack SDK
+        run: |
+          wget -q https://vcvrack.com/downloads/Rack-SDK-2.6.6-mac-arm64.zip -O Rack-SDK.zip
+          unzip -q Rack-SDK.zip
+          mv Rack-SDK-* Rack-SDK || true
+
+      - name: Build and package plugin
+        run: |
+          export RACK_DIR=$(pwd)/Rack-SDK
+          make -j4
+          make dist
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Submit-mac-arm64
+          path: dist/*.vcvplugin
