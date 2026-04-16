@@ -27,9 +27,9 @@ jobs:
       - name: Download Rack SDK
         shell: msys2 {0}
         run: |
-          wget -q https://vcvrack.com/downloads/Rack-SDK-2.5.2-win-x64.zip -O Rack-SDK.zip
+          wget -q https://vcvrack.com/downloads/Rack-SDK-2.6.6-win-x64.zip -O Rack-SDK.zip
           unzip -q Rack-SDK.zip
-          mv Rack-SDK-2.5.2 Rack-SDK
+          mv Rack-SDK-2.6.6 Rack-SDK
 
       - name: Build plugin
         shell: msys2 {0}
