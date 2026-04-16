@@ -10,7 +10,7 @@ jobs:
   build-windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
@@ -44,7 +44,7 @@ jobs:
           make install
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Submit-windows
           path: dist/*.vcvplugin
