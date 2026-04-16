@@ -32,16 +32,13 @@ jobs:
           ls -la
           mv Rack-SDK-* Rack-SDK || true
 
-      - name: Build plugin
+      - name: Build and package plugin
         shell: msys2 {0}
         run: |
           export RACK_DIR=$(pwd)/Rack-SDK
+          export PATH=$PATH:/mingw64/bin
+          which make || pacman -S --noconfirm make
           make -j4
-
-      - name: Package plugin
-        shell: msys2 {0}
-        run: |
-          export RACK_DIR=$(pwd)/Rack-SDK
           make install
 
       - name: Upload artifact
