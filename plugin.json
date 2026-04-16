@@ -23,15 +23,6 @@
         "Waveshaper",
         "Dynamics"
       ]
-    },
-    {
-      "slug": "Chrono",
-      "name": "Chrono",
-      "description": "Time manipulation delay",
-      "tags": [
-        "Delay",
-        "Effect"
-      ]
     }
   ]
 }
