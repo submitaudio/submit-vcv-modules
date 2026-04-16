@@ -35,11 +35,12 @@ jobs:
       - name: Build and package plugin
         shell: msys2 {0}
         run: |
-          export RACK_DIR=$(pwd)/Rack-SDK
-          export PATH=$PATH:/mingw64/bin
-          which make || pacman -S --noconfirm make
+          pacman -S --noconfirm make mingw-w64-x86_64-jq || true
+          export RACK_DIR=$GITHUB_WORKSPACE/Rack-SDK
+          cd $GITHUB_WORKSPACE
+          ls -la
           make -j4
-          make install
+          make dist
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
