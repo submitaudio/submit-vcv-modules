@@ -8,39 +8,16 @@ on:
 
 jobs:
   build-windows:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/vcvrack/rack-plugin-toolchain-win:2
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install MSYS2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW64
-          update: true
-          install: >-
-            mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-make
-            zip
-            unzip
-            wget
-
-      - name: Download Rack SDK
-        shell: msys2 {0}
+      - name: Build plugin
         run: |
-          wget -q https://vcvrack.com/downloads/Rack-SDK-2.6.6-win-x64.zip -O Rack-SDK.zip
-          unzip Rack-SDK.zip
-          ls -la
-          mv Rack-SDK-* Rack-SDK || true
-
-      - name: Build and package plugin
-        shell: msys2 {0}
-        run: |
-          pacman -S --noconfirm make mingw-w64-x86_64-jq || true
-          export RACK_DIR=$GITHUB_WORKSPACE/Rack-SDK
-          cd $GITHUB_WORKSPACE
-          ls -la
-          make -j4
-          make dist
+          export RACK_DIR=/usr/local/share/Rack-SDK
+          make -j$(nproc) dist
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
