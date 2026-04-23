@@ -15,7 +15,7 @@
   "modules": [
     {
       "slug": "Drift13",
-      "name": "Drift 1.3",
+      "name": "Drift",
       "description": "Drift V1.3 with sustain-influenced timbre",
       "tags": [
         "Oscillator",
