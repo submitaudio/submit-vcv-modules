@@ -260,50 +260,50 @@ struct Drift13Widget : ModuleWidget {
         setPanel(createPanel(asset::plugin(pluginInstance,"res/Drift13.svg")));
                                 
         // OSCILLATOR
-        addParam(createParamCentered<Drift13KnobLarge>(Vec(58.5f,129.7f),module,Drift13::PITCH_PARAM));
-        addParam(createParamCentered<Drift13KnobSmall>(Vec(85.9f,224.5f),module,Drift13::FINE_PARAM));
-        addInput(createInputCentered<PJ301MPort>(Vec(39.3f,251.8f),module,Drift13::VOCT_INPUT));
-        addOutput(createOutputCentered<PJ301MPort>(Vec(39.3f,343.7f),module,Drift13::OUT1_OUTPUT));
-        addOutput(createOutputCentered<PJ301MPort>(Vec(78.7f,343.8f),module,Drift13::OUT2_OUTPUT));
+        addParam(createParamCentered<Drift13KnobLarge>(Vec(60.443f,129.679f),module,Drift13::PITCH_PARAM));
+        addParam(createParamCentered<Drift13KnobSmall>(Vec(85.365f,224.53f),module,Drift13::FINE_PARAM));
+        addInput(createInputCentered<PJ301MPort>(Vec(31.044f,251.763f),module,Drift13::VOCT_INPUT));
+        addOutput(createOutputCentered<PJ301MPort>(Vec(30.803f,343.679f),module,Drift13::OUT1_OUTPUT));
+        addOutput(createOutputCentered<PJ301MPort>(Vec(70.196f,343.78f),module,Drift13::OUT2_OUTPUT));
 
         // OVERTONE + MULTIPLY
-        addParam(createParamCentered<Drift13KnobMedium>(Vec(166.2f,129.5f),module,Drift13::OVERTONE_PARAM));
-        addParam(createParamCentered<Drift13KnobMedium>(Vec(166.1f,215.7f),module,Drift13::MULTIPLY_PARAM));
-        addInput(createInputCentered<PJ301MPort>(Vec(144.4f,343.8f),module,Drift13::OVRTN_INPUT));
-        addInput(createInputCentered<PJ301MPort>(Vec(184.0f,343.7f),module,Drift13::LINFM_INPUT));
-        addInput(createInputCentered<PJ301MPort>(Vec(184.1f,297.3f),module,Drift13::MLTPL_INPUT));
+        addParam(createParamCentered<Drift13KnobMedium>(Vec(164.609f,128.963f),module,Drift13::OVERTONE_PARAM));
+        addParam(createParamCentered<Drift13KnobMedium>(Vec(165.091f,215.161f),module,Drift13::MULTIPLY_PARAM));
+        addInput(createInputCentered<PJ301MPort>(Vec(145.351f,343.776f),module,Drift13::OVRTN_INPUT));
+        addInput(createInputCentered<PJ301MPort>(Vec(184.442f,343.745f),module,Drift13::LINFM_INPUT));
+        addInput(createInputCentered<PJ301MPort>(Vec(184.523f,297.341f),module,Drift13::MLTPL_INPUT));
 
         // SLOPE
-        addChild(createLightCentered<SmallLight<YellowLight>>(Vec(263.3f,86.f),module,Drift13::CYCLE_LIGHT));
-        addParam(createParamCentered<CKSS>(Vec(229.6f,106.9f),module,Drift13::CYCLE_PARAM));
-        addParam(createParamCentered<Drift13KnobSmall>(Vec(279.2f,113.8f),module,Drift13::RISE_PARAM));
-        addParam(createParamCentered<Drift13KnobSmall>(Vec(279.2f,170.7f),module,Drift13::FALL_PARAM));
-        addParam(createParamCentered<Drift13KnobSmall>(Vec(279.1f,226.6f),module,Drift13::TIME_PARAM));
-        addParam(createParamCentered<Drift13KnobSmall>(Vec(279.1f,283.2f),module,Drift13::LOGEXP_PARAM));
-        addInput(createInputCentered<PJ301MPort>(Vec(234.f,159.4f),module,Drift13::TRIG_INPUT));
-        addInput(createInputCentered<PJ301MPort>(Vec(234.f,343.7f),module,Drift13::GATE_INPUT));
-        addInput(createInputCentered<PJ301MPort>(Vec(274.6f,343.8f),module,Drift13::SLOPE_INPUT));
-        addOutput(createOutputCentered<PJ301MPort>(Vec(233.9f,205.4f),module,Drift13::EON_OUTPUT));
-        addOutput(createOutputCentered<PJ301MPort>(Vec(233.9f,251.2f),module,Drift13::CNTR_OUTPUT));
-        addOutput(createOutputCentered<PJ301MPort>(Vec(234.0f,297.6f),module,Drift13::EOC_OUTPUT));
+        addChild(createLightCentered<SmallLight<YellowLight>>(Vec(271.935f,87.0f),module,Drift13::CYCLE_LIGHT));
+        addParam(createParamCentered<CKSS>(Vec(236.282f,106.9f),module,Drift13::CYCLE_PARAM));
+        addParam(createParamCentered<Drift13KnobSmall>(Vec(285.132f,113.759f),module,Drift13::RISE_PARAM));
+        addParam(createParamCentered<Drift13KnobSmall>(Vec(285.121f,170.721f),module,Drift13::FALL_PARAM));
+        addParam(createParamCentered<Drift13KnobSmall>(Vec(285.092f,226.632f),module,Drift13::TIME_PARAM));
+        addParam(createParamCentered<Drift13KnobSmall>(Vec(285.059f,283.179f),module,Drift13::LOGEXP_PARAM));
+        addInput(createInputCentered<PJ301MPort>(Vec(235.934f,159.437f),module,Drift13::TRIG_INPUT));
+        addInput(createInputCentered<PJ301MPort>(Vec(236.282f,343.843f),module,Drift13::GATE_INPUT));
+        addInput(createInputCentered<PJ301MPort>(Vec(285.218f,343.759f),module,Drift13::SLOPE_INPUT));
+        addOutput(createOutputCentered<PJ301MPort>(Vec(235.888f,205.446f),module,Drift13::EON_OUTPUT));
+        addOutput(createOutputCentered<PJ301MPort>(Vec(235.895f,251.158f),module,Drift13::CNTR_OUTPUT));
+        addOutput(createOutputCentered<PJ301MPort>(Vec(235.913f,297.561f),module,Drift13::EOC_OUTPUT));
 
         // CONTOUR
-        addChild(createLightCentered<SmallLight<YellowLight>>(Vec(356.4f,86.f),module,Drift13::ONSET_LIGHT));
-        addParam(createParamCentered<Drift13KnobSmall>(Vec(373.9f,113.6f),module,Drift13::ONSET_PARAM));
-        addParam(createParamCentered<Drift13KnobSmall>(Vec(373.9f,170.7f),module,Drift13::SUSTAIN_PARAM));
-        addParam(createParamCentered<Drift13KnobSmall>(Vec(373.9f,226.4f),module,Drift13::DECAY_PARAM));
-        addParam(createParamCentered<Drift13KnobSmall>(Vec(373.9f,283.1f),module,Drift13::EXP_PARAM));
-        addInput(createInputCentered<PJ301MPort>(Vec(328.1f,252.7f),module,Drift13::DCY_INPUT));
-        addInput(createInputCentered<PJ301MPort>(Vec(328.0f,297.4f),module,Drift13::CNTR_INPUT));
-        addInput(createInputCentered<PJ301MPort>(Vec(328.0f,343.8f),module,Drift13::DYNMC_INPUT));
-        addOutput(createOutputCentered<PJ301MPort>(Vec(367.2f,343.9f),module,Drift13::CONTOUR_OUTPUT));
+        addChild(createLightCentered<SmallLight<YellowLight>>(Vec(376.995f,87.0f),module,Drift13::ONSET_LIGHT));
+        addParam(createParamCentered<Drift13KnobSmall>(Vec(393.31f,113.603f),module,Drift13::ONSET_PARAM));
+        addParam(createParamCentered<Drift13KnobSmall>(Vec(393.351f,170.721f),module,Drift13::SUSTAIN_PARAM));
+        addParam(createParamCentered<Drift13KnobSmall>(Vec(393.343f,226.416f),module,Drift13::DECAY_PARAM));
+        addParam(createParamCentered<Drift13KnobSmall>(Vec(393.31f,283.552f),module,Drift13::EXP_PARAM));
+        addInput(createInputCentered<PJ301MPort>(Vec(345.129f,252.694f),module,Drift13::DCY_INPUT));
+        addInput(createInputCentered<PJ301MPort>(Vec(345.076f,297.419f),module,Drift13::CNTR_INPUT));
+        addInput(createInputCentered<PJ301MPort>(Vec(345.094f,343.822f),module,Drift13::DYNMC_INPUT));
+        addOutput(createOutputCentered<PJ301MPort>(Vec(393.276f,343.854f),module,Drift13::CONTOUR_OUTPUT));
 
         // BALANCE
-        addParam(createParamCentered<Drift13KnobMedium>(Vec(445.9f,129.3f),module,Drift13::BALANCE_PARAM));
-        addParam(createParamCentered<CKSS>(Vec(422.9f,199.f),module,Drift13::BALNC_PARAM));
-        addOutput(createOutputCentered<PJ301MPort>(Vec(463.6f,343.8f),module,Drift13::LINEOUT_OUTPUT));
-        addInput(createInputCentered<PJ301MPort>(Vec(425.1f,343.8f),module,Drift13::TIMBRE_INPUT));
-        addChild(createLightCentered<SmallLight<YellowLight>>(Vec(419.1f,177.8f),module,Drift13::TIMBRE_LIGHT));
+        addParam(createParamCentered<Drift13KnobMedium>(Vec(474.63f,128.847f),module,Drift13::BALANCE_PARAM));
+        addParam(createParamCentered<CKSS>(Vec(452.889f,199.0f),module,Drift13::BALNC_PARAM));
+        addOutput(createOutputCentered<PJ301MPort>(Vec(492.927f,343.82f),module,Drift13::LINEOUT_OUTPUT));
+        addInput(createInputCentered<PJ301MPort>(Vec(454.421f,343.82f),module,Drift13::TIMBRE_INPUT));
+        addChild(createLightCentered<SmallLight<YellowLight>>(Vec(452.889f,179.271f),module,Drift13::TIMBRE_LIGHT));
     }
 };
 

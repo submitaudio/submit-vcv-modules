@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Laag_2" data-name="Laag 2" xmlns="http://www.w3.org/2000/svg" width="37.693" height="37.244" viewBox="0 0 37.693 37.244">
+  <g id="BG">
+    <g>
+      <path d="M4.292,0h29.109c2.369,0,4.292,1.923,4.292,4.292v28.66c0,2.369-1.923,4.292-4.292,4.292H4.29c-2.367,0-4.29-1.922-4.29-4.29V4.292C0,1.923,1.923,0,4.292,0Z" fill="#191919"/>
+      <path d="M2.987,30.276V6.967c0-2.2,1.78-3.983,3.978-3.983h23.763c2.2,0,3.98,1.783,3.98,3.983v23.309c0,2.198-1.78,3.98-3.98,3.98H6.965c-2.198,0-3.978-1.783-3.978-3.98Z" fill="#707000"/>
+      <path d="M8.67,6.374h20.352c1.72,0,3.117,1.397,3.117,3.117v18.265c0,1.72-1.397,3.117-3.117,3.117H8.668c-1.72,0-3.117-1.397-3.117-3.117V9.493c0-1.722,1.398-3.119,3.119-3.119Z" fill="#a8a800"/>
+    </g>
+  </g>
+  <g id="Typo">
+    <g id="g1944">
+      <g id="g1946">
+        <g id="g1948">
+          <g id="g1954">
+            <path id="path1956" d="M18.978,6.83v23.813" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g1958">
+            <path id="path1960" d="M29.403,21.88c-1.736-1.736-1.736-4.552,0-6.288" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g1962">
+            <path id="path1964" d="M27.307,23.976c-2.894-2.894-2.894-7.586,0-10.48" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g1966">
+            <path id="path1968" d="M25.21,26.072c-4.052-4.052-4.052-10.621,0-14.672" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g1970">
+            <path id="path1972" d="M8.554,21.88c1.736-1.736,1.736-4.552,0-6.288" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g1974">
+            <path id="path1976" d="M10.65,23.976c2.894-2.894,2.894-7.586,0-10.48" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g1978">
+            <path id="path1980" d="M12.746,26.072c4.052-4.052,4.052-10.621,0-14.672" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

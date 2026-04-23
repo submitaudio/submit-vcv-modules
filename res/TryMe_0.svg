@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Laag_2" data-name="Laag 2" xmlns="http://www.w3.org/2000/svg" width="44.443" height="32.994" viewBox="0 0 44.443 32.994">
+  <g id="Typo">
+    <g>
+      <path d="M4.292,0h35.859c2.369,0,4.292,1.923,4.292,4.292v24.41c0,2.369-1.923,4.292-4.292,4.292H4.29c-2.367,0-4.29-1.922-4.29-4.29V4.292C0,1.923,1.923,0,4.292,0Z" fill="#191919"/>
+      <path d="M2.987,26.026V6.967c0-2.2,1.78-3.983,3.978-3.983h30.513c2.2,0,3.98,1.783,3.98,3.983v19.059c0,2.198-1.78,3.98-3.98,3.98H6.965c-2.198,0-3.978-1.783-3.978-3.98Z" fill="#707000"/>
+      <path d="M8.67,6.374h27.102c1.72,0,3.117,1.397,3.117,3.117v14.012c0,1.722-1.398,3.119-3.119,3.119H8.67c-1.722,0-3.119-1.398-3.119-3.119v-14.01c0-1.722,1.398-3.119,3.119-3.119Z" fill="#a8a800"/>
+    </g>
+    <g>
+      <g>
+        <g>
+          <g>
+            <g>
+              <line x1="13.742" y1="24.513" x2="30.698" y2="24.513" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+              <line x1="13.742" y1="14.986" x2="30.698" y2="14.986" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+            </g>
+            <polygon points="18.444 24.513 22.22 20.14 25.996 24.513 18.444 24.513" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g>
+            <polygon points="29.549 14.986 25.924 19.359 22.22 14.986 29.549 14.986" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+            <polygon points="22.22 14.986 18.516 19.359 14.892 14.986 22.22 14.986" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+        </g>
+        <g>
+          <g>
+            <line x1="26.848" y1="11.922" x2="30.443" y2="8.478" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+            <ellipse cx="25.527" cy="13.253" rx="1.721" ry="1.733" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g>
+            <line x1="17.593" y1="11.922" x2="13.997" y2="8.478" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+            <ellipse cx="18.914" cy="13.253" rx="1.721" ry="1.733" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+        </g>
+      </g>
+      <polyline points="29.549 20.921 29.549 14.986 14.892 14.986 14.892 24.513 27.856 24.513" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+    </g>
+  </g>
+</svg>

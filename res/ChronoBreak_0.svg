@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Laag_2" data-name="Laag 2" xmlns="http://www.w3.org/2000/svg" width="37.693" height="37.244" viewBox="0 0 37.693 37.244">
+  <g id="BG">
+    <g>
+      <path d="M4.292,0h29.109c2.369,0,4.292,1.923,4.292,4.292v28.66c0,2.369-1.923,4.292-4.292,4.292H4.29c-2.367,0-4.29-1.922-4.29-4.29V4.292C0,1.923,1.923,0,4.292,0Z" fill="#191919"/>
+      <path d="M2.987,30.276V6.967c0-2.2,1.78-3.983,3.978-3.983h23.763c2.2,0,3.98,1.783,3.98,3.983v23.309c0,2.198-1.78,3.98-3.98,3.98H6.965c-2.198,0-3.978-1.783-3.978-3.98Z" fill="#707000"/>
+      <path d="M8.67,6.374h20.352c1.72,0,3.117,1.397,3.117,3.117v18.262c0,1.722-1.398,3.119-3.119,3.119H8.668c-1.72,0-3.117-1.397-3.117-3.117V9.493c0-1.722,1.398-3.119,3.119-3.119Z" fill="#a8a800"/>
+    </g>
+    <g id="g5400">
+      <g id="g5402">
+        <g id="g5404">
+          <g id="g5410">
+            <path id="path5412" d="M11.788,28.315h20.081" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g5414">
+            <path id="path5416" d="M10.045,28.315h0" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g5418">
+            <path id="path5420" d="M16.965,22.901l-1.349,1.349c-.147.147-.386.147-.533,0l-4.927-4.927c-.147-.147-.147-.386,0-.533l1.349-1.349c.147-.147.386-.147.533,0l4.927,4.927c.147.147.147.386,0,.533Z" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g5422">
+            <path id="path5424" d="M13.53,22.697l-3.485,3.485" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g5426">
+            <path id="path5428" d="M11.698,20.886l-1.653,1.653" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g5430">
+            <path id="path5432" d="M18.65,21.789l3.919,3.919-.488.488c-.356.356-.934.356-1.29,0l-3.274-3.274,1.133-1.133Z" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g5434">
+            <path id="path5436" d="M25.366,22.912l-2.796,2.796-2.796-2.796c1.544-1.544,4.048-1.544,5.592,0Z" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g5438">
+            <path id="path5440" d="M17.517,22.922l-7.339-7.339c-.196-.196-.196-.513,0-.709h0c1.282-1.282,3.268-1.535,4.83-.616l2.099,1.235c1.658.975,3.594,1.37,5.502,1.121h0c.555-.072,1.071-.326,1.467-.722l.42-.42,4.154,4.154-1.03,1.03-5.051,5.051-3.919-3.919" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g5442">
+            <path id="path5444" d="M20.162,16.751v.958" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g5446">
+            <path id="path5448" d="M18.545,16.251l-.384.929" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g5450">
+            <path id="path5452" d="M16.708,15.315l-.685.777" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g5454">
+            <path id="path5456" d="M27.002,21.103l-4.337-4.337" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g5458">
+            <path id="path5460" d="M14.251,17.389h0" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g5462">
+            <path id="path5464" d="M18.65,21.789l-3.145-3.145" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g5466">
+            <path id="path5468" d="M24.497,15.472l7.371-7.371" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+          <g id="g5470">
+            <path id="path5472" d="M28.651,19.626l3.217-3.217" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
