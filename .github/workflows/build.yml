@@ -63,3 +63,42 @@ jobs:
         with:
           path: dist/*.vcvplugin
           name: mac-${{ matrix.platform }}
+
+  release:
+    name: Create Release
+    needs: [build, build-mac]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get version from plugin.json
+        id: version
+        run: |
+          VERSION=$(python3 -c "import json; print(json.load(open('plugin.json'))['version'])")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List artifacts
+        run: find artifacts -type f
+
+      - name: Delete existing release
+        run: |
+          gh release delete "v${{ steps.version.outputs.version }}" --yes || true
+          git push --delete origin "v${{ steps.version.outputs.version }}" || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release
+        run: |
+          gh release create "v${{ steps.version.outputs.version }}" \
+            --title "Submit v${{ steps.version.outputs.version }}" \
+            --prerelease \
+            --notes "Automated beta release" \
+            artifacts/**/*.vcvplugin
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

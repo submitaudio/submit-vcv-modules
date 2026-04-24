@@ -192,7 +192,7 @@ struct Chrono : Module {
         configParam(MIX_PARAM,      0.f, 1.f, 0.318f, "Mix");
         configParam(DRIVE_PARAM,    0.f, 1.f, 0.128f, "Drive");
         configParam(TAPE_PARAM,     0.f, 1.f, 0.324f, "Tape");
-        configParam(HEADS_PARAM,    0.f, 5.f, 5.f,  "Heads");
+        configSwitch(HEADS_PARAM, 0.f, 5.f, 5.f, "Heads", {"ALL", "TRP", "DOT", "QTR", "DUB", "SUB"});
         paramQuantities[HEADS_PARAM]->snapEnabled = true;
         configParam(DIVISION_PARAM, 0.f, 4.f, 2.f,  "Division");
         paramQuantities[DIVISION_PARAM]->snapEnabled = true;
@@ -356,11 +356,7 @@ struct Chrono : Module {
         smoothedSpacing += (spacingTarget - smoothedSpacing) * 0.01f;
 
         // ── DELAY BUFFER LEZEN ────────────────
-        auto readBuf = [&](float offset) -> float {
-            int pos = writePos - (int)clamp(offset, 1.f, (float)(MAX_BUFFER - 1));
-            if (pos < 0) pos += MAX_BUFFER;
-            return buffer[pos];
-        };
+
 
         float dryRaw = inputs[AUDIO_L_INPUT].getVoltage();
         float dryRawR = inputs[AUDIO_R_INPUT].isConnected()
@@ -448,7 +444,6 @@ struct Chrono : Module {
 
         // ── FREEZE buffer write ────────────────
         freezeHpState += 0.05f * (fb - freezeHpState);
-        float fbTight = fb - freezeHpState * 0.4f;
 
         // Altijd dry + feedback — surge bevriest bovenop
         buffer[writePos] = dry + fb;
@@ -462,7 +457,6 @@ struct Chrono : Module {
                 ? inputs[TAPE_CV_INPUT].getVoltage() * 0.1f : 0.f), 0.f, 1.f);
 
         // Twee fasen
-        float hissStage   = clamp(tape / 0.5f, 0.f, 1.f);        // 0→50%: hiss
         float damageStage = clamp((tape - 0.5f) / 0.5f, 0.f, 1.f); // 50→100%: wobble+damage
 
         // RNG
@@ -479,8 +473,6 @@ struct Chrono : Module {
         hissState += 0.8f * (rawNoise - hissState);
         float hissHigh = rawNoise - hissState;
         // Hiss bouwt op tot 50% en blijft daarna gelijk
-        float hissLevel = hissStage * 0.12f;
-        float hiss = hissState * hissLevel;
 
         // ── LAAG 2: WOBBLE (50→100%, clock sync) ─
         if (clockConnected && clockInterval > 0) {
@@ -511,15 +503,10 @@ struct Chrono : Module {
         // Lowpass — donkerder bij hogere tape
         float tapeAlpha = 0.04f + (1.f - tape) * 0.36f;
         tapeFilterState += tapeAlpha * (tapeSignal - tapeFilterState);
-        float tapeDark = tapeFilterState;
 
         // Saturatie
         // tapeCurve lineair — geen vroege piek in het midden
         // Lagere drive — minder schelle vervorming in het midden
-        float tapeCurve = tape;
-        float tapeDrive = 1.f + tapeCurve * 0.8f;
-        float tapeSat   = tanhf(tapeDark * tapeDrive);
-        tapeSat        *= 1.f + tapeCurve * 0.2f;
 
         // ── LAAG 3: DROPOUTS (50→100%) ────────
         // Korte volume dips — versleten band gevoel
@@ -541,24 +528,7 @@ struct Chrono : Module {
         dropoutGain += (dropoutTarget - dropoutGain) * 0.01f;
         if (dropoutGain > 0.995f) dropoutTarget = 1.f;
 
-        // ── LAAG 4: PRINT-THROUGH ─────────────
-        // Geest echo net VOOR de hoofdecho — versleten band effect
-        // Leest iets eerder in de buffer dan de hoofddelay
-        float printAmount = 0.f; // Tijdelijk uit voor test
-        int printPos = writePos - (int)clamp(delaySamples * 0.85f, 1.f, (float)(MAX_BUFFER - 1));
-        if (printPos < 0) printPos += MAX_BUFFER;
-        float printSignal = buffer[printPos] * printAmount;
 
-        // ── TAPE OUTPUT ───────────────────────
-        float tapeOut = tapeSat * dropoutGain + hiss + printSignal;
-        tapeOut *= 1.f + tapeCurve * 0.2f;
-
-        // Blend — tape aanweziger naarmate slider stijgt
-        // Bij tape=1.0 volledig naar tapeOut — geen origineel delayed meer
-        float tapeBlend = clamp(tape * tape, 0.f, 1.f);
-        float wetSignal = tape > 0.f
-            ? delayed * (1.f - tapeBlend) + tapeOut * tapeBlend
-            : delayed;
 
         // ── DRIVE — Tape saturatie + wavefold ─
         // Stap 1: Asymmetrische tape saturatie
@@ -570,20 +540,9 @@ struct Chrono : Module {
                 return -tanhf(-x * amt * 0.8f) / (amt * 0.8f);
         };
 
-        // Stap 2: Subtiele wavefold na saturatie
-        auto wavefold = [](float x, float fold) -> float {
-            // Vouw het signaal terug als het te hard wordt
-            x = x * (1.f + fold);
-            while (x > 1.f)  x = 2.f - x;
-            while (x < -1.f) x = -2.f - x;
-            return x * (1.f / (1.f + fold));
-        };
 
         float driveAmt  = 1.f + drive * 2.0f;
-        float foldAmt   = drive * 0.4f;
 
-        float dryDriven = wavefold(tapeSaturate(dry,       driveAmt), foldAmt);
-        float wetDriven = wavefold(tapeSaturate(wetSignal, driveAmt), foldAmt);
 
         // ── STEREO SPREAD ─────────────────────
         float spread = clamp(params[SPREAD_PARAM].getValue()
@@ -607,7 +566,6 @@ struct Chrono : Module {
         float delayedR = readSpread(clamp(wobbleTimeR + spreadSamples, 1.f, (float)(MAX_BUFFER-1)));
 
         // Tape blend op L en R
-        float tapeBlendVal = clamp(tape * tape, 0.f, 1.f);
         // Tape karakter toepassen op delayedL/R — flutter, saturatie en hiss
         // Wet = delayed altijd volledig + tape karakter mengt erbij
         float wetL = delayedL;
