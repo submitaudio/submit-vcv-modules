@@ -1,7 +1,7 @@
 {
   "slug": "Submit",
   "name": "Submit",
-  "version": "2.8.3",
+  "version": "2.9.0",
   "license": "proprietary",
   "brand": "Submit",
   "author": "Juan Jos\u00e9",
@@ -14,9 +14,9 @@
   "changelogUrl": "",
   "modules": [
     {
-      "slug": "Drift13",
+      "slug": "Drift",
       "name": "Drift",
-      "description": "Drift V1.3 with sustain-influenced timbre",
+      "description": "Voice module with oscillator, wavefolder, slope and contour",
       "tags": [
         "Oscillator",
         "Envelope generator",
@@ -27,7 +27,7 @@
     {
       "slug": "Chrono",
       "name": "Chrono",
-      "description": "Time manipulation delay",
+      "description": "Tape delay with movement and character",
       "tags": [
         "Delay",
         "Effect"
@@ -35,8 +35,8 @@
     },
     {
       "slug": "Impact",
-      "name": "Impact V1",
-      "description": "Percussieve kick synthesizer V1",
+      "name": "Impact",
+      "description": "Dual-engine drum synthesizer with stereo output",
       "tags": [
         "Drum",
         "Oscillator",

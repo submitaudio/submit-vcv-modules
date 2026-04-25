@@ -5,7 +5,7 @@ Plugin* pluginInstance;
 
 
 void init(Plugin* p) {
-	p->addModel(modelDrift13);
+	p->addModel(modelDrift);
 	p->addModel(modelChrono);
 	pluginInstance = p;
 

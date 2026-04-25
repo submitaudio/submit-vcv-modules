@@ -307,4 +307,4 @@ struct Drift13Widget : ModuleWidget {
     }
 };
 
-Model* modelDrift13 = createModel<Drift13, Drift13Widget>("Drift13");
+Model* modelDrift = createModel<Drift13, Drift13Widget>("Drift");
