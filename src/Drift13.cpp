@@ -30,7 +30,7 @@ struct Drift13 : Module {
         config(PARAMS_LEN,INPUTS_LEN,OUTPUTS_LEN,LIGHTS_LEN);
         configParam(PITCH_PARAM,-4.f,4.f,0.f,"Octave"," oct");
         paramQuantities[PITCH_PARAM]->snapEnabled=true;
-        configParam(FINE_PARAM,-7.f,7.f,-7.f,"Tune"," st");
+        configParam(FINE_PARAM,-7.f,7.f,0.f,"Tune"," st");
         paramQuantities[FINE_PARAM]->snapEnabled=true;
         configParam(OVERTONE_PARAM,0.f,1.f,0.43133f,"Overtone");
         configParam(MULTIPLY_PARAM,0.f,1.f,0.5f,"Multiply");
