@@ -192,7 +192,7 @@ struct Chrono : Module {
         configParam(MIX_PARAM,      0.f, 1.f, 0.318f, "Mix");
         configParam(DRIVE_PARAM,    0.f, 1.f, 0.128f, "Drive");
         configParam(TAPE_PARAM,     0.f, 1.f, 0.324f, "Tape");
-        configSwitch(HEADS_PARAM, 0.f, 5.f, 5.f, "Heads", {"ALL", "TRP", "DOT", "QTR", "DUB", "SUB"});
+        configSwitch(HEADS_PARAM, 0.f, 5.f, 0.f, "Heads", {"SUB", "DUB", "QTR", "DOT", "TRP", "ALL"});
         paramQuantities[HEADS_PARAM]->snapEnabled = true;
         configParam(DIVISION_PARAM, 0.f, 4.f, 2.f,  "Division");
         paramQuantities[DIVISION_PARAM]->snapEnabled = true;
