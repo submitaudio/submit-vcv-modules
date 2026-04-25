@@ -46,6 +46,12 @@ struct Chrono : Module {
         LIGHTS_LEN
     };
 
+    // ── Fast tanh approximatie (CPU optimalisatie) ──
+    static inline float fast_tanh(float x) {
+        float x2 = x * x;
+        return x * (27.f + x2) / (27.f + 9.f * x2);
+    }
+
     // ── Delay buffer ──────────────────────────
     float buffer[MAX_BUFFER] = {};
     int   writePos    = 0;
@@ -109,12 +115,12 @@ struct Chrono : Module {
     // [positie][head] = volume factor
     // 3 heads: triplet(1/3), dotted(1/2), quarter(1/1)
     const float headMix[6][3] = {
-        {1.0f, 1.0f, 1.0f},  // 0: ALL  — gelijk/gelijk/gelijk
-        {1.0f, 0.5f, 0.5f},  // 1: TRP  — hoog/laag/laag
-        {0.5f, 1.0f, 0.5f},  // 2: DOT  — laag/hoog/laag
-        {0.5f, 0.5f, 1.0f},  // 3: QTR  — laag/laag/hoog
-        {1.0f, 1.0f, 0.5f},  // 4: DUB  — hoog/hoog/laag
-        {0.5f, 1.0f, 1.0f},  // 5: SUB  — laag/hoog/hoog
+        {0.5f, 1.0f, 1.0f},  // 0: SUB  — laag/hoog/hoog
+        {1.0f, 1.0f, 0.5f},  // 1: DUB  — hoog/hoog/laag
+        {0.5f, 0.5f, 1.0f},  // 2: QTR  — laag/laag/hoog
+        {0.5f, 1.0f, 0.5f},  // 3: DOT  — laag/hoog/laag
+        {1.0f, 0.5f, 0.5f},  // 4: TRP  — hoog/laag/laag
+        {1.0f, 1.0f, 1.0f},  // 5: ALL  — gelijk/gelijk/gelijk
     };
 
     Chrono() {
@@ -125,7 +131,7 @@ struct Chrono : Module {
         configParam(MIX_PARAM,      0.f, 1.f, 0.318f, "Mix");
         configParam(DRIVE_PARAM,    0.f, 1.f, 0.128f, "Drive");
         configParam(TAPE_PARAM,     0.f, 1.f, 0.324f, "Tape");
-        configSwitch(HEADS_PARAM, 0.f, 5.f, 5.f, "Heads", {"ALL", "TRP", "DOT", "QTR", "DUB", "SUB"});
+        configSwitch(HEADS_PARAM, 0.f, 5.f, 0.f, "Heads", {"SUB", "DUB", "QTR", "DOT", "TRP", "ALL"});
         paramQuantities[HEADS_PARAM]->snapEnabled = true;
         configParam(DIVISION_PARAM, 0.f, 4.f, 2.f,  "Division");
         paramQuantities[DIVISION_PARAM]->snapEnabled = true;
@@ -353,17 +359,14 @@ struct Chrono : Module {
         filterState += alpha * (delayed - filterState);
         float toned = filterState;
 
-        float variation = 1.0f
-            + 0.015f * sinf(phase)
-            + 0.010f * sinf(phase * 0.37f)
-            + 0.005f * sinf(phase * 1.73f);
+        float variation = 1.0f + 0.02f * sinf(phase);
         phase += 0.01f;
 
-        float dynamicDrive = 1.0f + driveSmooth * 2.5f + powf(fabsf(toned), 1.5f);
-        float driven = tanhf(toned * dynamicDrive * variation);
+        float absToned = fabsf(toned);
+        float dynamicDrive = 1.0f + driveSmooth * 2.5f + absToned * sqrtf(absToned);
+        float driven = fast_tanh(toned * dynamicDrive * variation);
 
-        driven += 0.05f * sinf(driven * 2.5f)
-                + 0.03f * sinf(driven * 4.5f);
+        driven *= 1.04f; // lichte gain compensatie
 
         // SURGE low-end control
         if (surgePressed) {
@@ -373,7 +376,7 @@ struct Chrono : Module {
         }
 
         float fb = driven * fbSmooth;
-        fb *= 0.98f + 0.02f * sinf(phase * 0.23f);
+        fb *= 0.98f;
 
         // ── FREEZE buffer write ────────────────
         freezeHpState += 0.05f * (fb - freezeHpState);
@@ -468,9 +471,9 @@ struct Chrono : Module {
         auto tapeSaturate = [](float x, float amt) -> float {
             // Positief en negatief anders behandeld — tape karakter
             if (x >= 0.f)
-                return tanhf(x * amt) / amt;
+                return fast_tanh(x * amt) / amt;
             else
-                return -tanhf(-x * amt * 0.8f) / (amt * 0.8f);
+                return -fast_tanh(-x * amt * 0.8f) / (amt * 0.8f);
         };
 
 
@@ -565,7 +568,7 @@ struct ChronoWidget : ModuleWidget {
         addParam(createParamCentered<LEDSliderGreen>(mm2px(Vec(42.23f, 43.85f)), module, Chrono::MIX_PARAM));
         addParam(createParamCentered<LEDSliderGreen>(mm2px(Vec(54.63f, 43.85f)), module, Chrono::DRIVE_PARAM));
         addParam(createParamCentered<LEDSliderGreen>(mm2px(Vec(67.15f, 43.85f)), module, Chrono::TAPE_PARAM));
-        addParam(createParamCentered<LEDSliderGreen>(mm2px(Vec(79.63f, 43.85f)), module, Chrono::HEADS_PARAM));
+        addParam(createParam<VCVSlider>(mm2px(Vec(79.63f - 4.f, 43.85f - 17.f)), module, Chrono::HEADS_PARAM));
 
         // ── Momentary knoppen ─────────────────
         addParam(createParamCentered<VCVButton>(mm2px(Vec(66.12f, 89.58f)), module, Chrono::SURGE_PARAM));
