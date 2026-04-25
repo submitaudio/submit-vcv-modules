@@ -3,7 +3,7 @@
 using namespace rack;
 
 extern Plugin* pluginInstance;
-extern Model* modelDrift13;
+extern Model* modelDrift;
 
 extern Model* modelImpact;
 
