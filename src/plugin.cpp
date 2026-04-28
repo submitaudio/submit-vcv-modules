@@ -7,6 +7,8 @@ Plugin* pluginInstance;
 void init(Plugin* p) {
 	p->addModel(modelDrift);
 	p->addModel(modelChrono);
+	p->addModel(modelChain);
+	p->addModel(modelSqueeze);
 	pluginInstance = p;
 
 	// Add modules here

@@ -1,7 +1,7 @@
 #include "plugin.hpp"
 #include <cstring>
 
-static const int MAX_BUFFER = 48000 * 2;
+static const int MAX_BUFFER = 96000 * 4;  // 4 sec @ 96kHz max
 
 // ─────────────────────────────────────────────
 //  CUSTOM WIDGETS
@@ -317,6 +317,9 @@ struct Chrono : Module {
                 targetDelaySamples = (float)clockInterval * ratio;
             }
         } else {
+            // Reset clock state als kabel losgehaald wordt
+            clockInterval = 0;
+            clockSampleCount = 0;
             targetDelaySamples = timeKnob * 2.f * args.sampleRate;
         }
 
@@ -354,6 +357,11 @@ struct Chrono : Module {
         float spacingFactor = spacingTable[spacingIndex];
         float spacingTarget = delaySamples * spacingFactor;
         smoothedSpacing += (spacingTarget - smoothedSpacing) * 0.01f;
+
+        // Pas spacing toe op heads — head 0 dichterbij, head 2 verder weg
+        headTime[0] = clamp(headTime[0] - smoothedSpacing, 1.f, (float)(MAX_BUFFER - 1));
+        headTime[1] = clamp(headTime[1], 1.f, (float)(MAX_BUFFER - 1));
+        headTime[2] = clamp(headTime[2] + smoothedSpacing, 1.f, (float)(MAX_BUFFER - 1));
 
         // ── DELAY BUFFER LEZEN ────────────────
 

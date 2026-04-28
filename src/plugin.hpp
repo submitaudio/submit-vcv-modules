@@ -12,3 +12,7 @@ extern Plugin* pluginInstance;
 extern Model* modelDrift;
 extern Model* modelChrono;
 extern Model* modelImpact;
+
+extern Model* modelChain;
+
+extern Model* modelSqueeze;
