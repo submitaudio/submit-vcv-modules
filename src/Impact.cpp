@@ -1,3 +1,7 @@
+// Copyright (c) 2025 Submit Audio (submitaudio.nl)
+// Licensed under GPL v3 — see LICENSE file for details
+// https://github.com/submitaudio/submit-vcv-modules
+
 #include "plugin.hpp"
 
 // ── Gedeelde knob structs ─────────────────────
@@ -149,8 +153,8 @@ struct Impact : Module {
         configInput(NLEN_CV,     "Noise Length CV");
         configInput(FOLD_CV,     "Fold CV");
         configInput(ACC_INPUT,   "Accent");
-        configOutput(OUT_L_OUTPUT, "Out L");
-        configOutput(OUT_R_OUTPUT, "Out R");
+        configOutput(OUT_L_OUTPUT, "Audio Out L");
+        configOutput(OUT_R_OUTPUT, "Audio Out R");
     }
 
     uint32_t rng = 22317u;
@@ -510,6 +514,17 @@ struct ImpactWidget : ModuleWidget {
         addOutput(createOutputCentered<PJ301MPort>(
             Vec(218.691f, 343.604f), module, Impact::OUT_R_OUTPUT));
     }
+
+    void appendContextMenu(Menu* menu) override {
+        menu->addChild(new MenuSeparator);
+        menu->addChild(createMenuItem("submitaudio.nl", "", []() {
+            system::openBrowser(SUBMIT_URL);
+        }));
+        menu->addChild(createMenuItem("Report a Bug", "", []() {
+            system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
+        }));
+    }
 };
+
 
 Model* modelImpact = createModel<Impact, ImpactWidget>("Impact");

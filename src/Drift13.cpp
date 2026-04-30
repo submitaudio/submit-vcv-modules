@@ -1,3 +1,7 @@
+// Copyright (c) 2025 Submit Audio (submitaudio.nl)
+// Licensed under GPL v3 — see LICENSE file for details
+// https://github.com/submitaudio/submit-vcv-modules
+
 #include "plugin.hpp"
 
 struct Drift13 : Module {
@@ -21,30 +25,31 @@ struct Drift13 : Module {
     float phase=0.f;
     enum SlopeStage { IDLE, RISE, FALL };
     SlopeStage slopeStage=IDLE;
-    float slopeValue=0.f, slopeTime=0.f;
+    float slopeValue=0.f, slopeTime=0.f, fallStartValue=1.f;
+    float smoothedDynCV=0.f;
     bool lastGate=false, lastTrig=false;
     float contourValue=0.f;
     dsp::PulseGenerator eocPulse, eonPulse, onsetPulse;
 
     Drift13() {
         config(PARAMS_LEN,INPUTS_LEN,OUTPUTS_LEN,LIGHTS_LEN);
-        configParam(PITCH_PARAM,-4.f,4.f,0.f,"Octave"," oct");
+        configParam(PITCH_PARAM,-4.f,4.f,-1.f,"Octave"," oct");
         paramQuantities[PITCH_PARAM]->snapEnabled=true;
         configParam(FINE_PARAM,-7.f,7.f,0.f,"Tune"," st");
         paramQuantities[FINE_PARAM]->snapEnabled=true;
         configParam(OVERTONE_PARAM,0.f,1.f,0.43133f,"Overtone");
         configParam(MULTIPLY_PARAM,0.f,1.f,0.5f,"Multiply");
-        configParam(RISE_PARAM,0.001f,4.f,0.001f,"Rise"," s");
-        configParam(FALL_PARAM,0.001f,8.f,4.9739f,"Fall"," s");
-        configParam(TIME_PARAM,0.1f,4.f,1.0257f,"Time");
-        configParam(LOGEXP_PARAM,-1.f,1.f,-0.28554f,"Curve");
+        configParam(RISE_PARAM,0.001f,4.f,2.1547f,"Rise"," s");
+        configParam(FALL_PARAM,0.001f,8.f,0.001f,"Fall"," s");
+        configParam(TIME_PARAM,0.1f,4.f,3.2529f,"Time");
+        configParam(LOGEXP_PARAM,-1.f,1.f,-0.59518f,"Curve");
         configSwitch(CYCLE_PARAM,0.f,1.f,0.f,"Cycle",{"Off","On"});
-        configParam(ONSET_PARAM,0.f,1.f,-0.41084f,"Onset");
-        configParam(SUSTAIN_PARAM,0.f,1.f,0.9988f,"Sustain");
-        configParam(DECAY_PARAM,0.01f,8.f,2.2145f,"Decay"," s");
-        configParam(EXP_PARAM,0.f,1.f,0.86024f,"Exp");
-        configParam(BALANCE_PARAM,0.f,1.f,0.f,"Timbre");
-        configSwitch(BALNC_PARAM,0.f,1.f,0.f,"Timbre",{"Off","On"});
+        configParam(ONSET_PARAM,0.f,1.f,0.f,"Onset");
+        configParam(SUSTAIN_PARAM,0.f,1.f,0.31084f,"Sustain");
+        configParam(DECAY_PARAM,0.001f,8.f,0.01f,"Decay"," s");
+        configParam(EXP_PARAM,0.f,1.f,0.83976f,"Exp");
+        configParam(BALANCE_PARAM,0.f,1.f,0.61446f,"Timbre");
+        configSwitch(BALNC_PARAM,0.f,1.f,1.f,"Timbre",{"Off","On"});
         configInput(VOCT_INPUT,"V/OCT");
         configInput(LINFM_INPUT,"FM");
         configInput(OVRTN_INPUT,"OVR");
@@ -107,8 +112,8 @@ struct Drift13 : Module {
         bool gate=inputs[GATE_INPUT].getVoltage()>1.f;
         bool trig=inputs[TRIG_INPUT].getVoltage()>1.f;
         bool cycle=params[CYCLE_PARAM].getValue()>0.5f;
-        if ((gate&&!lastGate)||(trig&&!lastTrig)){slopeStage=RISE;slopeTime=0.f;onsetPulse.trigger(1e-3f);}
-        if (inputs[GATE_INPUT].isConnected()&&!gate&&lastGate&&slopeStage==RISE){slopeStage=FALL;slopeTime=0.f;}
+        if ((gate&&!lastGate)||(trig&&!lastTrig)){slopeStage=RISE;slopeTime=0.f;onsetPulse.trigger(0.05f);}
+        if (inputs[GATE_INPUT].isConnected()&&!gate&&lastGate&&(slopeStage==RISE||slopeValue>0.f)){fallStartValue=slopeValue;slopeStage=FALL;slopeTime=0.f;}
         lastGate=gate; lastTrig=trig;
         float tScale=params[TIME_PARAM].getValue();
         float riseT=params[RISE_PARAM].getValue()*tScale;
@@ -123,13 +128,13 @@ struct Drift13 : Module {
         } else if (slopeStage==FALL){
             slopeTime+=args.sampleTime;
             float t=clamp(slopeTime/fallT,0.f,1.f);
-            slopeValue=1.f-applyCurve(t,-logexp);
-            if (t>=1.f){slopeStage=IDLE;slopeValue=0.f;eocPulse.trigger(1e-3f);if(!gate)eonPulse.trigger(1e-3f);if(cycle){slopeStage=RISE;slopeTime=0.f;}}
+            slopeValue=fallStartValue*(1.f-applyCurve(t,-logexp));
+            if (t>=1.f){eocPulse.trigger(1e-3f);if(!gate)eonPulse.trigger(1e-3f);if(cycle){slopeStage=RISE;slopeTime=0.f;}else{slopeStage=IDLE;slopeValue=0.f;}}
         } else if (cycle){slopeStage=RISE;slopeTime=0.f;}
         outputs[EOC_OUTPUT].setVoltage(eocPulse.process(args.sampleTime)?10.f:0.f);
         outputs[EON_OUTPUT].setVoltage(eonPulse.process(args.sampleTime)?10.f:0.f);
         outputs[CNTR_OUTPUT].setVoltage(slopeValue*10.f);
-        lights[CYCLE_LIGHT].setBrightness(slopeValue);
+        lights[CYCLE_LIGHT].setBrightness(params[CYCLE_PARAM].getValue() > 0.5f ? slopeValue : 0.f);
         lights[TIMBRE_LIGHT].setBrightness(params[BALNC_PARAM].getValue());
         lights[ONSET_LIGHT].setBrightness(onsetPulse.process(args.sampleTime)?1.f:0.f);
 
@@ -223,7 +228,13 @@ struct Drift13 : Module {
         // 6. Lichte gain compensatie, geen harde clipping
         out=std::tanh(out*0.9f)*1.1f;
 
-        outputs[LINEOUT_OUTPUT].setVoltage(out*dynCV*5.f);
+        // Smooth alleen bij release (dynCV daalt) — attack blijft instant
+        float smoothCoeff = exp(-1.f / (0.002f * args.sampleRate));
+        if (dynCV < smoothedDynCV)
+            smoothedDynCV = smoothedDynCV * smoothCoeff + dynCV * (1.f - smoothCoeff);
+        else
+            smoothedDynCV = dynCV; // instant attack
+        outputs[LINEOUT_OUTPUT].setVoltage(out*smoothedDynCV*5.f);
     }
     json_t* dataToJson() override { return json_object(); }
     void dataFromJson(json_t* rootJ) override { (void)rootJ; }
@@ -305,6 +316,17 @@ struct Drift13Widget : ModuleWidget {
         addInput(createInputCentered<PJ301MPort>(Vec(454.421f,343.82f),module,Drift13::TIMBRE_INPUT));
         addChild(createLightCentered<SmallLight<YellowLight>>(Vec(452.889f,179.271f),module,Drift13::TIMBRE_LIGHT));
     }
+
+    void appendContextMenu(Menu* menu) override {
+        menu->addChild(new MenuSeparator);
+        menu->addChild(createMenuItem("submitaudio.nl", "", []() {
+            system::openBrowser(SUBMIT_URL);
+        }));
+        menu->addChild(createMenuItem("Report a Bug", "", []() {
+            system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
+        }));
+    }
 };
+
 
 Model* modelDrift = createModel<Drift13, Drift13Widget>("Drift");

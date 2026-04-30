@@ -1,3 +1,7 @@
+// Copyright (c) 2025 Submit Audio (submitaudio.nl)
+// Licensed under GPL v3 — see LICENSE file for details
+// https://github.com/submitaudio/submit-vcv-modules
+
 #include "plugin.hpp"
 #include <cstring>
 
@@ -202,8 +206,8 @@ struct Chrono : Module {
         configParam(SURGE_PARAM,    0.f, 1.f, 0.f,  "Surge");
         configParam(BREAK_PARAM,    0.f, 1.f, 0.f,  "Break");
 
-        configInput(AUDIO_L_INPUT,    "Audio L/Mono");
-        configInput(AUDIO_R_INPUT,    "Audio R");
+        configInput(AUDIO_L_INPUT,    "Audio In L");
+        configInput(AUDIO_R_INPUT,    "Audio In R");
         configInput(TIME_CV_INPUT,    "Time CV");
         configInput(FEEDBACK_CV_INPUT,"Feedback CV");
         configInput(MIX_CV_INPUT,     "Mix CV");
@@ -216,8 +220,8 @@ struct Chrono : Module {
         configInput(SURGE_CV_INPUT,   "Surge Gate");
         configInput(BREAK_CV_INPUT,   "Break Gate");
 
-        configOutput(AUDIO_L_OUTPUT, "Audio L");
-        configOutput(AUDIO_R_OUTPUT, "Audio R");
+        configOutput(AUDIO_L_OUTPUT, "Audio Out L");
+        configOutput(AUDIO_R_OUTPUT, "Audio Out R");
 
         std::memset(buffer, 0, sizeof(buffer));
     }
@@ -703,6 +707,17 @@ struct ChronoWidget : ModuleWidget {
         addOutput(createOutputCentered<PJ301MPort>(
             Vec(195.531f, 343.604f), module, Chrono::AUDIO_R_OUTPUT));
     }
+
+    void appendContextMenu(Menu* menu) override {
+        menu->addChild(new MenuSeparator);
+        menu->addChild(createMenuItem("submitaudio.nl", "", []() {
+            system::openBrowser(SUBMIT_URL);
+        }));
+        menu->addChild(createMenuItem("Report a Bug", "", []() {
+            system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
+        }));
+    }
 };
+
 
 Model* modelChrono = createModel<Chrono, ChronoWidget>("Chrono");

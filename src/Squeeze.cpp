@@ -1,3 +1,7 @@
+// Copyright (c) 2025 Submit Audio (submitaudio.nl)
+// Licensed under GPL v3 — see LICENSE file for details
+// https://github.com/submitaudio/submit-vcv-modules
+
 #include "plugin.hpp"
 #include <cmath>
 
@@ -131,6 +135,17 @@ struct SqueezeWidget : ModuleWidget {
 
         addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(17.47f, 116.16f)), module, Squeeze::COMP_OUTPUT));
     }
+
+    void appendContextMenu(Menu* menu) override {
+        menu->addChild(new MenuSeparator);
+        menu->addChild(createMenuItem("submitaudio.nl", "", []() {
+            system::openBrowser(SUBMIT_URL);
+        }));
+        menu->addChild(createMenuItem("Report a Bug", "", []() {
+            system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
+        }));
+    }
 };
+
 
 Model* modelSqueeze = createModel<Squeeze, SqueezeWidget>("Squeeze");

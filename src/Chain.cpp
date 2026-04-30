@@ -1,3 +1,7 @@
+// Copyright (c) 2025 Submit Audio (submitaudio.nl)
+// Licensed under GPL v3 — see LICENSE file for details
+// https://github.com/submitaudio/submit-vcv-modules
+
 #include "plugin.hpp"
 struct ChainKnob : SvgKnob {
     ChainKnob() {
@@ -72,6 +76,8 @@ struct Mix2ch : Module {
         CH2_PEAK_R_LIGHT,
         CH2_PEAK_G_LIGHT,
         CH2_PEAK_B_LIGHT,
+        CH1_CLIP_LIGHT,
+        CH2_CLIP_LIGHT,
         LIGHTS_LEN
     };
 
@@ -109,8 +115,8 @@ struct Mix2ch : Module {
         configInput(CH2_COMP_INPUT, "Ch2 Comp/CV");
         configInput(CH1_MUTE_CV_INPUT, "Ch1 Mute CV");
         configInput(CH2_MUTE_CV_INPUT, "Ch2 Mute CV");
-        configInput(CHAIN_L_INPUT, "Chain L In");
-        configInput(CHAIN_R_INPUT, "Chain R In");
+        configInput(CHAIN_L_INPUT, "Audio In L");
+        configInput(CHAIN_R_INPUT, "Audio In R");
         configInput(SEND1_CHAIN_INPUT,  "Send 1 L Chain In");
         configInput(SEND1R_CHAIN_INPUT, "Send 1 R Chain In");
         configInput(SEND2_CHAIN_INPUT,  "Send 2 L Chain In");
@@ -120,8 +126,8 @@ struct Mix2ch : Module {
         configInput(RETURN2_L_INPUT, "Return 2 L");
         configInput(RETURN2_R_INPUT, "Return 2 R");
 
-        configOutput(CHAIN_L_OUTPUT, "Chain L Out");
-        configOutput(CHAIN_R_OUTPUT, "Chain R Out");
+        configOutput(CHAIN_L_OUTPUT, "Audio Out L");
+        configOutput(CHAIN_R_OUTPUT, "Audio Out R");
         configOutput(SEND1_CHAIN_OUTPUT,  "Send 1 L Chain Out");
         configOutput(SEND1R_CHAIN_OUTPUT, "Send 1 R Chain Out");
         configOutput(SEND2_CHAIN_OUTPUT,  "Send 2 L Chain Out");
@@ -241,6 +247,19 @@ struct Mix2ch : Module {
         float ret1R = inputs[RETURN1_R_INPUT].isConnected() ? inputs[RETURN1_R_INPUT].getVoltage() : ret1L;
         float ret2L = inputs[RETURN2_L_INPUT].getVoltage();
         float ret2R = inputs[RETURN2_R_INPUT].isConnected() ? inputs[RETURN2_R_INPUT].getVoltage() : ret2L;
+
+        bool mute1 = params[CH1_MUTE_PARAM].getValue() > 0.5f;
+        bool mute2 = params[CH2_MUTE_PARAM].getValue() > 0.5f;
+        // FX return schalen op basis van send niveau per kanaal
+        float ch1send1 = mute1 ? 0.f : params[CH1_SEND1_PARAM].getValue();
+        float ch2send1 = mute2 ? 0.f : params[CH2_SEND1_PARAM].getValue();
+        float fx1scale = std::max(ch1send1, ch2send1);
+        ret1L *= fx1scale; ret1R *= fx1scale;
+
+        float ch1send2 = mute1 ? 0.f : params[CH1_SEND2_PARAM].getValue();
+        float ch2send2 = mute2 ? 0.f : params[CH2_SEND2_PARAM].getValue();
+        float fx2scale = std::max(ch1send2, ch2send2);
+        ret2L *= fx2scale; ret2R *= fx2scale;
 
         outputs[CHAIN_L_OUTPUT].setVoltage(mix1L + mix2L + chainInL + ret1L + ret2L);
         outputs[CHAIN_R_OUTPUT].setVoltage(mix1R + mix2R + chainInR + ret1R + ret2R);
@@ -392,7 +411,22 @@ struct Mix2chWidget : ModuleWidget {
             vu->channel = 1;
             addChild(vu);
         }
-        }
+
+        // Clip LEDs
+        addChild(createLightCentered<SmallLight<RedLight>>(mm2px(Vec(30.28f, 20.91f)), module, Mix2ch::CH1_CLIP_LIGHT));
+        addChild(createLightCentered<SmallLight<RedLight>>(mm2px(Vec(77.70f, 20.91f)), module, Mix2ch::CH2_CLIP_LIGHT));
+    }
+
+    void appendContextMenu(Menu* menu) override {
+        menu->addChild(new MenuSeparator);
+        menu->addChild(createMenuItem("submitaudio.nl", "", []() {
+            system::openBrowser(SUBMIT_URL);
+        }));
+        menu->addChild(createMenuItem("Report a Bug", "", []() {
+            system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
+        }));
+    }
 };
+
 
 Model* modelChain = createModel<Mix2ch, Mix2chWidget>("Chain");

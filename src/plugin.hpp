@@ -1,4 +1,7 @@
 #pragma once
+
+#define SUBMIT_URL "https://submitaudio.nl"
+
 #include <rack.hpp>
 
 
@@ -16,3 +19,5 @@ extern Model* modelImpact;
 extern Model* modelChain;
 
 extern Model* modelSqueeze;
+extern Model* modelShape;
+extern Model* modelMaster;
