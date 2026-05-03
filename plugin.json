@@ -78,6 +78,27 @@
         "Dynamics",
         "Effect"
       ]
+    },
+    {
+      "slug": "Poly008",
+      "name": "Poly 008",
+      "description": "4-voice paraphonic DCO+VCF synth, Korg Poly-800 inspired",
+      "tags": [
+        "Polyphonic",
+        "Oscillator",
+        "Filter",
+        "Envelope",
+        "Synthesizer"
+      ]
+    },
+    {
+      "slug": "twiN",
+      "name": "twiN",
+      "description": "Dual-head sample player with scan",
+      "tags": [
+        "Sampler",
+        "Looper"
+      ]
     }
   ]
 }
