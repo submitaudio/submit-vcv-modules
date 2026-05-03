@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="380" viewBox="0 0 420 380">
+
+  <!-- Achtergrond -->
+  <rect x="0" y="0" width="420" height="380" fill="#1a1a1a"/>
+
+  <!-- I/O zone onderaan -->
+  <rect x="0" y="338" width="420" height="42" fill="#141414"/>
+  <line x1="0" y1="338" x2="420" y2="338" stroke="#ffd700" stroke-width="0.8"/>
+
+  <!-- Golvende lijnen header -->
+  <path d="M-5 22 Q30 14 60 22 Q90 30 120 22 Q150 14 180 22 Q210 30 240 22 Q270 14 300 22 Q330 30 360 22 Q390 14 420 22"
+        fill="none" stroke="#ffd700" stroke-width="1.2" opacity="0.9"/>
+  <path d="M-5 27 Q30 19 60 27 Q90 35 120 27 Q150 19 180 27 Q210 35 240 27 Q270 19 300 27 Q330 35 360 27 Q390 19 420 27"
+        fill="none" stroke="#ffd700" stroke-width="0.6" opacity="0.5"/>
+
+  <!-- Module naam -->
+  <text x="210" y="13" text-anchor="middle"
+        font-family="Georgia, serif" font-size="15" font-weight="bold" font-style="italic"
+        fill="#ffd700" letter-spacing="2">twiN</text>
+
+  <!-- Screws -->
+  <circle cx="10" cy="10" r="5" fill="#3a3a3a" stroke="#555" stroke-width="0.8"/>
+  <circle cx="410" cy="10" r="5" fill="#3a3a3a" stroke="#555" stroke-width="0.8"/>
+  <circle cx="10" cy="370" r="5" fill="#3a3a3a" stroke="#555" stroke-width="0.8"/>
+  <circle cx="410" cy="370" r="5" fill="#3a3a3a" stroke="#555" stroke-width="0.8"/>
+
+  <!-- Display area (placeholder) -->
+  <rect x="11" y="30" width="506" height="143" rx="2" fill="#0a0a0a" stroke="#ffd700" stroke-width="0.6" opacity="0.4"/>
+  <text x="210" y="105" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#333">load sample via right-click</text>
+
+  <!-- HEAD 1 sectie label -->
+  <text x="12" y="190" font-family="Arial,sans-serif" font-size="7" fill="#ffd700" font-weight="bold" letter-spacing="1">HEAD 1</text>
+  <line x1="52" y1="187" x2="200" y2="187" stroke="#ffd700" stroke-width="0.5" opacity="0.6"/>
+
+  <!-- HEAD 1 knob labels -->
+  <text x="68" y="197" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#aaa">POS</text>
+  <text x="136" y="197" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#aaa">SPEED</text>
+  <text x="204" y="197" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#aaa">PITCH</text>
+  <text x="272" y="197" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#aaa">VOL</text>
+
+  <!-- HEAD 2 sectie label -->
+  <text x="12" y="230" font-family="Arial,sans-serif" font-size="7" fill="#ffffff" font-weight="bold" letter-spacing="1">HEAD 2</text>
+  <line x1="52" y1="227" x2="200" y2="227" stroke="#ffffff" stroke-width="0.5" opacity="0.4"/>
+
+  <!-- HEAD 2 knob labels -->
+  <text x="68" y="237" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#aaa">POS</text>
+  <text x="136" y="237" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#aaa">SPEED</text>
+  <text x="204" y="237" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#aaa">PITCH</text>
+  <text x="272" y="237" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#aaa">VOL</text>
+
+  <!-- GLOBAL sectie label -->
+  <text x="340" y="190" font-family="Arial,sans-serif" font-size="7" fill="#ffd700" font-weight="bold" letter-spacing="1">GLOBAL</text>
+  <text x="362" y="210" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#aaa">SCAN</text>
+  <text x="430" y="210" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#aaa">SIZE</text>
+  <text x="362" y="250" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#aaa">XFADE</text>
+  <text x="430" y="250" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#aaa">LOOP</text>
+
+  <!-- CV inputs labels -->
+  <text x="12" y="268" font-family="Arial,sans-serif" font-size="7" fill="#ffd700" font-weight="bold" letter-spacing="1">CV</text>
+  <text x="68" y="278" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#888">GATE</text>
+  <text x="136" y="278" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#888">CLK</text>
+  <text x="204" y="278" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#888">SCAN</text>
+  <text x="272" y="278" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#888">POS1</text>
+  <text x="340" y="278" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#888">POS2</text>
+
+  <!-- I/O zone labels -->
+  <text x="68" y="349" text-anchor="middle" font-family="Arial,sans-serif" font-size="5.5" fill="#ffd700">H1 L</text>
+  <text x="113" y="349" text-anchor="middle" font-family="Arial,sans-serif" font-size="5.5" fill="#ffd700">H1 R</text>
+  <text x="204" y="349" text-anchor="middle" font-family="Arial,sans-serif" font-size="5.5" fill="#ffffff">H2 L</text>
+  <text x="249" y="349" text-anchor="middle" font-family="Arial,sans-serif" font-size="5.5" fill="#ffffff">H2 R</text>
+  <text x="408" y="349" text-anchor="middle" font-family="Arial,sans-serif" font-size="5.5" fill="#ffd700">OUT L</text>
+  <text x="453" y="349" text-anchor="middle" font-family="Arial,sans-serif" font-size="5.5" fill="#ffd700">OUT R</text>
+
+  <!-- Submit logo -->
+  <text x="408" y="13" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" fill="#555">submit</text>
+
+</svg>
