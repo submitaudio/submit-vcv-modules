@@ -14,10 +14,6 @@ A complete live performance toolkit for VCV Rack — 9 modules designed to work 
 **Gain** — Line level booster with soft clip and FX send
 **Sweep** — DJ filter with LP/HP sweep, resonance and momentary reset
 
-## The Submit Chain
-
-Chain, Squeeze, Shape, Master, Gain and Sweep are designed to work together as a complete mixing and mastering signal chain. Connect them via the CHAIN jacks for a seamless workflow.
-
 ## Download
 
 [Latest release](https://github.com/submitaudio/submit-vcv-modules/releases/latest)
