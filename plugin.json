@@ -80,24 +80,13 @@
       ]
     },
     {
-      "slug": "Poly008",
-      "name": "Poly 008",
-      "description": "4-voice paraphonic DCO+VCF synth, Korg Poly-800 inspired",
+      "slug": "Gain",
+      "name": "Gain",
+      "description": "Line level booster with soft clip, FX send and chain",
       "tags": [
-        "Polyphonic",
-        "Oscillator",
-        "Filter",
-        "Envelope",
-        "Synthesizer"
-      ]
-    },
-    {
-      "slug": "twiN",
-      "name": "twiN",
-      "description": "Dual-head sample player with scan",
-      "tags": [
-        "Sampler",
-        "Looper"
+        "Mixer",
+        "Amplifier",
+        "Utility"
       ]
     }
   ]
