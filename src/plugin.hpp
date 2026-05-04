@@ -22,3 +22,4 @@ extern Model* modelSqueeze;
 extern Model* modelShape;
 extern Model* modelMaster;
 extern Model* modelGain;
+extern Model* modelSweep;

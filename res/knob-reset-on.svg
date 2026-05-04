@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Laag_2" data-name="Laag 2" xmlns="http://www.w3.org/2000/svg" width="37.693" height="37.244" viewBox="0 0 37.693 37.244">
+  <g id="Typo">
+    <path d="M4.29,0h29.111c2.369,0,4.292,1.923,4.292,4.292v28.66c0,2.369-1.923,4.292-4.292,4.292H4.292c-2.369,0-4.292-1.923-4.292-4.292V4.29C0,1.922,1.922,0,4.29,0Z" fill="#191919"/>
+    <path d="M6.967,2.984h23.763c2.196,0,3.978,1.783,3.978,3.978v23.314c0,2.197-1.784,3.98-3.98,3.98H6.967c-2.197,0-3.98-1.784-3.98-3.98V6.965c0-2.197,1.784-3.98,3.98-3.98Z" fill="#707000"/>
+    <path d="M9.614,7.509h18.465c1.561,0,2.828,1.267,2.828,2.828v16.57c0,1.562-1.268,2.83-2.83,2.83H9.611c-1.561,0-2.828-1.267-2.828-2.828V10.339c0-1.562,1.268-2.83,2.83-2.83Z" fill="#ff0"/>
+    <g>
+      <g>
+        <g>
+          <line x1="25.518" y1="16.583" x2="27.579" y2="16.583" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          <line x1="26.544" y1="16.702" x2="26.544" y2="20.314" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+        </g>
+        <path d="M19.876,16.966s-.67-.563-1.459-.325c-.725.218-.826,1.054-.302,1.396,0,0,.515.23,1.086.44,1.374.507.782,1.836-.324,1.836-.554,0-1.019-.243-1.3-.553" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+        <g>
+          <polyline points="15.71 16.583 14.138 16.583 14.138 20.314 15.71 20.314" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          <line x1="15.594" y1="18.449" x2="14.138" y2="18.449" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+        </g>
+        <g>
+          <polyline points="23.564 16.583 21.992 16.583 21.992 20.314 23.564 20.314" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          <line x1="23.448" y1="18.449" x2="21.992" y2="18.449" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+        </g>
+        <g>
+          <line x1="10.566" y1="18.533" x2="12.134" y2="20.314" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          <line x1="10.116" y1="16.583" x2="10.116" y2="20.314" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+          <path d="M12.134,17.553c0,.536-.47.97-1.025.97-.275,0-.985.004-.985.004,0,0-.004-.704-.004-.974,0-.222-.002-.97-.002-.97h.992c.555,0,1.025.434,1.025.97Z" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+        </g>
+      </g>
+      <g>
+        <path d="M12.11,12.895c1.601-1.941,4.025-3.177,6.738-3.177s5.136,1.237,6.738,3.177" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+        <line x1="25.585" y1="12.895" x2="25.585" y2="10.813" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+        <line x1="25.585" y1="12.895" x2="23.504" y2="12.895" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+      </g>
+      <g>
+        <path d="M25.503,24.003c-1.601,1.941-4.025,3.177-6.738,3.177s-5.136-1.237-6.738-3.177" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+        <line x1="12.028" y1="24.003" x2="12.028" y2="26.084" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+        <line x1="12.028" y1="24.003" x2="14.109" y2="24.003" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"/>
+      </g>
+    </g>
+  </g>
+</svg>

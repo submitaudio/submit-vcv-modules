@@ -1,7 +1,7 @@
 {
   "slug": "Submit",
   "name": "Submit",
-  "version": "2.12.1",
+  "version": "2.13.0",
   "license": "proprietary",
   "brand": "Submit",
   "author": "Juan Jos\u00e9",
@@ -76,6 +76,25 @@
       "description": "Warm master bus processor",
       "tags": [
         "Dynamics",
+        "Effect"
+      ]
+    },
+    {
+      "slug": "Gain",
+      "name": "Gain",
+      "description": "Line level booster with soft clip, FX send and chain",
+      "tags": [
+        "Mixer",
+        "Amplifier",
+        "Utility"
+      ]
+    },
+    {
+      "slug": "Sweep",
+      "name": "Sweep",
+      "description": "DJ filter with low pass, high pass, resonance and sweep reset",
+      "tags": [
+        "Filter",
         "Effect"
       ]
     }

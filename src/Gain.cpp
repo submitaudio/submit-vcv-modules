@@ -257,7 +257,7 @@ struct GainWidget : ModuleWidget {
         addParam(createParamCentered<GainKnobSmall>(mm2px(Vec(11.31f, 31.61f)), module, GainModule::SEND1_PARAM));
 
         // Fader
-        addParam(createParam<GainSlider>(mm2px(Vec(19.70f, 20.00f)), module, GainModule::VOL_PARAM));
+        addParam(createParam<GainSlider>(mm2px(Vec(25.76f, 26.61f)), module, GainModule::VOL_PARAM));
 
         // Mute knop + CV
         addParam(createParamCentered<GainMuteButton>(mm2px(Vec(37.48f, 78.59f)), module, GainModule::MUTE_PARAM));
