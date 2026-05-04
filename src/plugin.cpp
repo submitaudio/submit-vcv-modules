@@ -15,5 +15,7 @@ void init(Plugin* p) {
 	p->addModel(modelShape);
 	p->addModel(modelMaster);
 	p->addModel(modelGain);
+	p->addModel(modelPoly008);
+	p->addModel(modelTwiN);
 	pluginInstance = p;
 }

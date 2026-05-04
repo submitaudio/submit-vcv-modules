@@ -1,7 +1,7 @@
 {
   "slug": "Submit",
   "name": "Submit",
-  "version": "2.12.0",
+  "version": "2.12.1",
   "license": "proprietary",
   "brand": "Submit",
   "author": "Juan Jos\u00e9",
@@ -80,13 +80,24 @@
       ]
     },
     {
-      "slug": "Gain",
-      "name": "Gain",
-      "description": "Line level booster with soft clip, FX send and chain",
+      "slug": "Poly008",
+      "name": "Poly 008",
+      "description": "4-voice paraphonic DCO+VCF synth, Korg Poly-800 inspired",
       "tags": [
-        "Mixer",
-        "Amplifier",
-        "Utility"
+        "Polyphonic",
+        "Oscillator",
+        "Filter",
+        "Envelope",
+        "Synthesizer"
+      ]
+    },
+    {
+      "slug": "twiN",
+      "name": "twiN",
+      "description": "Dual-head sample player with scan",
+      "tags": [
+        "Sampler",
+        "Looper"
       ]
     }
   ]
