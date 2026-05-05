@@ -22,3 +22,7 @@ A complete live performance toolkit for VCV Rack - 9 modules designed to work to
 
 - [submitaudio.nl](https://www.submitaudio.nl)
 - [Report a bug](https://github.com/submitaudio/submit-vcv-modules/issues)
+
+## License
+
+GPL-3.0 — see [LICENSE](LICENSE)
