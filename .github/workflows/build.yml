@@ -2,9 +2,8 @@ name: Build VCV Rack Plugin
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    tags:
+      - 'v*'
 
 env:
   rack-sdk-version: latest
