@@ -2,6 +2,8 @@
 
 A complete live performance toolkit for VCV Rack - 9 modules designed to work together.
 
+![Submit Modules](docs/modules.png)
+
 ## Modules
 
 **Drift** - Analog voice with DCO, wavefolder, slope generator and contour envelope
