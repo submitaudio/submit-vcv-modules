@@ -99,8 +99,8 @@ jobs:
         run: |
           gh release create "v${{ steps.version.outputs.version }}" \
             --title "Submit v${{ steps.version.outputs.version }}" \
-            --prerelease \
-            --notes "Automated beta release" \
+            --latest \
+            --notes "Submit plugin for VCV Rack 2" \
             artifacts/**/*.vcvplugin
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
