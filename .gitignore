@@ -16,3 +16,6 @@ src/dr_wav.h
 res/Poly008.svg
 res/twiN.svg
 src/Drift13.cpp.backup_sustain
+src/Reel.cpp
+res/Reel.svg
+src/dr_wav.h
