@@ -5,6 +5,9 @@
 #include <cmath>
 #include <algorithm>
 
+#ifndef DR_WAV_IMPLEMENTATION
+#define DR_WAV_IMPLEMENTATION
+#endif
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h"
 
