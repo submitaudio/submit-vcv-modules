@@ -16,7 +16,6 @@ void init(Plugin* p) {
 	p->addModel(modelMaster);
 	p->addModel(modelGain);
 	p->addModel(modelSweep);
-	p->addModel(modelTwin);
 	p->addModel(modelLoop);
 	pluginInstance = p;
 }
