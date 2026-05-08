@@ -16,8 +16,6 @@ src/dr_wav.h
 res/Poly008.svg
 res/twiN.svg
 src/Drift13.cpp.backup_sustain
-src/Loop.cpp
-res/Loop.svg
 src/dr_wav.h
 scripts/
 src/Clang.cpp
