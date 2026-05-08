@@ -11,9 +11,9 @@
 /dep
 /dist
 src/Poly008.cpp
-src/twiN.cpp
+src/Twin.cpp
 res/Poly008.svg
-res/twiN.svg
+res/Twin.svg
 src/Drift13.cpp.backup_sustain
 scripts/
 src/Clang.cpp
