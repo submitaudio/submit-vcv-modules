@@ -53,6 +53,8 @@ jobs:
           pushd $HOME
           wget -O Rack-SDK.zip https://vcvrack.com/downloads/${{ matrix.sdk }}
           unzip -o Rack-SDK.zip
+          echo '=== SDK arch ==='
+          file $HOME/Rack-SDK/libRack.dylib
       - name: Build plugin
         run: |
           export RACK_DIR=$HOME/Rack-SDK
