@@ -53,9 +53,6 @@ jobs:
           pushd $HOME
           wget -O Rack-SDK.zip https://vcvrack.com/downloads/${{ matrix.sdk }}
           unzip -o Rack-SDK.zip
-          SDK_DIR=$(unzip -Z1 Rack-SDK.zip | head -1 | cut -d/ -f1)
-          rm -rf Rack-SDK
-          mv "$SDK_DIR" Rack-SDK
       - name: Build plugin
         run: |
           export RACK_DIR=$HOME/Rack-SDK
