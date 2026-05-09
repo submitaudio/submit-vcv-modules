@@ -41,13 +41,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [arm64]
+        include:
+          - platform: arm64
+            sdk: Rack-SDK-2.6.6-mac-arm64.zip
+          - platform: x64
+            sdk: Rack-SDK-2.6.6-mac-x64.zip
     steps:
       - uses: actions/checkout@v4
       - name: Get Rack-SDK
         run: |
           pushd $HOME
-          wget -O Rack-SDK.zip https://vcvrack.com/downloads/Rack-SDK-2.6.6-mac-arm64.zip
+          wget -O Rack-SDK.zip https://vcvrack.com/downloads/${{ matrix.sdk }}
           unzip Rack-SDK.zip
           mv Rack-SDK-* Rack-SDK || true
       - name: Build plugin
