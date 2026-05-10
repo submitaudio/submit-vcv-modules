@@ -352,15 +352,19 @@ Sweep is a state variable filter with simultaneous low pass, band pass, and high
 
 Loop is a sample loop player with a built-in waveform display. It loads WAV files into RAM for glitch-free playback, with full control over tempo, loop length, playback position, and direction.
 
+What makes it interesting is that it automatically reads the BPM from the filename of your WAV file (e.g. 120bpm-myloop.wav) and calculates the bar length from there. When you plug in a clock, it adjusts the playback speed to stay perfectly in sync — no manual BPM entry needed.
+
+For live use it has a CUE/LIVE switch with fade in and out, so you can preview a sample on your headphones before sending it to the main outputs. There is also a bar shift function that lets you jump to a different section of the sample quantized to the end of the loop, so it always lands cleanly on the beat.
+
 The display shows the waveform of the loaded sample with a yellow playhead indicator showing the current position. The filename is shown at the top and BPM/bars information at the bottom.
 
-**BPM auto-detection:** If the filename contains the BPM (e.g. `120bpm-loop.wav` or `loop-120BPM.wav`), Loop will automatically detect and set the tempo.
+**BPM auto-detection:** Loop reads the BPM directly from the filename (e.g. 120bpm-loop.wav). When a clock is connected it adjusts playback speed automatically to stay in sync.
 
-**Bar shift:** Changes the loop start point without changing the loop length. For example, with an 8-bar loop, setting SHIFT to 3 starts playback from bar 3 and loops back to bar 3 — perfect for remixing and rearranging loops.
+**Bar shift:** Changes the loop start point without changing the loop length. With an 8-bar loop, setting SHIFT to 3 starts playback from bar 3 and loops back to bar 3. The transition always happens at the end of the current loop — perfect for live remixing.
 
 **Reverse:** When REV is enabled, Loop waits until the end of the current bar before reversing direction. This keeps the reverse synchronized to the musical grid.
 
-**CUE mode:** When CUE is active, the audio is routed to the CUE output instead of the main outputs. Useful for previewing loops before bringing them into the mix.
+**CUE mode:** Routes audio to the CUE output with a smooth fade. Use it to preview loops on headphones before bringing them into the main mix.
 
 ### Inputs
 | Input | Description |
