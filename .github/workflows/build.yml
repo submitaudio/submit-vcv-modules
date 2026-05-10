@@ -37,7 +37,7 @@ jobs:
 
   build-mac:
     name: mac-${{ matrix.platform }}
-    runs-on: ${{ matrix.runner }}
+    runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
@@ -45,9 +45,6 @@ jobs:
           - platform: arm64
             sdk: Rack-SDK-2.6.6-mac-arm64.zip
             runner: macos-latest
-          - platform: x64
-            sdk: Rack-SDK-2.6.6-mac-x64.zip
-            runner: macos-13
     steps:
       - uses: actions/checkout@v4
       - name: Get Rack-SDK
