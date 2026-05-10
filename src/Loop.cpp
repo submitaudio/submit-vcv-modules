@@ -502,8 +502,8 @@ struct ReelDisplay : Widget {
                 : module->detectedBars;
             snprintf(info, sizeof(info), "%.0f BPM  %.0f bars", module->fileBpm, bars);
             nvgFontSize(args.vg, 10.f);
-            nvgTextAlign(args.vg, NVG_ALIGN_RIGHT | NVG_ALIGN_TOP);
-            nvgText(args.vg, w - 3, 2, info, nullptr);
+            nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_BOTTOM);
+            nvgText(args.vg, 3, h - 2, info, nullptr);
         }
     }
 };
@@ -556,6 +556,9 @@ struct ReelWidget : ModuleWidget {
     void appendContextMenu(Menu* menu) override {
         Reel* module = dynamic_cast<Reel*>(this->module);
         menu->addChild(new MenuSeparator);
+        menu->addChild(createMenuItem("Manual", "", []() {
+            system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/blob/master/MANUAL.md#loop");
+        }));
         menu->addChild(createMenuItem("Load WAV...", "", [=]() {
             char* pathC = osdialog_file(OSDIALOG_OPEN, NULL, NULL, NULL);
             if (pathC) {

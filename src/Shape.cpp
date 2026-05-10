@@ -199,6 +199,9 @@ struct ShapeWidget : ModuleWidget {
 
     void appendContextMenu(Menu* menu) override {
         menu->addChild(new MenuSeparator);
+        menu->addChild(createMenuItem("Manual", "", []() {
+            system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/blob/master/MANUAL.md#shape");
+        }));
         menu->addChild(createMenuItem("submitaudio.nl", "", []() {
             system::openBrowser(SUBMIT_URL);
         }));
