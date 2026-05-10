@@ -32,11 +32,11 @@ A complete live performance toolkit for VCV Rack - 10 modules designed to work t
 
 ## Links
 
-[See Manual](https://github.com/submitaudio/submit-vcv-modules/blob/master/MANUAL.md)
-[See CHANGELOG for details](https://github.com/submitaudio/submit-vcv-modules/blob/master/CHANGELOG.md)
-[Visit submitaudio.nl](https://submitaudio.nl)
-[Licensed under GPL-3.0](https://github.com/submitaudio/submit-vcv-modules/blob/master/LICENSE)
-[Report a bug](https://github.com/submitaudio/submit-vcv-modules/issues)
+- [See Manual](https://github.com/submitaudio/submit-vcv-modules/blob/master/MANUAL.md)
+- [See CHANGELOG for details](https://github.com/submitaudio/submit-vcv-modules/blob/master/CHANGELOG.md)
+- [Visit submitaudio.nl](https://submitaudio.nl)
+- [Licensed under GPL-3.0](https://github.com/submitaudio/submit-vcv-modules/blob/master/LICENSE)
+- [Report a bug](https://github.com/submitaudio/submit-vcv-modules/issues)
 
 ## License
 
