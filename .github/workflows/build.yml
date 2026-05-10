@@ -75,3 +75,26 @@ jobs:
         with:
           files: artifacts/**/*.vcvplugin
           name: Submit ${{ github.ref_name }}
+          body: |
+            ## Submit Audio VCV Rack Plugin ${{ github.ref_name }}
+            
+            ### Modules
+            - Drift — Chaotic oscillator
+            - Chrono — Clock divider/multiplier
+            - Impact — Kick drum synthesizer
+            - Chain — Mixer/router
+            - Squeeze — Compressor
+            - Shape — Waveshaper
+            - Master — Master bus
+            - Gain — VCA
+            - Sweep — Filter
+            - Loop — Sample loop player
+            
+            ### Download
+            Choose the version for your platform:
+            - `mac-arm64` — Apple Silicon (M1/M2/M3/M4)
+            - `win-x64` — Windows
+            - `lin-x64` — Linux
+            
+            ### Changelog
+            See [RELEASE.md](RELEASE.md) for details.
