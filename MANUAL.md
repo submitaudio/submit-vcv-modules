@@ -171,6 +171,7 @@ Each CV input has an attenuverter for precise modulation control. Negative value
 - FOLD adds grit — great for industrial and techno kicks
 - Crunch noise type works well for clicky, transient-heavy kicks
 - Try Harsh mode with high HARM values for metallic, industrial kicks
+- Impact is a stereo module — the noise is spread in stereo, experiment with different noise types to make the kick sound more organic
 
 ---
 
