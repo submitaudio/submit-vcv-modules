@@ -8,7 +8,7 @@
   "authorEmail": "",
   "authorUrl": "",
   "pluginUrl": "",
-  "manualUrl": "",
+  "manualUrl": "https://github.com/submitaudio/submit-vcv-modules/blob/master/MANUAL.md",
   "sourceUrl": "",
   "donateUrl": "",
   "changelogUrl": "",
@@ -29,8 +29,7 @@
       "description": "Tape delay with 6 head combinations and tape character controls",
       "tags": [
         "Delay",
-        "Effect",
-        "Stereo"
+        "Effect"
       ]
     },
     {
@@ -39,8 +38,7 @@
       "description": "Kick drum synthesizer with Pure and Harsh synthesis modes",
       "tags": [
         "Drum",
-        "Synthesizer",
-        "Percussion"
+        "Synthesizer"
       ]
     },
     {
@@ -49,8 +47,7 @@
       "description": "Stereo channel mixer with FX sends and COMP/CV insert",
       "tags": [
         "Mixer",
-        "Utility",
-        "Stereo"
+        "Utility"
       ]
     },
     {
@@ -59,8 +56,7 @@
       "description": "Sidechain envelope generator for Chain COMP/CV",
       "tags": [
         "Envelope generator",
-        "Dynamics",
-        "Utility"
+        "Dynamics"
       ]
     },
     {
@@ -70,7 +66,6 @@
       "tags": [
         "Equalizer",
         "Effect",
-        "Stereo",
         "Filter"
       ]
     },
@@ -80,8 +75,7 @@
       "description": "Master bus processor with level control and limiting",
       "tags": [
         "Utility",
-        "Dynamics",
-        "Stereo"
+        "Dynamics"
       ]
     },
     {
@@ -108,8 +102,7 @@
       "description": "Sample loop player with waveform display and BPM auto-detection",
       "tags": [
         "Sampler",
-        "Effect",
-        "Stereo"
+        "Effect"
       ]
     }
   ]
