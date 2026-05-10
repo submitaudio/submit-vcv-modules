@@ -19,9 +19,8 @@
       "description": "All-in-one voice module \u2014 oscillator, wavefolder, slope and contour",
       "tags": [
         "Oscillator",
-        "Envelope generator",
         "Waveshaper",
-        "Dynamics"
+        "Envelope generator"
       ]
     },
     {
@@ -30,7 +29,8 @@
       "description": "Tape delay with 6 head combinations and tape character controls",
       "tags": [
         "Delay",
-        "Effect"
+        "Effect",
+        "Stereo"
       ]
     },
     {
@@ -39,8 +39,8 @@
       "description": "Kick drum synthesizer with Pure and Harsh synthesis modes",
       "tags": [
         "Drum",
-        "Oscillator",
-        "Envelope"
+        "Synthesizer",
+        "Percussion"
       ]
     },
     {
@@ -49,7 +49,8 @@
       "description": "Stereo channel mixer with FX sends and COMP/CV insert",
       "tags": [
         "Mixer",
-        "Effect"
+        "Utility",
+        "Stereo"
       ]
     },
     {
@@ -57,8 +58,9 @@
       "name": "Squeeze",
       "description": "Sidechain envelope generator for Chain COMP/CV",
       "tags": [
-        "Envelope follower",
-        "Dynamics"
+        "Envelope generator",
+        "Dynamics",
+        "Utility"
       ]
     },
     {
@@ -67,6 +69,8 @@
       "description": "6-band SSL-style stereo equalizer",
       "tags": [
         "Equalizer",
+        "Effect",
+        "Stereo",
         "Filter"
       ]
     },
@@ -75,8 +79,9 @@
       "name": "Master",
       "description": "Master bus processor with level control and limiting",
       "tags": [
+        "Utility",
         "Dynamics",
-        "Effect"
+        "Stereo"
       ]
     },
     {
@@ -84,7 +89,6 @@
       "name": "Gain",
       "description": "Line level booster for iPhone, laptop and external gear",
       "tags": [
-        "Mixer",
         "Amplifier",
         "Utility"
       ]
@@ -104,8 +108,8 @@
       "description": "Sample loop player with waveform display and BPM auto-detection",
       "tags": [
         "Sampler",
-        "Looper",
-        "Clock"
+        "Effect",
+        "Stereo"
       ]
     }
   ]
