@@ -1,3 +1,30 @@
+## The Submit Mixer System
+
+Chain, Squeeze, Gain, Shape, Sweep, and Master are designed to work together as a complete mixing system. Each module has a specific role and they connect to each other in a consistent way.
+
+### Signal Flow
+### How it works
+
+**Chain** is the heart of the system. Each Chain module handles two stereo channels with individual level faders, pan, mute, and two FX sends per channel. You can daisy-chain multiple Chain modules together to build a larger mixer.
+
+**Squeeze** acts as a bus compressor. Because all Chain modules share the same sidechain bus, you only need one Squeeze to control the dynamics of the entire mix. Connect the kick drum or master bus to the sidechain input for pumping compression effects.
+
+**Shape and Sweep** are FX processors that can be shared across multiple Chain modules. Connect one Shape module to the FX send of multiple Chain modules using multiple cables from the same output. This way you get reverb, distortion, or filtering on multiple channels without needing separate FX modules for each channel.
+
+**Gain** is used to boost low-level signals before they enter the Chain. Especially useful when working with the 4ms MetaModule where sample players and external inputs produce lower signal levels.
+
+**Master** sits at the end of the chain and provides final level control with a built-in limiter.
+
+### Example patch
+
+1. Place two Chain modules for 4 stereo channels
+2. Add one Squeeze connected to your kick drum sidechain
+3. Add one Shape as a shared reverb send for all channels
+4. Connect everything to Master
+5. Use Gain before any Chain input that is too quiet
+
+---
+
 # Submit Audio — User Manual
 
 > Submit Audio is a collection of modules for VCV Rack, designed for electronic music production with a focus on quality sound and intuitive workflow.
@@ -263,28 +290,29 @@ Master is a stereo master bus processor designed to sit at the end of your signa
 
 ## Gain
 
-Gain is a simple but essential voltage controlled amplifier (VCA). It controls the amplitude of audio signals using either the knob or a CV input, making it ideal for envelopes, tremolo effects, and general level control.
+Gain is a boost amplifier designed specifically for low-level audio signals. It brings weak signals up to a usable level before feeding them into the mixer chain. This is especially useful on the 4ms MetaModule where sample playback and external inputs can produce signals that are too quiet for the standard mixer level.
+
+Use Gain before Chain when your signal source is too quiet. It is not a VCA and does not have CV control.
 
 ### Inputs
 | Input | Description |
 |-------|-------------|
-| IN | Audio input |
-| CV | Gain control voltage (0-10V) |
+| IN | Low-level audio input |
 
 ### Outputs
 | Output | Description |
 |--------|-------------|
-| OUT | Amplified or attenuated output |
+| OUT | Boosted audio output |
 
 ### Parameters
 | Parameter | Description |
 |-----------|-------------|
-| GAIN | Base gain level |
+| GAIN | Boost amount |
 
 ### Tips
-- Connect an ADSR envelope to the CV input for classic VCA envelopes
-- Use a slow LFO on CV for tremolo effects
-- Stack multiple Gain modules for more complex amplitude shaping
+- Place Gain before Chain when using Loop or other sample players on the MetaModule
+- Use it to match signal levels between different sources
+- Do not use as a VCA as it has no CV input
 
 ---
 
