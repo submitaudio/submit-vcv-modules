@@ -77,35 +77,45 @@ The chaos parameter controls how much the oscillator deviates from its base freq
 
 ## Chrono
 
-Chrono is a versatile clock divider and multiplier. It takes an incoming clock signal and generates multiple divided and multiplied versions, making it essential for polyrhythmic patterns and complex rhythmic structures.
+Chrono is a tape delay inspired by classic tape echoes, focused on movement and character. It brings the warmth, imperfection and rhythmic flexibility of vintage tape machines into your modular setup.
 
-A unique SURGE feature allows you to temporarily double the clock speed, adding rhythmic interest and variation to your patterns. The BREAK feature can stop specific outputs for fill effects.
+Six tape head combinations give you a wide range of rhythmic echo patterns. The TAPE control adds authentic tape character ranging from subtle hiss to wow and flutter with dropouts. DRIVE adds tape-style saturation for warmth and grit. SURGE freezes and blooms the delay for dramatic build-ups, while BREAK creates a tape stop effect that slows and stops the echoes.
+
+Clock sync with divisions and head offset keeps everything locked to your tempo. Stereo spread widens the delay image, and full CV and gate control lets you automate everything in your patch.
 
 ### Inputs
 | Input | Description |
 |-------|-------------|
-| CLK | Master clock input |
-| RESET | Reset all divisions to start |
+| IN L | Left stereo input |
+| IN R | Right stereo input |
+| CLK | Clock input for sync |
+| SURGE | Freeze and bloom trigger |
+| BREAK | Tape stop trigger |
 
 ### Outputs
 | Output | Description |
 |--------|-------------|
-| /2 | Clock divided by 2 |
-| /4 | Clock divided by 4 |
-| /8 | Clock divided by 8 |
-| /16 | Clock divided by 16 |
-| x2 | Clock multiplied by 2 |
+| OUT L | Left stereo output |
+| OUT R | Right stereo output |
 
 ### Parameters
 | Parameter | Description |
 |-----------|-------------|
-| SURGE | Temporarily doubles clock speed |
-| BREAK | Temporarily stops selected outputs |
+| TIME | Delay time |
+| MIX | Dry/wet mix |
+| DRIVE | Tape saturation amount |
+| TAPE | Tape character: hiss, wow, flutter and dropouts |
+| HEADS | Tape head combination selector (6 rhythmic variations) |
+| SPREAD | Stereo spread of the delay taps |
+| SURGE | Freeze and bloom the delay |
+| BREAK | Tape stop effect |
 
 ### Tips
-- Connect /4 to your kick and /8 to your hi-hat for classic drum patterns
-- Use SURGE for build-ups and drops
-- RESET at the start of a bar keeps everything tight and in sync
+- Use CLK sync for tight rhythmic delays locked to your sequencer
+- TAPE adds life and movement — even small amounts make a difference
+- SURGE is great for build-ups and transitions
+- BREAK creates dramatic tape stop effects for drops and fills
+- Combine different HEAD settings with SPREAD for wide stereo echoes
 
 ---
 
