@@ -83,14 +83,14 @@ jobs:
             ## Submit Audio VCV Rack Plugin ${{ github.ref_name }}
             
             ### Modules
-            - Drift — Chaotic oscillator
-            - Chrono — Clock divider/multiplier
+            - Drift — All-in-one voice module
+            - Chrono — Tape delay
             - Impact — Kick drum synthesizer
-            - Chain — Mixer/router
-            - Squeeze — Compressor
-            - Shape — Waveshaper
-            - Master — Master bus
-            - Gain — VCA
+            - Chain — Stereo channel mixer
+            - Squeeze — Sidechain envelope generator
+            - Shape — 6-band SSL-style EQ
+            - Master — Master bus processor
+            - Gain — Line level booster
             - Sweep — Filter
             - Loop — Sample loop player
             
