@@ -556,6 +556,9 @@ struct ReelWidget : ModuleWidget {
     void appendContextMenu(Menu* menu) override {
         Reel* module = dynamic_cast<Reel*>(this->module);
         menu->addChild(new MenuSeparator);
+        menu->addChild(createMenuItem("submitaudio.nl", "", []() {
+            system::openBrowser(SUBMIT_URL);
+        }));
         menu->addChild(createMenuItem("Manual", "", []() {
             system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/blob/master/MANUAL.md#loop");
         }));
