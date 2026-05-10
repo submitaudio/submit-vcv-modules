@@ -3,7 +3,6 @@
 ## v2.15.0 — May 2026
 - Impact: click/tick on retrigger fixed
 - Impact: block-size timing issues resolved for MetaModule
-- Loop: waveform display added
 - Loop: reverse playback synchronized to bar boundary
 - Manual added
 - macOS Apple Silicon build included
