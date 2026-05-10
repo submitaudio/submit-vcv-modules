@@ -236,33 +236,35 @@ The input is auto-detected: connect a gate for precise triggering or an audio si
 
 ## Shape
 
-Shape is a waveshaper and distortion module that adds harmonic content and character to audio signals. From subtle saturation to extreme distortion, Shape can dramatically alter the timbre of any sound.
+Shape is a 6-band stereo equalizer based on the classic SSL console EQ. It covers the full frequency spectrum with high pass, low shelf, two parametric mid bands, high shelf and low pass.
 
 ### Inputs
 | Input | Description |
 |-------|-------------|
-| IN | Audio input |
-| CV | Waveshaper amount CV |
+| IN L | Left stereo input |
+| IN R | Right stereo input |
 
 ### Outputs
 | Output | Description |
 |--------|-------------|
-| OUT | Shaped audio output |
+| OUT L | Left stereo output |
+| OUT R | Right stereo output |
 
 ### Parameters
 | Parameter | Description |
 |-----------|-------------|
-| SHAPE | Waveshaper curve — controls the type and amount of distortion |
-| DRIVE | Input drive — boosts the signal before shaping |
-| MIX | Dry/wet mix between clean and shaped signal |
+| HIGH PASS | High pass filter cutoff frequency |
+| LOW SHELF | Low frequency shelf boost/cut in dB |
+| LOW MID | Low mid parametric band boost/cut |
+| HIGH MID | High mid parametric band boost/cut |
+| HIGH SHELF | High frequency shelf boost/cut in dB |
+| LOW PASS | Low pass filter cutoff frequency |
 
 ### Tips
-- Low SHAPE with high DRIVE gives warm saturation
-- High SHAPE values create aggressive, clipping distortion
-- Use MIX to blend in just the right amount of harmonic content
-- Great on drums, basses, and synths for adding grit and presence
-
----
+- Use HIGH PASS to remove low frequency rumble from pads and synths
+- Boost HIGH SHELF for air and presence on vocals and leads
+- Cut LOW MID around 300-500 Hz to reduce muddiness in a dense mix
+- Place Shape after Chain for bus EQ on your mix
 
 ## Master
 
