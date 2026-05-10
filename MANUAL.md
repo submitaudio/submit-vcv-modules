@@ -72,6 +72,7 @@ The chaos parameter controls how much the oscillator deviates from its base freq
 - Use a slow LFO on the CHAOS input for evolving, organic textures
 - Low CHAOS settings work great for classic oscillator sounds
 - SYNC input can be used to lock Drift to another oscillator
+- Enable the slope and set it to self-oscillate — play with Fall and Time for evolving textures
 
 ---
 
