@@ -290,9 +290,7 @@ Master is a stereo master bus processor designed to sit at the end of your signa
 
 ## Gain
 
-Gain is a boost amplifier designed specifically for low-level audio signals. It brings weak signals up to a usable level before feeding them into the mixer chain. This is especially useful on the 4ms MetaModule where sample playback and external inputs can produce signals that are too quiet for the standard mixer level.
-
-Use Gain before Chain when your signal source is too quiet. It is not a VCA and does not have CV control.
+Gain is a line level booster designed to bring iPhone, laptop and external gear up to modular level. Especially useful on the 4ms MetaModule where external inputs and sample players produce signals that are too quiet for the standard mixer level. Features soft clipping to prevent harsh distortion and an FX send for routing to effects processors.
 
 ### Inputs
 | Input | Description |
