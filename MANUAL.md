@@ -16,7 +16,7 @@ Chain, Squeeze, Shape and Master are designed to work together as a complete mix
 ### Example patch
 
 1. Place two Chain modules for 4 stereo channels
-2. Add one Squeeze connected to your kick drum for sidechain compression
+2. Add one Squeeze connected to your kick drum or gate for sidechain compression
 3. Add one Shape as a shared FX send for all channels
 4. Connect everything to Master
 5. Use Gain before any Chain input that is too quiet
