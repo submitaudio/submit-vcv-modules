@@ -94,8 +94,8 @@ struct Impact : Module {
     float fmPhase[3]  = {};
     float modPhase[3] = {};
 
-    float lpfL = 0.f;
-    float lpfR = 0.f;
+    float dcX = 0.f;
+    float dcY = 0.f;
 
     float pinkB0     = 0.f;
     float pinkB1     = 0.f;
@@ -229,9 +229,10 @@ struct Impact : Module {
         return y / (1.f + amount * 1.5f);
     }
 
-    float lpfProcess(float x, float& state) {
-        state += 0.08f * (x - state);
-        return state;
+    float dcBlock(float x) {
+        dcY = x - dcX + 0.9995f * dcY;
+        dcX = x;
+        return dcY;
     }
 
     void process(const ProcessArgs& args) override {
@@ -244,17 +245,7 @@ struct Impact : Module {
         if (trigIn.process(trigVoltage, 0.1f, 2.f)) {
             // Sla ACC niveau op bij trigger moment
             accLevel = (inputs[ACC_INPUT].isConnected() && inputs[ACC_INPUT].getVoltage() > 1.f) ? 1.5f : 1.f;
-            waitZero = false;
-            active = true;
-            t = 0.f;
-            for (int i = 0; i < 6; i++) phase[i] = 0.f;
-            for (int i = 0; i < 3; i++) { fmPhase[i] = 0.f; modPhase[i] = 0.f; }
-            lpfL = 0.f;
-            lpfR = 0.f;
-            dustLen = dustGap = dustAmp = 0.f;
-            dustLenR = dustGapR = dustAmpR = 0.f;
-            foldNoisePrev = foldNoisePrevR = 0.f;
-            staticLfo = staticLfoR = staticPink = staticPinkR = 0.f;
+            waitZero = true;
             pinkB0 = pinkB1 = pinkB2 = 0.f;
             noisePrev = 0.f;
             pinkB0R = pinkB1R = pinkB2R = noisePrevR = 0.f;
@@ -290,6 +281,19 @@ struct Impact : Module {
         if (phase[0] >= 1.f) phase[0] -= 1.f;
         float osc0now = morphWave(phase[0], morphKnob);
 
+        if (waitZero) {
+            if (prevOsc0 <= 0.f && osc0now > 0.f) {
+                waitZero = false;
+                active   = true;
+                t        = 0.f;
+                for (int i = 1; i < NUM_OSC; i++)
+                    phase[i] = phase[0] / (float)(i + 1);
+                for (int i = 0; i < 3; i++) {
+                    fmPhase[i]  = 0.f;
+                    modPhase[i] = 0.f;
+                }
+            }
+        }
         prevOsc0 = osc0now;
 
         if (active) {
@@ -411,10 +415,11 @@ struct Impact : Module {
 
             t += args.sampleTime;
             if (t > 10.f) { active = false; }
+
             // Smooth accLevel — voorkomt tikken bij overgang
-            accSmooth = accLevel;
-            float accentBodyL = lpfProcess(bodyOut * accSmooth + noiseOut, lpfL);
-            float accentBodyR = lpfProcess(bodyOut * accSmooth + noiseOutR, lpfR);
+            accSmooth += 0.001f * (accLevel - accSmooth);
+            float accentBodyL = dcBlock(bodyOut * accSmooth + noiseOut);
+            float accentBodyR = dcBlock(bodyOut * accSmooth + noiseOutR);
             outputs[OUT_L_OUTPUT].setVoltage(clamp(accentBodyL * 5.f, -10.f, 10.f));
             outputs[OUT_R_OUTPUT].setVoltage(clamp(accentBodyR * 5.f, -10.f, 10.f));
         }
