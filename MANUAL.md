@@ -47,9 +47,7 @@ Chain, Squeeze, Gain, Shape, Sweep, and Master are designed to work together as 
 
 ## Drift
 
-**Voice Module** — A compact all-in-one voice combining oscillator, wavefolder, slope and contour. Inspired by the Make Noise 0-Coast, but designed with its own character and behaviour — not a clone.
-
-Drift is a chaotic oscillator inspired by strange attractors and nonlinear dynamics. It generates complex, evolving waveforms that are never exactly the same twice, making it ideal for organic leads, drones, and experimental textures.
+Drift is a compact all-in-one voice module combining oscillator, wavefolder, slope and contour. Inspired by the Make Noise 0-Coast, but designed with its own character and behaviour — not a clone. It generates complex, evolving waveforms that are never exactly the same twice, making it ideal for organic leads, drones, and experimental textures.
 
 The chaos parameter controls how much the oscillator deviates from its base frequency — at low settings it behaves like a regular oscillator, at high settings it produces unpredictable, glitchy sounds. The morph parameter smoothly transitions between sine, triangle, saw and square waveforms.
 
