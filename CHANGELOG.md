@@ -4,7 +4,6 @@
 - Impact: click/tick on retrigger fixed
 - Impact: block-size timing issues resolved for MetaModule
 - Loop: waveform display added
-- Loop: RAM-based playback on MetaModule for better performance
 - Loop: reverse playback synchronized to bar boundary
 - Manual added
 - macOS Apple Silicon build included
