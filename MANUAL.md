@@ -19,7 +19,7 @@ Chain, Squeeze, Shape and Master are designed to work together as a complete mix
 2. Add one Squeeze connected to your kick drum or gate for sidechain compression
 3. Add one Shape as a shared FX send for all channels
 4. Connect everything to Master
-5. Use Gain before any Chain input that is too quiet
+5. Use Gain when a signal is too low — specially made for the MetaModule
 
 ---
 
