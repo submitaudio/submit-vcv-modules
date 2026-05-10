@@ -1,25 +1,23 @@
 ## The Submit Mixer System
 
-Chain, Squeeze, Gain, Shape, Sweep, and Master are designed to work together as a complete mixing system. Each module has a specific role and they connect to each other in a consistent way.
+Chain, Squeeze, Shape and Master are designed to work together as a complete mixing and mastering signal chain. Connect them via the CHAIN jacks for a seamless workflow — from individual channel mixing to final master output.
+
+**Chain** handles your stereo channels with pre gain, HPF and FX sends. You can daisy-chain multiple Chain modules together to build a larger mixer. Each channel has its own level, pan, mute and two FX send outputs that can feed shared effects processors.
+
+**Squeeze** generates sidechain CV that feeds directly into Chain's compressor input. Because all Chain modules share the same sidechain bus, you only need one Squeeze to control the dynamics of the entire mix. Connect a kick drum or master bus signal for classic pumping compression.
+
+**Shape** adds SSL-style EQ character to your mix. Connect one Shape module to the FX send of multiple Chain modules using multiple cables from the same output — one Shape for the whole mix without needing separate modules per channel.
+
+**Master** adds warmth, transient control and limiting as the final stage. It sits at the end of the chain and brings everything together before hitting the output.
+
+**Gain** is a line level booster for bringing external signals up to modular level before entering the chain. Especially useful on the 4ms MetaModule.
 
 ### Signal Flow
-### How it works
-
-**Chain** is the heart of the system. Each Chain module handles two stereo channels with individual level faders, pan, mute, and two FX sends per channel. You can daisy-chain multiple Chain modules together to build a larger mixer.
-
-**Squeeze** acts as a bus compressor. Because all Chain modules share the same sidechain bus, you only need one Squeeze to control the dynamics of the entire mix. Connect the kick drum or master bus to the sidechain input for pumping compression effects.
-
-**Shape and Sweep** are FX processors that can be shared across multiple Chain modules. Connect one Shape module to the FX send of multiple Chain modules using multiple cables from the same output. This way you get reverb, distortion, or filtering on multiple channels without needing separate FX modules for each channel.
-
-**Gain** is used to boost low-level signals before they enter the Chain. Especially useful when working with the 4ms MetaModule where sample players and external inputs produce lower signal levels.
-
-**Master** sits at the end of the chain and provides final level control with a built-in limiter.
-
 ### Example patch
 
 1. Place two Chain modules for 4 stereo channels
-2. Add one Squeeze connected to your kick drum sidechain
-3. Add one Shape as a shared reverb send for all channels
+2. Add one Squeeze connected to your kick drum for sidechain compression
+3. Add one Shape as a shared FX send for all channels
 4. Connect everything to Master
 5. Use Gain before any Chain input that is too quiet
 
