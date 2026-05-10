@@ -354,6 +354,7 @@ Sweep is a state variable filter with simultaneous low pass, band pass, and high
 - Drive adds warmth and harmonics before filtering
 - BP output is great for isolating frequency bands in a mix
 - Use HP to remove low frequencies from pads and synths to clean up the low end
+- The RESET button is what makes Sweep special — it resets all filters back to their original state instantly, a true DJ function. Connect a gate signal to automate the reset for rhythmic filter effects
 
 ---
 
