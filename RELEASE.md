@@ -1,46 +1,50 @@
-# Submit — Release & Push Procedure
-> Altijd volgen bij elke push naar GitHub — ook voor kleine wijzigingen!
+# Submit — Release Procedure
+> Volg deze stappen bij elke nieuwe release!
 
-## GOUDEN REGEL
-Elke push naar master triggert een nieuwe GitHub Actions build en release.
-Dit geldt ook voor README wijzigingen, LICENSE, of andere kleine bestanden.
-Nooit zomaar git push zonder deze procedure te volgen!
-
----
-
-## STAP 1 — Verwijder beta modules
-
-```bash
-python3 ~/Submit/scripts/verwijder_beta.py
-```
-
-Verwijdert Poly008, twiN en Reel uit plugin.json, plugin.cpp en plugin.hpp.
+## NIEUWE WERKWIJZE
+- Elke push naar master = alleen bouwen, geen release
+- Release aanmaken = tag pushen: git tag v2.x.x && git push origin v2.x.x
+- Release wordt als DRAFT aangemaakt — jij publiceert handmatig na controle
 
 ---
 
-## STAP 2 — Verificatie uitvoeren
+## STAP 1 — Verificatie uitvoeren
 
 ```bash
 python3 << 'EOF'
-import json, re
+import json
 with open('/Users/studio67/Submit/plugin.json') as f:
     data = json.load(f)
-slugs = [m['slug'] for m in data['modules']]
-beta = ['Poly008', 'twiN', 'Reel']
-print('plugin.json:', slugs)
-still_beta = [s for s in slugs if s in beta]
-if still_beta:
-    print('STOP — NOG BETA MODULES:', still_beta)
-else:
-    print('OK — Geen beta modules, klaar voor push!')
+json_slugs = [m['slug'] for m in data.get('modules', [])]
+with open('/Users/studio67/Submit/src/plugin.cpp') as f:
+    cpp = f.read()
+with open('/Users/studio67/Submit/src/plugin.hpp') as f:
+    hpp = f.read()
+print('=== MODULE VERIFICATIE ===')
+print('plugin.json:', json_slugs)
+all_ok = True
+for slug in json_slugs:
+    model = f'model{slug}'
+    in_cpp = model in cpp
+    in_hpp = model in hpp
+    status = '✅' if (in_cpp and in_hpp) else '❌'
+    print(f'{status} {slug}: hpp={"✅" if in_hpp else "❌"}  cpp={"✅" if in_cpp else "❌"}')
+    if not (in_cpp and in_hpp):
+        all_ok = False
+print()
+print('RESULTAAT:', '✅ Alles OK' if all_ok else '❌ FIX NODIG VOOR BUILD!')
 EOF
 ```
 
 ---
 
-## STAP 3 — Versie verhogen (alleen bij nieuwe release)
+## STAP 2 — Controleer geen beta modules
 
-Pas versie aan in plugin.json — altijd 2.x.x
+Beta modules (NOOIT pushen): Poly008, Twin, Clang
+
+---
+
+## STAP 3 — Versie verhogen in plugin.json (altijd 2.x.x)
 
 ---
 
@@ -52,65 +56,31 @@ cd ~/Submit && git add . && git commit -m "Beschrijving" && git push
 
 ---
 
-## STAP 5 — Herstel beta modules direct na push
+## STAP 5 — Release aanmaken via tag
 
 ```bash
-python3 ~/Submit/scripts/herstel_beta.py
+cd ~/Submit && git tag v2.x.x && git push origin v2.x.x
 ```
 
 ---
 
-## STAP 6 — Lokaal bouwen met beta modules
+## STAP 6 — Controleer draft release op GitHub
 
-```bash
-cd ~/Submit && export RACK_DIR=~/Rack-SDK && make -j4 && make install
-```
+Ga naar: github.com/submitaudio/submit-vcv-modules/releases
 
----
+Controleer:
+- win-x64 aanwezig?
+- lin-x64 aanwezig?
+- mac-arm64 aanwezig?
+- Juiste versienummer?
+- Geen beta modules?
 
-## STAP 7 — Controleer release op GitHub
-
-```bash
-curl -s https://api.github.com/repos/submitaudio/submit-vcv-modules/releases/latest | python3 -c "
-import json,sys
-r = json.load(sys.stdin)
-print('Release:', r['tag_name'])
-print('Pre-release:', r['prerelease'])
-for a in r.get('assets', []):
-    print(' ', a['name'])
-"
-```
-
-Controleer: Pre-release = False, drie assets aanwezig.
-
----
-
-## BETA MODULES
-
-| Module  | Slug   | Model        |
-|---------|--------|--------------|
-| Poly008 | Poly008 | modelPoly008 |
-| twiN    | twiN   | modelTwiN    |
-| Reel    | Reel   | modelReel    |
-
-Scripts: ~/Submit/scripts/verwijder_beta.py en herstel_beta.py
-
----
-
-## NIEUWE BETA MODULE TOEVOEGEN
-
-1. Voeg toe aan .gitignore:
-   echo "src/NieuweModule.cpp" >> ~/Submit/.gitignore
-   echo "res/NieuweModule.svg" >> ~/Submit/.gitignore
-
-2. Voeg toe aan ~/Submit/scripts/verwijder_beta.py en herstel_beta.py
-
-3. Registreer in plugin.hpp, plugin.cpp, plugin.json
+Dan publiceren!
 
 ---
 
 ## OFFICIELE MODULES
-Drift, Chrono, Impact, Chain, Squeeze, Shape, Master, Gain, Sweep
+Drift, Chrono, Impact, Chain, Squeeze, Shape, Master, Gain, Sweep, Loop
 
 ## BETA MODULES (nooit pushen)
-Poly008, twiN, Reel
+Poly008, Twin, Clang
