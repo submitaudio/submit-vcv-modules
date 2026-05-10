@@ -1,6 +1,6 @@
 # Submit
 
-A complete live performance toolkit for VCV Rack - 9 modules designed to work together.
+A complete live performance toolkit for VCV Rack - 10 modules designed to work together.
 
 ![Submit Modules](docs/modules.png)
 
@@ -23,6 +23,8 @@ A complete live performance toolkit for VCV Rack - 9 modules designed to work to
 **Gain** — Line level booster with soft clip and FX send
 
 **Sweep** — DJ filter with LP/HP sweep, resonance and momentary reset
+
+**Loop** — Sample loop player with waveform display and BPM auto-detection
 
 ## Download
 
