@@ -100,9 +100,8 @@ jobs:
             - `win-x64` — Windows
             - `lin-x64` — Linux
             
-            ### Changelog
-            See [RELEASE.md](RELEASE.md) for details.
-            
             ### Links
-            - [submitaudio.nl](https://submitaudio.nl)
-            - [Manual](https://github.com/submitaudio/submit-vcv-modules/blob/master/MANUAL.md)
+            [See Manual](https://github.com/submitaudio/submit-vcv-modules/blob/master/MANUAL.md)
+            [See RELEASE.md for details](https://github.com/submitaudio/submit-vcv-modules/blob/master/RELEASE.md)
+            [Visit submitaudio.nl](https://submitaudio.nl)
+            [Licensed under GPL-3.0](https://github.com/submitaudio/submit-vcv-modules/blob/master/LICENSE)
