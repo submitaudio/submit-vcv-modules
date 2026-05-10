@@ -75,6 +75,7 @@ jobs:
         with:
           files: artifacts/**/*.vcvplugin
           name: Submit ${{ github.ref_name }}
+          draft: true
           body: |
             ## Submit Audio VCV Rack Plugin ${{ github.ref_name }}
             
