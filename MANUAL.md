@@ -204,36 +204,33 @@ Chain is a flexible 4-channel mixer and signal router. Each channel has an indiv
 
 ## Squeeze
 
-Squeeze is a dynamics processor combining compression and limiting. It reduces the dynamic range of audio signals, making them sit better in a mix and adding punch and glue to drum buses, synth pads, and full mixes.
+Squeeze is a compact sidechain envelope generator designed to work directly with Chain's COMP/CV insert. It takes a gate or audio signal and generates a control voltage envelope that drives the compressor inside Chain — perfect for classic ducking effects and rhythmic pumping.
 
-The sidechain input allows external signals to trigger the compression, enabling classic ducking effects (e.g. a kick drum ducking a bassline).
+The input is auto-detected: connect a gate for precise triggering or an audio signal like a kick drum for envelope following. Three contour curves (Linear, Exponential, Logarithmic) shape how the envelope responds, from snappy transients to smooth pumping.
 
 ### Inputs
 | Input | Description |
 |-------|-------------|
-| IN L | Left audio input |
-| IN R | Right audio input |
-| SC | Sidechain input for external triggering |
+| GATE IN | Gate or audio input (auto-detect) |
 
 ### Outputs
 | Output | Description |
 |--------|-------------|
-| OUT L | Left compressed output |
-| OUT R | Right compressed output |
+| COMP OUT | Envelope CV output — connect to Chain COMP/CV |
 
 ### Parameters
 | Parameter | Description |
 |-----------|-------------|
-| THRESHOLD | Level at which compression starts |
-| RATIO | Compression ratio (higher = more compression) |
-| ATTACK | How quickly compression engages |
-| RELEASE | How quickly compression releases |
-| MAKEUP | Makeup gain to compensate for gain reduction |
+| ATTACK | Envelope attack time |
+| RELEASE | Envelope release time |
+| AMOUNT | Envelope depth |
+| CONTOUR | Curve shape: Linear, Exponential, Logarithmic |
 
 ### Tips
-- Fast attack and slow release works well for drums
-- Use the SC input with a kick drum to create pumping sidechain compression
-- High ratio (8:1 or more) turns Squeeze into a limiter
+- Connect a kick drum trigger to GATE IN and COMP OUT to Chain COMP/CV for classic sidechain ducking
+- Use Exponential curve for punchy, fast-release pumping
+- Use Logarithmic curve for smooth, musical compression
+- One Squeeze can drive multiple Chain modules simultaneously
 
 ---
 
