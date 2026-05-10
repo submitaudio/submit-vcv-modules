@@ -114,7 +114,7 @@ Clock sync with divisions and head offset keeps everything locked to your tempo.
 - Use CLK sync for tight rhythmic delays locked to your sequencer
 - TAPE adds life and movement — even small amounts make a difference
 - SURGE is great for build-ups and transitions
-- BREAK creates dramatic tape stop effects for drops and fills
+- Press SURGE for a surprising bloom effect
 - Combine different HEAD settings with SPREAD for wide stereo echoes
 
 ---
