@@ -202,6 +202,55 @@ MetaModule werk staat apart in:
 
 Wijzig VCV Rack en MetaModule niet tegelijk, tenzij José daar expliciet om vraagt.
 
+## MetaModule test-regel
+
+Wanneer een module voor MetaModule wordt gecodeerd of aangepast, moet deze altijd eerst in de MetaModule simulator getest worden.
+
+Werkwijze:
+- Houd VCV Rack-code en MetaModule-code gescheiden.
+- Bouw eerst de MetaModule-versie.
+- Test daarna altijd in de MetaModule simulator voordat iets als werkend wordt beschouwd.
+- Controleer in de simulator minimaal:
+  - laadt de module zonder crash
+  - panel verschijnt correct
+  - knoppen/sliders reageren goed
+  - inputs en outputs werken zoals bedoeld
+  - audio/CV loopt zonder duidelijke glitches
+  - geen ontbrekende assets of verkeerde paden
+- Beschouw hardware-testen pas als volgende stap na een geslaagde simulator-test.
+- Noem een MetaModule-aanpassing niet “klaar” zonder simulator-test, tenzij José expliciet zegt dat testen mag worden overgeslagen.
+
+## MetaModule simulator command
+
+Voor MetaModule-tests wordt de lokale simulator hier gebruikt:
+
+`/Users/studio67/metamodule-main-git/simulator`
+
+De simulator-binary staat hier:
+
+`/Users/studio67/metamodule-main-git/simulator/build/simulator`
+
+Gebruik standaard dit startcommando:
+
+`cd ~/metamodule-main-git/simulator && ./build/simulator --audioout 1`
+
+Let op: `--audioout 1` is belangrijk voor het starten met de juiste audio/soundcard output. Verander dit niet zomaar.
+
+Als de simulator opnieuw gebouwd moet worden:
+
+`cd ~/metamodule-main-git/simulator && cmake --fresh -B build -GNinja && cmake --build build`
+
+Of via Makefile:
+
+`cd ~/metamodule-main-git/simulator && make`
+
+Belangrijk:
+- Controleer vóór MetaModule-tests welke pluginbron de simulator gebruikt.
+- De huidige lokale simulatorconfig gebruikt `/Users/studio67/Submit-MM` via `ext-plugins.cmake`.
+- Ga er dus niet automatisch vanuit dat de simulator `~/Submit/metamodule` gebruikt.
+- Als een MetaModule-aanpassing in `~/Submit/metamodule` is gedaan, moet eerst gecontroleerd worden of die versie ook werkelijk in de simulator-build zit.
+- Noem MetaModule-werk pas werkend na een geslaagde simulator-test.
+
 ## Minimale verificatie voor modulewerk
 
 Voor modulewerk altijd controleren:
