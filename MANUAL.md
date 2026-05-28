@@ -126,7 +126,7 @@ Impact is a powerful kick drum synthesizer with two distinct synthesis modes —
 
 **Pure mode** uses additive synthesis with up to 6 harmonics, giving a clean, musical kick sound. **Harsh mode** uses FM synthesis for more aggressive, metallic kick sounds.
 
-The PUNCH parameter controls the pitch envelope — high values give a characteristic "click" at the start of the kick. MORPH shapes the waveform, while FOLD adds harmonic distortion. Three noise types (Dust, Crunch, Rumble) add different textural elements to the kick.
+The PUNCH parameter controls the pitch envelope, while SNAP adds a short attack transient for extra click and definition at the start of the kick. MORPH shapes the waveform, while FOLD adds harmonic distortion. Three noise types (Dust, Crunch, Rumble) add different textural elements to the kick.
 
 ### Inputs
 | Input | Description |
@@ -156,7 +156,7 @@ The PUNCH parameter controls the pitch envelope — high values give a character
 | HARM | Harmonics amount (Pure mode) / FM ratio (Harsh mode) |
 | FOLD | Wavefolder amount — adds harmonic distortion |
 | NOISE | Noise amount mixed with the kick body |
-| SPREAD | Frequency spread between harmonics |
+| SNAP | Short attack click/transient amount |
 | TAIL | Noise envelope decay time |
 | DRUM | Switch between Pure and Harsh synthesis mode |
 | NOISE TYPE | Dust (crackling), Crunch (crunchy), Rumble (low rumble) |
@@ -169,6 +169,7 @@ Each CV input has an attenuverter for precise modulation control. Negative value
 - Start with PUNCH around 0.6 and DECAY around 0.4 for a classic kick
 - Use ACC input from a sequencer for accented beats (808 style)
 - FOLD adds grit — great for industrial and techno kicks
+- Use SNAP for sharper front-end definition without changing the kick body too much
 - Crunch noise type works well for clicky, transient-heavy kicks
 - Try Harsh mode with high HARM values for metallic, industrial kicks
 - Impact is a stereo module — the noise is spread in stereo, experiment with different noise types to make the kick sound more organic
