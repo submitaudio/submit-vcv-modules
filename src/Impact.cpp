@@ -49,7 +49,7 @@ struct Impact : Module {
         HARM_PARAM,
         FOLD_PARAM,
         NOISE_PARAM,
-        SPREAD_PARAM,
+        SNAP_PARAM,
         NLEN_PARAM,
         NTYPE_PARAM,
         MODE_PARAM,
@@ -90,12 +90,12 @@ struct Impact : Module {
     bool  waitZero  = false;
     float accLevel  = 1.f;  // opgeslagen bij trigger
     float accSmooth = 1.f;  // gesmoothe versie
+    float attackT  = 0.f;   // korte anti-click fade-in
+    static constexpr float ATTACK_TIME = 0.00075f; // 0.75ms
 
     float fmPhase[3]  = {};
     float modPhase[3] = {};
 
-    float lpfL = 0.f;
-    float lpfR = 0.f;
 
     float pinkB0     = 0.f;
     float pinkB1     = 0.f;
@@ -135,7 +135,7 @@ struct Impact : Module {
         configParam(HARM_PARAM,    0.f,   1.f,  0.1f, "Harm");
         configParam(FOLD_PARAM,    0.f,   1.f,  0.f,  "Fold");
         configParam(NOISE_PARAM,   0.f,   1.f,  0.15783f, "Noise");
-        configParam(SPREAD_PARAM,  0.f,   1.f,  0.f,  "Spread");
+        configParam(SNAP_PARAM,    0.f,   1.f,  0.25f, "Snap");
         configParam(NLEN_PARAM,    0.f,   1.f,  0.29036f, "Noise Length");
         configSwitch(NTYPE_PARAM,  0.f,   2.f,  0.f,  "Noise Type", {"Rumble", "Crunch", "Dust"});
         configSwitch(MODE_PARAM,   0.f,   1.f,  1.f,  "Mode", {"Harsh", "Pure"});
@@ -229,11 +229,6 @@ struct Impact : Module {
         return y / (1.f + amount * 1.5f);
     }
 
-    float lpfProcess(float x, float& state) {
-        state += 0.08f * (x - state);
-        return state;
-    }
-
     void process(const ProcessArgs& args) override {
 
         // TRY ME knop — stuurt interne trigger
@@ -247,10 +242,9 @@ struct Impact : Module {
             waitZero = false;
             active = true;
             t = 0.f;
+            attackT = 0.f;
             for (int i = 0; i < 6; i++) phase[i] = 0.f;
             for (int i = 0; i < 3; i++) { fmPhase[i] = 0.f; modPhase[i] = 0.f; }
-            lpfL = 0.f;
-            lpfR = 0.f;
             dustLen = dustGap = dustAmp = 0.f;
             dustLenR = dustGapR = dustAmpR = 0.f;
             foldNoisePrev = foldNoisePrevR = 0.f;
@@ -303,7 +297,7 @@ struct Impact : Module {
                 foldKnob = clamp(foldKnob + inputs[FOLD_CV].getVoltage() / 5.f * params[ATT_FOLD_PARAM].getValue(), 0.f, 1.f);
 
             float noiseKnob  = params[NOISE_PARAM].getValue();
-            float spreadKnob = params[SPREAD_PARAM].getValue();
+            float snapKnob   = params[SNAP_PARAM].getValue();
             float nlenKnob   = params[NLEN_PARAM].getValue();
             if (inputs[NLEN_CV].isConnected())
                 nlenKnob = clamp(nlenKnob + inputs[NLEN_CV].getVoltage() / 5.f * params[ATT_NOISE_PARAM].getValue(), 0.f, 1.f);
@@ -317,13 +311,10 @@ struct Impact : Module {
 
             if (mode == 0) {
                 // ── PURE — additieve synthese ──────────
-                static const float inharmonic[NUM_OSC] = {
-                    1.0f, 2.83f, 5.24f, 8.66f, 13.4f, 20.1f
-                };
                 float totalAmp = 0.f;
                 for (int i = 0; i < NUM_OSC; i++) {
                     float harmonic = (float)(i + 1);
-                    float mult = harmonic + spreadKnob * (inharmonic[i] - harmonic);
+                    float mult = harmonic;
                     float freqMult = (i == 0) ? pitchMult : 1.f;
                     float freq = clamp(baseFreq * mult * freqMult, 10.f, 20000.f);
                     float wave = 0.f;
@@ -351,7 +342,7 @@ struct Impact : Module {
 
             } else {
                 // ── HARSH — FM kick ────────────────────
-                float fmRatio = 0.5f + harmKnob * 1.5f + spreadKnob * 1.f;
+                float fmRatio = 0.5f + harmKnob * 1.5f;
                 float modFreq = clamp(baseFreq * 0.5f * fmRatio * pitchMult, 10.f, 20000.f);
                 float fmIndex = 2.f + morphKnob * 6.f;
                 fmPhase[0] += modFreq * args.sampleTime;
@@ -408,15 +399,23 @@ struct Impact : Module {
             float noiseOut  = fold(rawNoiseL * noiseEnv * noiseAmt, foldKnob);
             float noiseOutR = fold(rawNoiseR * noiseEnv * noiseAmt, foldKnob);
             float bodyOut   = fold(sum, foldKnob);
+            float snapEnv = std::exp(-t * (1800.f + snapKnob * 2600.f));
+            float snapTone = std::sin(2.f * float(M_PI) * phase[0] * (7.f + snapKnob * 13.f));
+            float snapOut = snapTone * snapEnv * std::pow(snapKnob, 1.25f) * 0.65f;
 
             t += args.sampleTime;
             if (t > 10.f) { active = false; }
             // Smooth accLevel — voorkomt tikken bij overgang
             accSmooth = accLevel;
-            float accentBodyL = lpfProcess(bodyOut * accSmooth + noiseOut, lpfL);
-            float accentBodyR = lpfProcess(bodyOut * accSmooth + noiseOutR, lpfR);
-            outputs[OUT_L_OUTPUT].setVoltage(clamp(accentBodyL * 5.f, -10.f, 10.f));
-            outputs[OUT_R_OUTPUT].setVoltage(clamp(accentBodyR * 5.f, -10.f, 10.f));
+            attackT += args.sampleTime;
+            float attackPhase = clamp(attackT / ATTACK_TIME, 0.f, 1.f);
+            float attackEnv = attackPhase * attackPhase * (3.f - 2.f * attackPhase);
+            float snapPhase = clamp(attackT / 0.00025f, 0.f, 1.f);
+            float snapAttack = snapPhase * snapPhase * (3.f - 2.f * snapPhase);
+            float outL = (bodyOut * accSmooth + noiseOut) * attackEnv + snapOut * snapAttack;
+            float outR = (bodyOut * accSmooth + noiseOutR) * attackEnv + snapOut * snapAttack;
+            outputs[OUT_L_OUTPUT].setVoltage(clamp(outL * 5.f, -10.f, 10.f));
+            outputs[OUT_R_OUTPUT].setVoltage(clamp(outR * 5.f, -10.f, 10.f));
         }
 
         if (!active) {
@@ -445,7 +444,7 @@ struct ImpactWidget : ModuleWidget {
         addParam(createParamCentered<Drift13KnobSmall>(
             Vec(43.307f, 148.697f), module, Impact::HARM_PARAM));
         addParam(createParamCentered<Drift13KnobSmall>(
-            Vec(101.967f, 148.697f), module, Impact::SPREAD_PARAM));
+            Vec(101.967f, 148.697f), module, Impact::SNAP_PARAM));
         addParam(createParamCentered<Drift13KnobSmall>(
             Vec(160.356f, 148.697f), module, Impact::FOLD_PARAM));
         addParam(createParamCentered<Drift13KnobSmall>(
