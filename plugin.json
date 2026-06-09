@@ -16,7 +16,7 @@
     {
       "slug": "Drift",
       "name": "Drift",
-      "description": "All-in-one voice module \u2014 oscillator, wavefolder, slope and contour",
+      "description": "Analog-inspired voice with DCO, wavefolder, slope generator and contour envelope for organic melodic movement.",
       "tags": [
         "Oscillator",
         "Envelope generator",
@@ -26,7 +26,7 @@
     {
       "slug": "Chrono",
       "name": "Chrono",
-      "description": "Tape delay with 6 head combinations and tape character controls",
+      "description": "Tape-style delay with drive, wow/flutter character and six head combinations for rhythmic echoes.",
       "tags": [
         "Delay",
         "Effect"
@@ -35,7 +35,7 @@
     {
       "slug": "Impact",
       "name": "Impact",
-      "description": "Kick drum synthesizer with Pure and Harsh synthesis modes",
+      "description": "Drum synthesizer with Pure/Harsh engines, SNAP transient shaping, noise and punch controls.",
       "tags": [
         "Drum",
         "Noise"
@@ -44,7 +44,7 @@
     {
       "slug": "Chain",
       "name": "Chain",
-      "description": "Stereo channel mixer with FX sends and COMP/CV insert",
+      "description": "Core stereo mixer for the Submit Chain, with pre gain, pan, two FX sends, HPF, mute and COMP/CV insert.",
       "tags": [
         "Mixer",
         "Utility"
@@ -53,7 +53,7 @@
     {
       "slug": "Squeeze",
       "name": "Squeeze",
-      "description": "Sidechain envelope generator for Chain COMP/CV",
+      "description": "Sidechain envelope follower for the Submit Chain, designed to drive Chain's COMP/CV input.",
       "tags": [
         "Envelope follower",
         "Dynamics"
@@ -62,7 +62,7 @@
     {
       "slug": "Shape",
       "name": "Shape",
-      "description": "6-band SSL-style stereo equalizer",
+      "description": "Six-band SSL-style stereo EQ for the Submit Chain, designed for tone shaping after Chain.",
       "tags": [
         "Equalizer",
         "Filter"
@@ -71,7 +71,7 @@
     {
       "slug": "Master",
       "name": "Master",
-      "description": "Master bus processor with level control and limiting",
+      "description": "Final processor for the Submit Chain, with output level, transient, glue, width and limiting controls.",
       "tags": [
         "Dynamics",
         "Limiter"
@@ -80,7 +80,7 @@
     {
       "slug": "Gain",
       "name": "Gain",
-      "description": "Line level booster for iPhone, laptop and external gear",
+      "description": "Line-level booster designed for MetaModule and external gear, with soft clipping, FX send and utility routing.",
       "tags": [
         "Utility"
       ]
@@ -88,7 +88,7 @@
     {
       "slug": "Sweep",
       "name": "Sweep",
-      "description": "State variable filter with LP, BP and HP outputs",
+      "description": "DJ-style filter for the Submit Chain, with LP/HP sweep, resonance and momentary reset to center.",
       "tags": [
         "Filter",
         "Effect"
@@ -97,7 +97,7 @@
     {
       "slug": "Loop",
       "name": "Loop",
-      "description": "Sample loop player with waveform display and BPM auto-detection",
+      "description": "Sample loop player with waveform display, BPM detection, sync controls and stereo output.",
       "tags": [
         "Sampler",
         "Effect"
