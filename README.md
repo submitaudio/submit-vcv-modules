@@ -2,6 +2,8 @@
 
 A complete live performance toolkit for VCV Rack - 10 modules designed to work together.
 
+Documentation test line - GitHub connection check.
+
 ![Submit Modules](docs/modules.png)
 
 ## Modules
