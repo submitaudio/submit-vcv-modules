@@ -560,7 +560,7 @@ struct ReelWidget : ModuleWidget {
             system::openBrowser(SUBMIT_URL);
         }));
         menu->addChild(createMenuItem("Manual", "", []() {
-            system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/blob/master/MANUAL.md#loop");
+            system::openBrowser("https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/loop/");
         }));
         menu->addChild(createMenuItem("Load WAV...", "", [=]() {
             char* pathC = osdialog_file(OSDIALOG_OPEN, NULL, NULL, NULL);

@@ -1,14 +1,14 @@
 {
   "slug": "Submit",
   "name": "Submit",
-  "version": "2.15.3",
+  "version": "2.16.0",
   "license": "GPL-3.0-only",
   "brand": "Submit",
   "author": "Juan Jos\u00e9",
   "authorEmail": "",
   "authorUrl": "",
   "pluginUrl": "",
-  "manualUrl": "https://github.com/submitaudio/submit-vcv-modules/blob/master/MANUAL.md",
+  "manualUrl": "https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/",
   "sourceUrl": "",
   "donateUrl": "",
   "changelogUrl": "",
@@ -16,7 +16,8 @@
     {
       "slug": "Drift",
       "name": "Drift",
-      "description": "Analog-inspired voice with DCO, wavefolder, slope generator and contour envelope for organic melodic movement.",
+      "description": "West Coast voice with oscillator, wavefolder, slope and contour envelope.",
+      "manualUrl": "https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/drift/",
       "tags": [
         "Oscillator",
         "Envelope generator",
@@ -26,7 +27,8 @@
     {
       "slug": "Chrono",
       "name": "Chrono",
-      "description": "Tape-style delay with drive, wow/flutter character and six head combinations for rhythmic echoes.",
+      "description": "Clock synced stereo delay with tape movement and six rhythmic head modes.",
+      "manualUrl": "https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/chrono/",
       "tags": [
         "Delay",
         "Effect"
@@ -35,7 +37,8 @@
     {
       "slug": "Impact",
       "name": "Impact",
-      "description": "Drum synthesizer with Pure/Harsh engines, SNAP transient shaping, noise and punch controls.",
+      "description": "Percussive drum synth with Pure and Harsh engines, pitch, punch and noise.",
+      "manualUrl": "https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/impact/",
       "tags": [
         "Drum",
         "Noise"
@@ -44,7 +47,8 @@
     {
       "slug": "Chain",
       "name": "Chain",
-      "description": "Core stereo mixer for the Submit Chain, with pre gain, pan, two FX sends, HPF, mute and COMP/CV insert.",
+      "description": "Stereo mixer for Submit Chain with gain, pan, FX sends, HPF, mute and COMP/CV.",
+      "manualUrl": "https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/chain/",
       "tags": [
         "Mixer",
         "Utility"
@@ -53,7 +57,8 @@
     {
       "slug": "Squeeze",
       "name": "Squeeze",
-      "description": "Sidechain envelope follower for the Submit Chain, designed to drive Chain's COMP/CV input.",
+      "description": "Sidechain compressor control for Submit Chain and its COMP/CV input.",
+      "manualUrl": "https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/squeeze/",
       "tags": [
         "Envelope follower",
         "Dynamics"
@@ -62,7 +67,8 @@
     {
       "slug": "Shape",
       "name": "Shape",
-      "description": "Six-band SSL-style stereo EQ for the Submit Chain, designed for tone shaping after Chain.",
+      "description": "Six band SSL inspired stereo EQ for the Submit Chain.",
+      "manualUrl": "https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/shape/",
       "tags": [
         "Equalizer",
         "Filter"
@@ -71,7 +77,8 @@
     {
       "slug": "Master",
       "name": "Master",
-      "description": "Final processor for the Submit Chain, with output level, transient, glue, width and limiting controls.",
+      "description": "Stereo master processor for Submit Chain with glue, width and limiting.",
+      "manualUrl": "https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/master/",
       "tags": [
         "Dynamics",
         "Limiter"
@@ -80,7 +87,8 @@
     {
       "slug": "Gain",
       "name": "Gain",
-      "description": "Line-level booster designed for MetaModule and external gear, with soft clipping, FX send and utility routing.",
+      "description": "MetaModule line level utility with gain, soft clip, mute and COMP/CV.",
+      "manualUrl": "https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/gain/",
       "tags": [
         "Utility"
       ]
@@ -88,7 +96,8 @@
     {
       "slug": "Sweep",
       "name": "Sweep",
-      "description": "DJ-style filter for the Submit Chain, with LP/HP sweep, resonance and momentary reset to center.",
+      "description": "DJ style stereo filter for Submit Chain with LP, HP, resonance and reset.",
+      "manualUrl": "https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/sweep/",
       "tags": [
         "Filter",
         "Effect"
@@ -97,10 +106,32 @@
     {
       "slug": "Loop",
       "name": "Loop",
-      "description": "Sample loop player with waveform display, BPM detection, sync controls and stereo output.",
+      "description": "Stereo sample looper with waveform, clock sync, BPM parsing, reverse and cue.",
+      "manualUrl": "https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/loop/",
       "tags": [
         "Sampler",
         "Effect"
+      ]
+    },
+    {
+      "slug": "Clang",
+      "name": "Clang",
+      "description": "Techno percussion synth with Physical and FM engines, models and sound variations.",
+      "manualUrl": "https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/clang/",
+      "tags": [
+        "Drum",
+        "Noise"
+      ]
+    },
+    {
+      "slug": "React",
+      "name": "React",
+      "description": "Four voice rhythm sequencer with genres, patterns, morph, drop, variation and kits.",
+      "manualUrl": "https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/react/",
+      "tags": [
+        "Sequencer",
+        "Clock modulator",
+        "Drum"
       ]
     }
   ]
