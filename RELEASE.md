@@ -10,6 +10,15 @@
 
 ## STAP 1 — Verificatie uitvoeren
 
+### Verplicht bij iedere nieuwe module
+
+**José, vergeet niet de CPU-stresstest te doen!**
+
+- Test de module in VCV Rack met snelle triggers, maximale decay en meerdere overlappende stemmen.
+- Controleer zowel het normale CPU-gebruik als korte pieken en vergelijk meerdere modellen/presets.
+- Test een MetaModule-versie na de simulator ook op de echte MetaModule-hardware.
+- Breng een nieuwe module pas uit nadat klank, polyfonie en CPU-belasting zijn goedgekeurd.
+
 ```bash
 python3 << 'EOF'
 import json
@@ -40,7 +49,7 @@ EOF
 
 ## STAP 2 — Controleer geen beta modules
 
-Beta modules (NOOIT pushen): Poly008, Twin, Clang
+Beta modules (NOOIT pushen): Poly008, Twin, Shortwave, Void, Swell
 
 ---
 
@@ -80,7 +89,7 @@ Dan publiceren!
 ---
 
 ## OFFICIELE MODULES
-Drift, Chrono, Impact, Chain, Squeeze, Shape, Master, Gain, Sweep, Loop
+Drift, Chrono, Impact, Chain, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang, React
 
 ## BETA MODULES (nooit pushen)
-Poly008, Twin, Clang
+Poly008, Twin, Shortwave, Void, Swell

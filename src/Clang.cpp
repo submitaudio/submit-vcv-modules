@@ -670,8 +670,31 @@ struct Clang : Module {
 
 		float out = 0.f;
 		float activeEnergy = 0.f;
+		float pitchEnvDecay = 0.f;
+		float ghostEnvDecay = 0.f;
+		bool pitchEnvDecayReady = false;
+		bool ghostEnvDecayReady = false;
 		for (int v = 0; v < CLANG_VOICES; v++) {
 			ClangVoice& voice = voices[v];
+			// Silent voice slots must not run the full oscillator and noise bank.
+			// Keep delayed ghost layers alive, but otherwise pay DSP only for
+			// voices that are actually contributing to the output.
+			float envelopeEnergy = voice.bodyEnv + voice.noiseEnv + voice.clickEnv
+				+ voice.subEnv + voice.ghostEnv;
+			if (envelopeEnergy < 1e-5f) {
+				if (voice.ghostDelay > 0.f && voice.ghostAmt > 1e-5f) {
+					voice.age += args.sampleTime;
+					voice.ghostDelay -= args.sampleTime;
+					if (voice.ghostDelay > 0.f)
+						continue;
+					voice.ghostDelay = 0.f;
+					voice.ghostEnv = voice.ghostAmt;
+				}
+				else {
+					voice.attackEnv = 0.f;
+					continue;
+				}
+			}
 			voice.age += args.sampleTime;
 			// Smooth the first samples of every new voice to prevent phase-reset clicks.
 			voice.attackEnv = std::min(1.f, voice.attackEnv + args.sampleTime / voice.attackTime);
@@ -774,14 +797,23 @@ struct Clang : Module {
 			voice.clickEnv *= std::exp(-args.sampleTime / std::max(0.00005f, clickMs / 1000.f));
 			float subMs = clamp((18.f + 170.f * decayCurve) * subContour[soundV] * (0.55f + 0.80f * damp) * tailCurve, 0.20f, 2400.f);
 			voice.subEnv *= std::exp(-args.sampleTime / std::max(0.0002f, subMs / 1000.f));
-			voice.pitchEnv *= std::exp(-args.sampleTime / std::max(0.0002f, (1.5f + 18.f * decayCurve) / 1000.f));
+			if (!pitchEnvDecayReady) {
+				pitchEnvDecay = std::exp(-args.sampleTime / std::max(0.0002f, (1.5f + 18.f * decayCurve) / 1000.f));
+				pitchEnvDecayReady = true;
+			}
+			voice.pitchEnv *= pitchEnvDecay;
 			if (voice.ghostDelay > 0.f) {
 				voice.ghostDelay -= args.sampleTime;
 				if (voice.ghostDelay <= 0.f)
 					voice.ghostEnv = voice.ghostAmt;
 			}
-			if (voice.ghostEnv > 0.f)
-					voice.ghostEnv *= std::exp(-args.sampleTime / std::max(0.0002f, (1.2f + 8.f * decayCurve) / 1000.f));
+			if (voice.ghostEnv > 0.f) {
+				if (!ghostEnvDecayReady) {
+					ghostEnvDecay = std::exp(-args.sampleTime / std::max(0.0002f, (1.2f + 8.f * decayCurve) / 1000.f));
+					ghostEnvDecayReady = true;
+				}
+				voice.ghostEnv *= ghostEnvDecay;
+			}
 
 			float bend = std::pow(2.f, voice.pitchEnv * voice.pitchBend);
 			float motionCycle = std::sin(voice.phaseSub * (0.85f + 5.25f * motionAmount) + voice.phase1 * 0.07f) * motionAmount;
@@ -804,54 +836,77 @@ struct Clang : Module {
 			voice.hpX = hpIn;
 			voice.hpY = hp;
 
+			// Preserve the original random stream even when a colour is not needed.
+			float burstWhite = nextWhite();
+			float spitWhite = nextWhite();
+			float ghostWhite = nextWhite();
+
+			// Evaluate a sound building block only when the selected model uses it.
+			// The value is cached, so repeated use within a voice remains identical.
+			#define CLANG_LAZY(name, ...) \
+				float name##Cache = 0.f; \
+				bool name##Ready = false; \
+				auto name = [&]() -> float { \
+					if (!name##Ready) { \
+						name##Cache = (__VA_ARGS__); \
+						name##Ready = true; \
+					} \
+					return name##Cache; \
+				}
+
 			float s1 = std::sin(voice.phase1);
+			CLANG_LAZY(phase2Base, std::sin(voice.phase2));
 			float noisePhase = noiseAmount * (0.15f + 0.85f * ((soundV == 3 || soundV == 4 || soundV == 7) ? 1.f : 0.f));
-			float motionPhase = std::sin(voice.phaseSub * (1.1f + 3.9f * motionAmount) + voice.phase2 * 0.11f) * motionAmount * 0.95f;
-			float s2 = std::sin(voice.phase2 + motionPhase + voice.noiseTone * motionAmount * noisePhase * (1.5f + 3.f * soundPos));
-			float low = std::sin(voice.phaseSub + s1 * voice.pitchEnv * (0.15f + 0.38f * motion)) * voice.subEnv * (0.25f + voice.bodyLevel * 0.85f);
-			float body = (s1 * 0.72f + s2 * 0.28f) * voice.bodyEnv * voice.bodyLevel;
-			body = body * (0.42f + 1.12f * bodyControl);
+			CLANG_LAZY(motionPhase, std::sin(voice.phaseSub * (1.1f + 3.9f * motionAmount) + voice.phase2 * 0.11f) * motionAmount * 0.95f);
+			CLANG_LAZY(s2, std::sin(voice.phase2 + motionPhase() + voice.noiseTone * motionAmount * noisePhase * (1.5f + 3.f * soundPos)));
+			CLANG_LAZY(low, std::sin(voice.phaseSub + s1 * voice.pitchEnv * (0.15f + 0.38f * motion)) * voice.subEnv * (0.25f + voice.bodyLevel * 0.85f));
+			CLANG_LAZY(body, (s1 * 0.72f + s2() * 0.28f) * voice.bodyEnv * voice.bodyLevel * (0.42f + 1.12f * bodyControl));
 			float localEdge = clamp(edge * 0.72f + bodyControl * 0.18f + voice.foldAmt * 0.38f, 0.f, 1.f);
-			float airNoise = voice.noiseTone * (0.45f + 0.45f * damp);
-			float sandNoise = hp * (white > 0.20f + 0.10f * (float)(soundV & 1) ? 1.f : -0.35f);
-			float tapeNoise = std::tanh((voice.noiseTone * 0.70f + std::sin(voice.phaseSub * 3.7f) * 0.30f) * (1.6f + 2.0f * edge));
-			float grainNoise = std::sin(voice.phase2 * (3.0f + 0.37f * (float)soundV) + hp * (4.0f + 6.0f * edge)) * (0.45f + std::fabs(hp) * 0.55f);
-			float metalDust = fold(hp * 0.55f + std::sin(voice.phase1 * 2.03f + voice.phase2 * 0.29f) * 0.45f, clamp(localEdge + 0.10f, 0.f, 1.f));
-			float digitalDust = std::round(hp * (3.f + 2.f * (float)(soundV % 4))) / (3.f + 2.f * (float)(soundV % 4));
-			float steamNoise = (voice.noiseTone * 0.52f + std::sin(voice.phaseSub * (5.0f + 0.60f * (float)modelV)) * 0.48f) * voice.noiseEnv;
-			float burstNoise = fold((nextWhite() * 0.62f + hp * 0.38f) * (1.2f + 1.8f * edge), clamp(voice.crushAmt + 0.18f, 0.f, 1.f));
-			float crackleNoise = (std::fabs(hp) > 0.055f + 0.025f * (float)(soundV & 3) ? (hp > 0.f ? 1.f : -1.f) : 0.f) * (0.60f + 0.40f * std::fabs(hp));
-			float whistleNoise = std::sin(voice.phase2 * (2.7f + 0.41f * (float)soundV) + hp * (3.0f + 4.0f * motionAmount)) * (0.35f + 0.65f * std::fabs(hp));
-			float flutterNoise = std::sin(voice.phaseSub * (0.8f + 2.1f * (float)((soundV + modelV) & 3)) + voice.phase1 * 0.21f) * (0.30f + 0.70f * std::fabs(voice.noiseTone));
-			float packetNoise = std::round((hp + std::sin(voice.phase1 * 0.37f) * 0.22f) * (4.f + (float)(soundV & 3))) / (4.f + (float)(soundV & 3));
-			float rumbleNoise = std::sin(voice.phaseSub * (0.42f + 0.17f * (float)modelV) + hp * 2.2f) * 0.72f + hp * 0.28f;
-			float spitNoise = fold((nextWhite() * 0.42f + hp * 0.58f) * (1.5f + 2.5f * motionAmount), 0.15f + localEdge * 0.55f);
-			float metalTickNoise = (std::sin(voice.phase1 * (2.01f + 0.13f * (float)soundV) + voice.phase2 * 0.07f) > 0.72f ? 1.f : -0.28f) * (0.35f + 0.65f * std::fabs(hp));
-			float vaporNoise = std::tanh(voice.noiseTone * 1.8f + std::sin(voice.phaseSub * (3.2f + 0.31f * (float)soundV)) * 0.42f);
-			int noiseColor = (engineV * 13 + modelV * 5 + soundV * 3) & 15;
-			float shapedNoise = hp;
-			switch (noiseColor) {
-				case 0: shapedNoise = airNoise; break;
-				case 1: shapedNoise = sandNoise; break;
-				case 2: shapedNoise = tapeNoise; break;
-				case 3: shapedNoise = grainNoise; break;
-				case 4: shapedNoise = metalDust; break;
-				case 5: shapedNoise = digitalDust; break;
-				case 6: shapedNoise = steamNoise; break;
-				case 7: shapedNoise = burstNoise; break;
-				case 8: shapedNoise = crackleNoise; break;
-				case 9: shapedNoise = whistleNoise; break;
-				case 10: shapedNoise = flutterNoise; break;
-				case 11: shapedNoise = packetNoise; break;
-				case 12: shapedNoise = rumbleNoise; break;
-				case 13: shapedNoise = spitNoise; break;
-				case 14: shapedNoise = metalTickNoise; break;
-				default: shapedNoise = vaporNoise; break;
+
+			CLANG_LAZY(airNoise, voice.noiseTone * (0.45f + 0.45f * damp));
+			CLANG_LAZY(sandNoise, hp * (white > 0.20f + 0.10f * (float)(soundV & 1) ? 1.f : -0.35f));
+			CLANG_LAZY(tapeNoise, std::tanh((voice.noiseTone * 0.70f + std::sin(voice.phaseSub * 3.7f) * 0.30f) * (1.6f + 2.0f * edge)));
+			CLANG_LAZY(grainNoise, std::sin(voice.phase2 * (3.0f + 0.37f * (float)soundV) + hp * (4.0f + 6.0f * edge)) * (0.45f + std::fabs(hp) * 0.55f));
+			CLANG_LAZY(metalDust, fold(hp * 0.55f + std::sin(voice.phase1 * 2.03f + voice.phase2 * 0.29f) * 0.45f, clamp(localEdge + 0.10f, 0.f, 1.f)));
+			CLANG_LAZY(digitalDust, std::round(hp * (3.f + 2.f * (float)(soundV % 4))) / (3.f + 2.f * (float)(soundV % 4)));
+			CLANG_LAZY(steamNoise, (voice.noiseTone * 0.52f + std::sin(voice.phaseSub * (5.0f + 0.60f * (float)modelV)) * 0.48f) * voice.noiseEnv);
+			CLANG_LAZY(burstNoise, fold((burstWhite * 0.62f + hp * 0.38f) * (1.2f + 1.8f * edge), clamp(voice.crushAmt + 0.18f, 0.f, 1.f)));
+			CLANG_LAZY(crackleNoise, (std::fabs(hp) > 0.055f + 0.025f * (float)(soundV & 3) ? (hp > 0.f ? 1.f : -1.f) : 0.f) * (0.60f + 0.40f * std::fabs(hp)));
+			CLANG_LAZY(whistleNoise, std::sin(voice.phase2 * (2.7f + 0.41f * (float)soundV) + hp * (3.0f + 4.0f * motionAmount)) * (0.35f + 0.65f * std::fabs(hp)));
+			CLANG_LAZY(flutterNoise, std::sin(voice.phaseSub * (0.8f + 2.1f * (float)((soundV + modelV) & 3)) + voice.phase1 * 0.21f) * (0.30f + 0.70f * std::fabs(voice.noiseTone)));
+			CLANG_LAZY(packetNoise, std::round((hp + std::sin(voice.phase1 * 0.37f) * 0.22f) * (4.f + (float)(soundV & 3))) / (4.f + (float)(soundV & 3)));
+			CLANG_LAZY(rumbleNoise, std::sin(voice.phaseSub * (0.42f + 0.17f * (float)modelV) + hp * 2.2f) * 0.72f + hp * 0.28f);
+			CLANG_LAZY(spitNoise, fold((spitWhite * 0.42f + hp * 0.58f) * (1.5f + 2.5f * motionAmount), 0.15f + localEdge * 0.55f));
+			CLANG_LAZY(metalTickNoise, (std::sin(voice.phase1 * (2.01f + 0.13f * (float)soundV) + voice.phase2 * 0.07f) > 0.72f ? 1.f : -0.28f) * (0.35f + 0.65f * std::fabs(hp)));
+			CLANG_LAZY(vaporNoise, std::tanh(voice.noiseTone * 1.8f + std::sin(voice.phaseSub * (3.2f + 0.31f * (float)soundV)) * 0.42f));
+
+			float noise = 0.f;
+			if (noiseAmount > 0.f) {
+				int noiseColor = (engineV * 13 + modelV * 5 + soundV * 3) & 15;
+				float shapedNoise = hp;
+				switch (noiseColor) {
+					case 0: shapedNoise = airNoise(); break;
+					case 1: shapedNoise = sandNoise(); break;
+					case 2: shapedNoise = tapeNoise(); break;
+					case 3: shapedNoise = grainNoise(); break;
+					case 4: shapedNoise = metalDust(); break;
+					case 5: shapedNoise = digitalDust(); break;
+					case 6: shapedNoise = steamNoise(); break;
+					case 7: shapedNoise = burstNoise(); break;
+					case 8: shapedNoise = crackleNoise(); break;
+					case 9: shapedNoise = whistleNoise(); break;
+					case 10: shapedNoise = flutterNoise(); break;
+					case 11: shapedNoise = packetNoise(); break;
+					case 12: shapedNoise = rumbleNoise(); break;
+					case 13: shapedNoise = spitNoise(); break;
+					case 14: shapedNoise = metalTickNoise(); break;
+					default: shapedNoise = vaporNoise(); break;
+				}
+				// Compensate quiet model profiles so Noise at maximum is always a
+				// meaningful control, without flattening the model-specific colour.
+				float noiseGain = 0.42f + 0.88f * clamp(voice.noiseLevel, 0.f, 1.f);
+				noise = shapedNoise * voice.noiseEnv * noiseGain * noiseAmount;
 			}
-			// Compensate quiet model profiles so Noise at maximum is always a
-			// meaningful control, without flattening the model-specific colour.
-			float noiseGain = 0.42f + 0.88f * clamp(voice.noiseLevel, 0.f, 1.f);
-			float noise = shapedNoise * voice.noiseEnv * noiseGain * noiseAmount;
 			float rawClick = (white > (0.35f + 0.45f * damp - 0.18f * voice.bright) ? 1.f : -1.f) * voice.clickEnv * voice.clickLevel;
 			float tonalClick = (s1 * 0.58f + std::sin(voice.phase1 * 2.317f + voice.phase2 * 0.13f) * 0.42f) * voice.clickEnv * voice.clickLevel;
 			// Click is an intentional material property, never a universal attack.
@@ -872,22 +927,22 @@ struct Clang : Module {
 				clickPresence = 0.42f; // Arc flashes
 			rawClick *= clickPresence;
 			tonalClick *= clickPresence;
-			float click = tonalClick * (1.f - 0.42f * noiseAmount) + rawClick * noiseAmount * 0.72f;
-			float ghostTone = (s2 * 0.68f + std::sin(voice.phaseSub * 2.01f) * 0.32f) * voice.ghostEnv;
-			float ghost = ghostTone * (1.f - 0.55f * noiseAmount) + nextWhite() * voice.ghostEnv * voice.noiseLevel * noiseAmount * 0.70f;
-			float chirp = std::sin(voice.phase1 + std::sin(voice.phase2 * (1.4f + 0.11f * modelV)) * (1.2f + 5.0f * localEdge)) * voice.bodyEnv;
-			float scrape = fold(noise * 0.92f + s2 * voice.noiseEnv * 0.24f * noiseAmount, clamp(localEdge + 0.25f, 0.f, 1.f));
-			float crushStepsA = 3.f + 26.f * (1.f - clamp(localEdge + voice.crushAmt * 0.45f, 0.f, 1.f));
-			float crushedMix = std::round((body * 0.55f + noise * 0.70f + click * 0.25f) * crushStepsA) / crushStepsA;
-			float ring = (std::sin(voice.phase1) * 0.62f + std::sin(voice.phase2 * 1.013f) * 0.38f) * voice.bodyEnv * voice.bodyLevel;
-			float tube = std::tanh(low * 1.4f + body * 0.32f) * (0.9f + 0.35f * damp);
-			float wire = fold(std::sin(voice.phase2 + s1 * 0.8f) * voice.bodyEnv * 0.55f + noise * 0.35f, clamp(localEdge + 0.15f, 0.f, 1.f));
-			float membrane = std::sin(voice.phaseSub + std::sin(voice.phase1) * (0.35f + 0.80f * voice.pitchEnv)) * voice.subEnv;
-			float glass = (std::sin(voice.phase1 * 1.003f) + std::sin(voice.phase2 * 2.011f) * 0.63f + std::sin(voice.phase1 * 3.917f) * 0.27f) * voice.bodyEnv * 0.52f;
-			float spring = fold(std::sin(voice.phase1 + std::sin(voice.phase2) * (2.2f + 4.8f * localEdge)) * voice.bodyEnv, 0.10f + localEdge * 0.60f);
-			float pulse = (std::sin(voice.phase1) >= 0.f ? 1.f : -1.f) * voice.bodyEnv;
-			float grain = std::sin(voice.phase2 * (2.0f + 0.37f * (float)soundV) + std::sin(voice.phase1 * 0.51f) * 3.1f) * voice.noiseEnv;
-			float cluster = (std::sin(voice.phase1) * 0.45f + std::sin(voice.phase1 * 1.503f) * 0.31f + std::sin(voice.phase1 * 2.017f) * 0.24f) * voice.bodyEnv;
+			CLANG_LAZY(click, tonalClick * (1.f - 0.42f * noiseAmount) + rawClick * noiseAmount * 0.72f);
+			CLANG_LAZY(ghostTone, (s2() * 0.68f + std::sin(voice.phaseSub * 2.01f) * 0.32f) * voice.ghostEnv);
+			CLANG_LAZY(ghost, ghostTone() * (1.f - 0.55f * noiseAmount) + ghostWhite * voice.ghostEnv * voice.noiseLevel * noiseAmount * 0.70f);
+			CLANG_LAZY(chirp, std::sin(voice.phase1 + std::sin(voice.phase2 * (1.4f + 0.11f * modelV)) * (1.2f + 5.0f * localEdge)) * voice.bodyEnv);
+			CLANG_LAZY(scrape, fold(noise * 0.92f + s2() * voice.noiseEnv * 0.24f * noiseAmount, clamp(localEdge + 0.25f, 0.f, 1.f)));
+			CLANG_LAZY(crushStepsA, 3.f + 26.f * (1.f - clamp(localEdge + voice.crushAmt * 0.45f, 0.f, 1.f)));
+			CLANG_LAZY(crushedMix, std::round((body() * 0.55f + noise * 0.70f + click() * 0.25f) * crushStepsA()) / crushStepsA());
+			CLANG_LAZY(ring, (s1 * 0.62f + std::sin(voice.phase2 * 1.013f) * 0.38f) * voice.bodyEnv * voice.bodyLevel);
+			CLANG_LAZY(tube, std::tanh(low() * 1.4f + body() * 0.32f) * (0.9f + 0.35f * damp));
+			CLANG_LAZY(wire, fold(std::sin(voice.phase2 + s1 * 0.8f) * voice.bodyEnv * 0.55f + noise * 0.35f, clamp(localEdge + 0.15f, 0.f, 1.f)));
+			CLANG_LAZY(membrane, std::sin(voice.phaseSub + s1 * (0.35f + 0.80f * voice.pitchEnv)) * voice.subEnv);
+			CLANG_LAZY(glass, (std::sin(voice.phase1 * 1.003f) + std::sin(voice.phase2 * 2.011f) * 0.63f + std::sin(voice.phase1 * 3.917f) * 0.27f) * voice.bodyEnv * 0.52f);
+			CLANG_LAZY(spring, fold(std::sin(voice.phase1 + phase2Base() * (2.2f + 4.8f * localEdge)) * voice.bodyEnv, 0.10f + localEdge * 0.60f));
+			CLANG_LAZY(pulse, (s1 >= 0.f ? 1.f : -1.f) * voice.bodyEnv);
+			CLANG_LAZY(grain, std::sin(voice.phase2 * (2.0f + 0.37f * (float)soundV) + std::sin(voice.phase1 * 0.51f) * 3.1f) * voice.noiseEnv);
+			CLANG_LAZY(cluster, (s1 * 0.45f + std::sin(voice.phase1 * 1.503f) * 0.31f + std::sin(voice.phase1 * 2.017f) * 0.24f) * voice.bodyEnv);
 
 			float soundOut = 0.f;
 			if (engineV == 0) {
@@ -895,220 +950,220 @@ struct Clang : Module {
 					case 0: // Tick: dry electronic and mechanical micro-transients.
 						switch (soundV) {
 							case 0: soundOut = tonalClick * 1.65f; break;
-							case 1: soundOut = chirp * 1.05f + tonalClick * 0.42f; break;
-							case 2: soundOut = tonalClick * 0.92f + ghostTone * 0.88f + low * 0.18f; break;
-							case 3: soundOut = pulse * 0.62f + tonalClick * 0.46f; break;
-							case 4: soundOut = glass * 0.96f + tonalClick * 0.22f; break;
-							case 5: soundOut = membrane * 0.82f + tonalClick * 0.64f; break;
-							case 6: soundOut = crushedMix * 0.72f + digitalDust * voice.noiseEnv * noiseAmount * 0.42f; break;
-							default: soundOut = chirp * 0.76f + burstNoise * voice.noiseEnv * noiseAmount * 0.68f + ghost * 0.34f; break;
+							case 1: soundOut = chirp() * 1.05f + tonalClick * 0.42f; break;
+							case 2: soundOut = tonalClick * 0.92f + ghostTone() * 0.88f + low() * 0.18f; break;
+							case 3: soundOut = pulse() * 0.62f + tonalClick * 0.46f; break;
+							case 4: soundOut = glass() * 0.96f + tonalClick * 0.22f; break;
+							case 5: soundOut = membrane() * 0.82f + tonalClick * 0.64f; break;
+							case 6: soundOut = crushedMix() * 0.72f + digitalDust() * voice.noiseEnv * noiseAmount * 0.42f; break;
+							default: soundOut = chirp() * 0.76f + burstNoise() * voice.noiseEnv * noiseAmount * 0.68f + ghost() * 0.34f; break;
 						}
 						break;
 					case 1: // Dust: eight differently filtered particulate textures.
 						switch (soundV) {
-							case 0: soundOut = grain * 0.38f + airNoise * voice.noiseEnv * noiseAmount * 1.10f; break;
-							case 1: soundOut = grain * 0.24f + sandNoise * voice.noiseEnv * noiseAmount * 1.20f; break;
-							case 2: soundOut = ghostTone * 0.34f + hp * voice.noiseEnv * noiseAmount * 0.88f; break;
-							case 3: soundOut = tapeNoise * voice.noiseEnv * noiseAmount + low * 0.12f; break;
-							case 4: soundOut = grain * (0.42f + noiseAmount * 0.38f) + grainNoise * voice.noiseEnv * noiseAmount * 0.72f; break;
-							case 5: soundOut = steamNoise * noiseAmount * 1.08f + chirp * 0.16f; break;
-							case 6: soundOut = ghostTone * 0.52f + airNoise * voice.noiseEnv * noiseAmount * 0.76f; break;
-							default: soundOut = burstNoise * voice.noiseEnv * noiseAmount * 1.18f + pulse * 0.12f; break;
+							case 0: soundOut = grain() * 0.38f + airNoise() * voice.noiseEnv * noiseAmount * 1.10f; break;
+							case 1: soundOut = grain() * 0.24f + sandNoise() * voice.noiseEnv * noiseAmount * 1.20f; break;
+							case 2: soundOut = ghostTone() * 0.34f + hp * voice.noiseEnv * noiseAmount * 0.88f; break;
+							case 3: soundOut = tapeNoise() * voice.noiseEnv * noiseAmount + low() * 0.12f; break;
+							case 4: soundOut = grain() * (0.42f + noiseAmount * 0.38f) + grainNoise() * voice.noiseEnv * noiseAmount * 0.72f; break;
+							case 5: soundOut = steamNoise() * noiseAmount * 1.08f + chirp() * 0.16f; break;
+							case 6: soundOut = ghostTone() * 0.52f + airNoise() * voice.noiseEnv * noiseAmount * 0.76f; break;
+							default: soundOut = burstNoise() * voice.noiseEnv * noiseAmount * 1.18f + pulse() * 0.12f; break;
 						}
 						break;
 					case 2: // Metal: plates, rims, bolts and tanks use different mode sets.
 						switch (soundV) {
-							case 0: soundOut = ring * 0.72f + glass * 0.55f; break;
-							case 1: soundOut = tonalClick * 0.72f + ring * 0.48f; break;
-							case 2: soundOut = membrane * 0.62f + tonalClick * 0.58f + ring * 0.24f; break;
-							case 3: soundOut = glass * 1.02f + metalDust * voice.noiseEnv * noiseAmount * 0.18f; break;
-							case 4: soundOut = s1 * voice.bodyEnv * 0.84f + s2 * voice.bodyEnv * 0.28f; break;
-							case 5: soundOut = membrane * 0.82f + ring * 0.56f; break;
-							case 6: soundOut = tonalClick * 0.68f + ghostTone * 0.62f + glass * 0.22f; break;
-							default: soundOut = glass * 0.82f + fold(ring, localEdge) * 0.48f + metalDust * voice.noiseEnv * noiseAmount * 0.32f; break;
+							case 0: soundOut = ring() * 0.72f + glass() * 0.55f; break;
+							case 1: soundOut = tonalClick * 0.72f + ring() * 0.48f; break;
+							case 2: soundOut = membrane() * 0.62f + tonalClick * 0.58f + ring() * 0.24f; break;
+							case 3: soundOut = glass() * 1.02f + metalDust() * voice.noiseEnv * noiseAmount * 0.18f; break;
+							case 4: soundOut = s1 * voice.bodyEnv * 0.84f + s2() * voice.bodyEnv * 0.28f; break;
+							case 5: soundOut = membrane() * 0.82f + ring() * 0.56f; break;
+							case 6: soundOut = tonalClick * 0.68f + ghostTone() * 0.62f + glass() * 0.22f; break;
+							default: soundOut = glass() * 0.82f + fold(ring(), localEdge) * 0.48f + metalDust() * voice.noiseEnv * noiseAmount * 0.32f; break;
 						}
 						break;
 					case 3: // Wire: tension, spring and electrical gestures.
 						switch (soundV) {
-							case 0: soundOut = spring * 0.92f + s1 * voice.bodyEnv * 0.26f; break;
-							case 1: soundOut = low * 0.52f + wire * 0.64f; break;
-							case 2: soundOut = spring * 1.08f + ghostTone * 0.34f; break;
-							case 3: soundOut = s1 * voice.bodyEnv * 0.42f + chirp * 0.66f; break;
-							case 4: soundOut = pulse * 0.36f + wire * 0.82f + noise * 0.22f; break;
-							case 5: soundOut = chirp * 0.92f + tonalClick * 0.28f + noise * 0.20f; break;
-							case 6: soundOut = fold(wire + ghostTone * 0.32f, localEdge) * 0.92f; break;
-							default: soundOut = tonalClick * 0.62f + spring * 0.58f + burstNoise * voice.noiseEnv * noiseAmount * 0.24f; break;
+							case 0: soundOut = spring() * 0.92f + s1 * voice.bodyEnv * 0.26f; break;
+							case 1: soundOut = low() * 0.52f + wire() * 0.64f; break;
+							case 2: soundOut = spring() * 1.08f + ghostTone() * 0.34f; break;
+							case 3: soundOut = s1 * voice.bodyEnv * 0.42f + chirp() * 0.66f; break;
+							case 4: soundOut = pulse() * 0.36f + wire() * 0.82f + noise * 0.22f; break;
+							case 5: soundOut = chirp() * 0.92f + tonalClick * 0.28f + noise * 0.20f; break;
+							case 6: soundOut = fold(wire() + ghostTone() * 0.32f, localEdge) * 0.92f; break;
+							default: soundOut = tonalClick * 0.62f + spring() * 0.58f + burstNoise() * voice.noiseEnv * noiseAmount * 0.24f; break;
 						}
 						break;
 					case 4: // Tube: low, hollow objects with recognisably different cavities.
 						switch (soundV) {
-							case 0: soundOut = tube * 1.05f; break;
-							case 1: soundOut = tube * 0.68f + ring * 0.36f + tonalClick * 0.22f; break;
-							case 2: soundOut = membrane * 1.02f + pulse * 0.12f; break;
-							case 3: soundOut = low * 0.48f + chirp * 0.52f + ghostTone * 0.22f; break;
-							case 4: soundOut = membrane * 0.94f + low * 0.42f; break;
-							case 5: soundOut = std::sin(voice.phase1 + s2 * 0.34f) * voice.bodyEnv * 0.76f + low * 0.31f; break;
-							case 6: soundOut = pulse * 0.27f + tube * 0.78f; break;
-							default: soundOut = tube * 0.72f + glass * 0.31f + ghostTone * 0.38f; break;
+							case 0: soundOut = tube() * 1.05f; break;
+							case 1: soundOut = tube() * 0.68f + ring() * 0.36f + tonalClick * 0.22f; break;
+							case 2: soundOut = membrane() * 1.02f + pulse() * 0.12f; break;
+							case 3: soundOut = low() * 0.48f + chirp() * 0.52f + ghostTone() * 0.22f; break;
+							case 4: soundOut = membrane() * 0.94f + low() * 0.42f; break;
+							case 5: soundOut = std::sin(voice.phase1 + s2() * 0.34f) * voice.bodyEnv * 0.76f + low() * 0.31f; break;
+							case 6: soundOut = pulse() * 0.27f + tube() * 0.78f; break;
+							default: soundOut = tube() * 0.72f + glass() * 0.31f + ghostTone() * 0.38f; break;
 						}
 						break;
 					case 5: // Scrap: asymmetric impacts, drags and loose assemblies.
 						switch (soundV) {
-							case 0: soundOut = fold(ring * 0.55f + tonalClick * 0.48f, localEdge * 0.42f); break;
-							case 1: soundOut = scrape * 0.82f + grain * 0.28f + noise * 0.24f; break;
-							case 2: soundOut = low * 0.52f + cluster * 0.58f + tonalClick * 0.25f; break;
-							case 3: soundOut = ring * 0.42f + ghostTone * 0.84f + metalDust * voice.noiseEnv * noiseAmount * 0.24f; break;
-							case 4: soundOut = cluster * 0.48f + scrape * 0.52f + noise * 0.32f; break;
-							case 5: soundOut = pulse * 0.22f + spring * 0.76f + low * 0.18f; break;
-							case 6: soundOut = tonalClick * 0.86f + membrane * 0.36f; break;
-							default: soundOut = fold(cluster * 0.62f + burstNoise * voice.noiseEnv * noiseAmount * 0.62f, localEdge) + low * 0.28f; break;
+							case 0: soundOut = fold(ring() * 0.55f + tonalClick * 0.48f, localEdge * 0.42f); break;
+							case 1: soundOut = scrape() * 0.82f + grain() * 0.28f + noise * 0.24f; break;
+							case 2: soundOut = low() * 0.52f + cluster() * 0.58f + tonalClick * 0.25f; break;
+							case 3: soundOut = ring() * 0.42f + ghostTone() * 0.84f + metalDust() * voice.noiseEnv * noiseAmount * 0.24f; break;
+							case 4: soundOut = cluster() * 0.48f + scrape() * 0.52f + noise * 0.32f; break;
+							case 5: soundOut = pulse() * 0.22f + spring() * 0.76f + low() * 0.18f; break;
+							case 6: soundOut = tonalClick * 0.86f + membrane() * 0.36f; break;
+							default: soundOut = fold(cluster() * 0.62f + burstNoise() * voice.noiseEnv * noiseAmount * 0.62f, localEdge) + low() * 0.28f; break;
 						}
 						break;
 					case 6: // Fold: tonal material driven through distinct nonlinear paths.
 						switch (soundV) {
-							case 0: soundOut = fold(body, 0.25f + localEdge * 0.52f); break;
-							case 1: soundOut = fold(low * 0.62f + body * 0.55f, localEdge * 0.76f); break;
-							case 2: soundOut = fold(chirp * 0.92f + tonalClick * 0.16f, 0.45f + localEdge); break;
-							case 3: soundOut = std::tanh((body + membrane * 0.28f) * (2.2f + 5.f * edge)); break;
-							case 4: soundOut = fold(spring * 0.78f + low * 0.25f, localEdge) + ghostTone * 0.18f; break;
-							case 5: soundOut = pulse * 0.62f + fold(body, 0.72f + localEdge) * 0.58f; break;
-							case 6: soundOut = fold(chirp + glass * 0.34f, 0.78f + localEdge) * 0.88f + noise * 0.18f; break;
-							default: soundOut = fold(wire * 0.82f + tonalClick * 0.24f, 0.58f + localEdge) + ghostTone * 0.31f; break;
+							case 0: soundOut = fold(body(), 0.25f + localEdge * 0.52f); break;
+							case 1: soundOut = fold(low() * 0.62f + body() * 0.55f, localEdge * 0.76f); break;
+							case 2: soundOut = fold(chirp() * 0.92f + tonalClick * 0.16f, 0.45f + localEdge); break;
+							case 3: soundOut = std::tanh((body() + membrane() * 0.28f) * (2.2f + 5.f * edge)); break;
+							case 4: soundOut = fold(spring() * 0.78f + low() * 0.25f, localEdge) + ghostTone() * 0.18f; break;
+							case 5: soundOut = pulse() * 0.62f + fold(body(), 0.72f + localEdge) * 0.58f; break;
+							case 6: soundOut = fold(chirp() + glass() * 0.34f, 0.78f + localEdge) * 0.88f + noise * 0.18f; break;
+							default: soundOut = fold(wire() * 0.82f + tonalClick * 0.24f, 0.58f + localEdge) + ghostTone() * 0.31f; break;
 						}
 						break;
 					default: // Crush: clocked, aliased and packet-like transients.
 						switch (soundV) {
-							case 0: soundOut = std::round(body * 4.f) * 0.25f + tonalClick * 0.22f; break;
-							case 1: soundOut = std::round(chirp * 9.f) / 9.f; break;
+							case 0: soundOut = std::round(body() * 4.f) * 0.25f + tonalClick * 0.22f; break;
+							case 1: soundOut = std::round(chirp() * 9.f) / 9.f; break;
 							case 2: { // Shatter: a short digital fracture, not a generic hit.
-								float fracture = pulse * 0.52f + chirp * 0.34f + std::round(body * 7.f) / 7.f * 0.42f;
-								soundOut = fold(fracture + digitalDust * voice.noiseEnv * noiseAmount * 0.32f, clamp(localEdge + 0.24f, 0.f, 1.f)) * 1.18f;
+								float fracture = pulse() * 0.52f + chirp() * 0.34f + std::round(body() * 7.f) / 7.f * 0.42f;
+								soundOut = fold(fracture + digitalDust() * voice.noiseEnv * noiseAmount * 0.32f, clamp(localEdge + 0.24f, 0.f, 1.f)) * 1.18f;
 								break;
 							}
-							case 3: soundOut = pulse * 0.34f + digitalDust * voice.noiseEnv * noiseAmount * 0.62f + ghostTone * 0.25f; break;
-							case 4: soundOut = std::round(cluster * 13.f) / 13.f + tonalClick * 0.16f; break;
-							case 5: soundOut = fold(std::round(body * 6.f) / 6.f + ghostTone * 0.35f, localEdge + 0.22f); break;
-							case 6: soundOut = digitalDust * voice.noiseEnv * noiseAmount * 0.85f + grain * 0.28f; break;
-							default: soundOut = fold(crushedMix + burstNoise * voice.noiseEnv * noiseAmount * 0.48f, 0.38f + localEdge) + low * 0.18f; break;
+							case 3: soundOut = pulse() * 0.34f + digitalDust() * voice.noiseEnv * noiseAmount * 0.62f + ghostTone() * 0.25f; break;
+							case 4: soundOut = std::round(cluster() * 13.f) / 13.f + tonalClick * 0.16f; break;
+							case 5: soundOut = fold(std::round(body() * 6.f) / 6.f + ghostTone() * 0.35f, localEdge + 0.22f); break;
+							case 6: soundOut = digitalDust() * voice.noiseEnv * noiseAmount * 0.85f + grain() * 0.28f; break;
+							default: soundOut = fold(crushedMix() + burstNoise() * voice.noiseEnv * noiseAmount * 0.48f, 0.38f + localEdge) + low() * 0.18f; break;
 						}
 						break;
 				}
 			}
 			else {
-			float modEnv = voice.noiseEnv * (0.35f + voice.fmIndex * (0.75f + 2.8f * edge + 4.5f * motionAmount));
-			float carrier = std::sin(voice.phase1 + std::sin(voice.phase2) * modEnv + motionPhase * (0.55f + 1.25f * motionAmount) + noise * edge * 0.20f);
-			float side = std::sin(voice.phase2 * (1.f + 0.02f * (float)modelV) + motionPhase * 0.72f);
-				float fm = (carrier * 0.78f + side * 0.22f) * voice.bodyEnv;
-				float crushSteps = 4.f + 44.f * (1.f - clamp(edge * 0.82f + voice.crushAmt * 0.42f, 0.f, 1.f));
-				float digital = std::round((fm + noise * 0.35f) * crushSteps) / crushSteps;
-				float fmBell = (std::sin(voice.phase1 + side * modEnv * 0.42f) * 0.52f + std::sin(voice.phase2 * 1.997f) * 0.48f) * voice.bodyEnv;
-				float fmZap = fold(carrier * 0.80f + chirp * 0.35f + click * 0.16f, clamp(localEdge + 0.22f, 0.f, 1.f));
-				float fmStack = (fm + std::sin(voice.phase1 * 1.498f) * voice.bodyEnv * 0.34f + std::sin(voice.phase1 * 2.002f) * voice.bodyEnv * 0.22f);
-				float phaseBody = fold(carrier * voice.bodyEnv + side * voice.bodyEnv * 0.30f, 0.25f + localEdge * 0.75f);
-				float fmFault = fold(digital * 0.78f + noise * 0.55f + ghost * 0.35f, clamp(localEdge + voice.crushAmt * 0.30f, 0.f, 1.f));
+				float modEnv = voice.noiseEnv * (0.35f + voice.fmIndex * (0.75f + 2.8f * edge + 4.5f * motionAmount));
+					CLANG_LAZY(carrier, std::sin(voice.phase1 + phase2Base() * modEnv + motionPhase() * (0.55f + 1.25f * motionAmount) + noise * edge * 0.20f));
+					CLANG_LAZY(side, std::sin(voice.phase2 * (1.f + 0.02f * (float)modelV) + motionPhase() * 0.72f));
+					CLANG_LAZY(fm, (carrier() * 0.78f + side() * 0.22f) * voice.bodyEnv);
+				CLANG_LAZY(crushSteps, 4.f + 44.f * (1.f - clamp(edge * 0.82f + voice.crushAmt * 0.42f, 0.f, 1.f)));
+					CLANG_LAZY(digital, std::round((fm() + noise * 0.35f) * crushSteps()) / crushSteps());
+					CLANG_LAZY(fmBell, (std::sin(voice.phase1 + side() * modEnv * 0.42f) * 0.52f + std::sin(voice.phase2 * 1.997f) * 0.48f) * voice.bodyEnv);
+					CLANG_LAZY(fmZap, fold(carrier() * 0.80f + chirp() * 0.35f + click() * 0.16f, clamp(localEdge + 0.22f, 0.f, 1.f)));
+					CLANG_LAZY(fmStack, fm() + std::sin(voice.phase1 * 1.498f) * voice.bodyEnv * 0.34f + std::sin(voice.phase1 * 2.002f) * voice.bodyEnv * 0.22f);
+					CLANG_LAZY(phaseBody, fold(carrier() * voice.bodyEnv + side() * voice.bodyEnv * 0.30f, 0.25f + localEdge * 0.75f));
+					CLANG_LAZY(fmFault, fold(digital() * 0.78f + noise * 0.55f + ghost() * 0.35f, clamp(localEdge + voice.crushAmt * 0.30f, 0.f, 1.f)));
 				switch (modelV) {
 					case 0: // Ping
 						switch (soundV) {
-							case 0: soundOut = carrier * voice.bodyEnv * 0.72f + tonalClick * 0.42f; break;
-							case 1: soundOut = chirp * 0.88f + tonalClick * 0.28f; break;
-							case 2: soundOut = fm * 0.68f + membrane * 0.42f; break;
-							case 3: soundOut = low * 0.72f + fm * 0.38f; break;
-							case 4: soundOut = carrier * voice.bodyEnv * 0.58f + ghostTone * 0.46f; break;
+							case 0: soundOut = carrier() * voice.bodyEnv * 0.72f + tonalClick * 0.42f; break;
+							case 1: soundOut = chirp() * 0.88f + tonalClick * 0.28f; break;
+							case 2: soundOut = fm() * 0.68f + membrane() * 0.42f; break;
+							case 3: soundOut = low() * 0.72f + fm() * 0.38f; break;
+							case 4: soundOut = carrier() * voice.bodyEnv * 0.58f + ghostTone() * 0.46f; break;
 							case 5: // Strike: short metallic impact, never a sustained carrier.
-								soundOut = fold(tonalClick * 0.92f + spring * 0.62f + glass * 0.24f
-									+ metalDust * voice.noiseEnv * (0.24f + 0.18f * noiseAmount),
+								soundOut = fold(tonalClick * 0.92f + spring() * 0.62f + glass() * 0.24f
+									+ metalDust() * voice.noiseEnv * (0.24f + 0.18f * noiseAmount),
 									0.42f + localEdge * 0.38f);
 								break;
-							case 6: soundOut = pulse * 0.28f + fm * 0.72f; break;
+							case 6: soundOut = pulse() * 0.28f + fm() * 0.72f; break;
 							default: // Shard: a short metallic splinter, not a ringing carrier.
-								soundOut = fold(glass * 0.58f + spring * 0.46f + tonalClick * 0.34f
-									+ metalDust * voice.noiseEnv * (0.20f + 0.16f * noiseAmount),
+								soundOut = fold(glass() * 0.58f + spring() * 0.46f + tonalClick * 0.34f
+									+ metalDust() * voice.noiseEnv * (0.20f + 0.16f * noiseAmount),
 									0.36f + localEdge * 0.34f);
 								break;
 						}
 						break;
 					case 1: // Ratio
 						switch (soundV) {
-							case 0: soundOut = fm * 0.68f + low * 0.48f; break;
-							case 1: soundOut = fm * 0.82f + side * voice.bodyEnv * 0.26f; break;
-							case 2: soundOut = fm * 0.62f + membrane * 0.64f; break;
-							case 3: soundOut = fm * 0.88f + glass * 0.24f; break;
-							case 4: soundOut = carrier * voice.bodyEnv * 0.58f + side * voice.bodyEnv * 0.51f; break;
-							case 5: soundOut = fold(fm, localEdge * 0.48f) + low * 0.26f; break;
-							case 6: soundOut = fmBell * 0.82f + side * voice.bodyEnv * 0.33f; break;
-							default: soundOut = cluster * 0.38f + fm * 0.84f; break;
+							case 0: soundOut = fm() * 0.68f + low() * 0.48f; break;
+							case 1: soundOut = fm() * 0.82f + side() * voice.bodyEnv * 0.26f; break;
+							case 2: soundOut = fm() * 0.62f + membrane() * 0.64f; break;
+							case 3: soundOut = fm() * 0.88f + glass() * 0.24f; break;
+							case 4: soundOut = carrier() * voice.bodyEnv * 0.58f + side() * voice.bodyEnv * 0.51f; break;
+							case 5: soundOut = fold(fm(), localEdge * 0.48f) + low() * 0.26f; break;
+							case 6: soundOut = fmBell() * 0.82f + side() * voice.bodyEnv * 0.33f; break;
+							default: soundOut = cluster() * 0.38f + fm() * 0.84f; break;
 						}
 						break;
 					case 2: // Bell
 						switch (soundV) {
-							case 0: soundOut = fmBell * 0.86f + glass * 0.42f; break;
-							case 1: soundOut = fmBell * 1.05f + ring * 0.18f; break;
-							case 2: soundOut = glass * 0.92f + carrier * voice.bodyEnv * 0.22f; break;
-							case 3: soundOut = fold(fmBell, 0.30f + localEdge * 0.55f); break;
-							case 4: soundOut = low * 0.36f + fmBell * 0.73f; break;
-							case 5: soundOut = fmBell * 0.58f + ghostTone * 0.82f; break;
-							case 6: soundOut = phaseBody * 0.72f + glass * 0.42f; break;
-							default: soundOut = cluster * 0.44f + fmBell * 0.78f + metalDust * voice.noiseEnv * noiseAmount * 0.18f; break;
+							case 0: soundOut = fmBell() * 0.86f + glass() * 0.42f; break;
+							case 1: soundOut = fmBell() * 1.05f + ring() * 0.18f; break;
+							case 2: soundOut = glass() * 0.92f + carrier() * voice.bodyEnv * 0.22f; break;
+							case 3: soundOut = fold(fmBell(), 0.30f + localEdge * 0.55f); break;
+							case 4: soundOut = low() * 0.36f + fmBell() * 0.73f; break;
+							case 5: soundOut = fmBell() * 0.58f + ghostTone() * 0.82f; break;
+							case 6: soundOut = phaseBody() * 0.72f + glass() * 0.42f; break;
+							default: soundOut = cluster() * 0.44f + fmBell() * 0.78f + metalDust() * voice.noiseEnv * noiseAmount * 0.18f; break;
 						}
 						break;
 					case 3: // Arc
 						switch (soundV) {
-			case 0: soundOut = fmZap * 0.78f + tonalClick * 0.20f; break;
-							case 1: soundOut = tonalClick * 0.74f + chirp * 0.58f; break;
-							case 2: soundOut = chirp * 0.88f + ghostTone * 0.42f; break;
-							case 3: soundOut = fmZap * 0.72f + ghostTone * 0.68f; break;
-							case 4: soundOut = spring * 0.44f + fmZap * 0.76f; break;
-							case 5: soundOut = tonalClick * 0.88f + fm * 0.24f; break;
-							case 6: soundOut = fmZap * 0.88f + chirp * 0.32f + pulse * 0.18f + low * 0.12f + noise * 0.12f; break;
-							default: soundOut = fmZap * 0.86f + chirp * 0.36f + pulse * 0.22f + burstNoise * voice.noiseEnv * noiseAmount * 0.24f; break;
+			case 0: soundOut = fmZap() * 0.78f + tonalClick * 0.20f; break;
+							case 1: soundOut = tonalClick * 0.74f + chirp() * 0.58f; break;
+							case 2: soundOut = chirp() * 0.88f + ghostTone() * 0.42f; break;
+							case 3: soundOut = fmZap() * 0.72f + ghostTone() * 0.68f; break;
+							case 4: soundOut = spring() * 0.44f + fmZap() * 0.76f; break;
+							case 5: soundOut = tonalClick * 0.88f + fm() * 0.24f; break;
+							case 6: soundOut = fmZap() * 0.88f + chirp() * 0.32f + pulse() * 0.18f + low() * 0.12f + noise * 0.12f; break;
+							default: soundOut = fmZap() * 0.86f + chirp() * 0.36f + pulse() * 0.22f + burstNoise() * voice.noiseEnv * noiseAmount * 0.24f; break;
 						}
 						break;
 					case 4: // Phase
 						switch (soundV) {
-							case 0: soundOut = phaseBody * 0.88f; break;
-							case 1: soundOut = carrier * voice.bodyEnv * 0.56f + phaseBody * 0.48f; break;
-							case 2: soundOut = phaseBody * 0.72f + side * voice.bodyEnv * 0.44f; break;
-							case 3: soundOut = fold(phaseBody + low * 0.22f, localEdge * 0.70f); break;
-							case 4: soundOut = pulse * 0.31f + phaseBody * 0.74f; break;
-							case 5: soundOut = spring * 0.42f + phaseBody * 0.72f; break;
-							case 6: soundOut = fold(phaseBody + chirp * 0.38f, 0.48f + localEdge); break;
-							default: soundOut = -phaseBody * 0.68f + ghostTone * 0.54f + fm * 0.28f; break;
+							case 0: soundOut = phaseBody() * 0.88f; break;
+							case 1: soundOut = carrier() * voice.bodyEnv * 0.56f + phaseBody() * 0.48f; break;
+							case 2: soundOut = phaseBody() * 0.72f + side() * voice.bodyEnv * 0.44f; break;
+							case 3: soundOut = fold(phaseBody() + low() * 0.22f, localEdge * 0.70f); break;
+							case 4: soundOut = pulse() * 0.31f + phaseBody() * 0.74f; break;
+							case 5: soundOut = spring() * 0.42f + phaseBody() * 0.72f; break;
+							case 6: soundOut = fold(phaseBody() + chirp() * 0.38f, 0.48f + localEdge); break;
+							default: soundOut = -phaseBody() * 0.68f + ghostTone() * 0.54f + fm() * 0.28f; break;
 						}
 						break;
 					case 5: // Stack
 						switch (soundV) {
-							case 0: soundOut = fmStack * 0.72f + low * 0.28f; break;
-							case 1: soundOut = cluster * 0.62f + fm * 0.54f; break;
-							case 2: soundOut = cluster * 0.84f + low * 0.31f; break;
-							case 3: soundOut = fmStack * 0.58f + glass * 0.42f; break;
-							case 4: soundOut = membrane * 0.64f + cluster * 0.48f; break;
-							case 5: soundOut = low * 0.52f + fmStack * 0.72f + pulse * 0.13f; break;
-							case 6: soundOut = fold(cluster + fm * 0.32f, localEdge + 0.25f); break;
-							default: soundOut = cluster * 0.75f + ghostTone * 0.64f + fm * 0.34f; break;
+							case 0: soundOut = fmStack() * 0.72f + low() * 0.28f; break;
+							case 1: soundOut = cluster() * 0.62f + fm() * 0.54f; break;
+							case 2: soundOut = cluster() * 0.84f + low() * 0.31f; break;
+							case 3: soundOut = fmStack() * 0.58f + glass() * 0.42f; break;
+							case 4: soundOut = membrane() * 0.64f + cluster() * 0.48f; break;
+							case 5: soundOut = low() * 0.52f + fmStack() * 0.72f + pulse() * 0.13f; break;
+							case 6: soundOut = fold(cluster() + fm() * 0.32f, localEdge + 0.25f); break;
+							default: soundOut = cluster() * 0.75f + ghostTone() * 0.64f + fm() * 0.34f; break;
 						}
 						break;
 					case 6: // Bits
 						switch (soundV) {
-							case 0: soundOut = digital * 0.68f + digitalDust * voice.noiseEnv * noiseAmount * 0.32f; break;
-							case 1: soundOut = std::round(fm * 5.f) / 5.f; break;
-							case 2: soundOut = pulse * 0.31f + digital * 0.66f + noise * 0.18f; break;
-							case 3: soundOut = digital * 0.42f + tapeNoise * voice.noiseEnv * noiseAmount * 0.58f; break;
-							case 4: soundOut = std::round(phaseBody * 11.f) / 11.f + grain * 0.21f; break;
-							case 5: soundOut = digital * 0.55f + ghostTone * 0.74f; break;
-							case 6: soundOut = tonalClick * 0.76f + digital * 0.38f; break;
-							default: soundOut = fold(digital * 0.74f + burstNoise * voice.noiseEnv * noiseAmount * 0.48f, localEdge + 0.32f); break;
+							case 0: soundOut = digital() * 0.68f + digitalDust() * voice.noiseEnv * noiseAmount * 0.32f; break;
+							case 1: soundOut = std::round(fm() * 5.f) / 5.f; break;
+							case 2: soundOut = pulse() * 0.31f + digital() * 0.66f + noise * 0.18f; break;
+							case 3: soundOut = digital() * 0.42f + tapeNoise() * voice.noiseEnv * noiseAmount * 0.58f; break;
+							case 4: soundOut = std::round(phaseBody() * 11.f) / 11.f + grain() * 0.21f; break;
+							case 5: soundOut = digital() * 0.55f + ghostTone() * 0.74f; break;
+							case 6: soundOut = tonalClick * 0.76f + digital() * 0.38f; break;
+							default: soundOut = fold(digital() * 0.74f + burstNoise() * voice.noiseEnv * noiseAmount * 0.48f, localEdge + 0.32f); break;
 						}
 						break;
 					default: // Fault
 						switch (soundV) {
-							case 0: soundOut = std::round(fmFault * 4.f) * 0.25f; break;
-							case 1: soundOut = std::round(fmFault * 6.f) / 6.f; break;
-							case 2: soundOut = std::round(fmFault * 8.f) * 0.125f; break;
-							case 3: soundOut = fold(digital + side * voice.bodyEnv * 0.22f, 0.34f + localEdge); break;
-							case 4: soundOut = std::tanh(fm * (3.2f + 6.f * edge)) * 0.72f; break;
-							case 5: soundOut = fmFault * 0.78f + ghostTone * 0.58f; break;
-							case 6: soundOut = fold(fmFault + chirp * 0.42f, 0.62f + localEdge) + noise * 0.18f; break;
-							default: soundOut = fold(digital * 0.62f + cluster * 0.44f + burstNoise * voice.noiseEnv * noiseAmount * 0.46f, 0.74f + localEdge); break;
+							case 0: soundOut = std::round(fmFault() * 4.f) * 0.25f; break;
+							case 1: soundOut = std::round(fmFault() * 6.f) / 6.f; break;
+							case 2: soundOut = std::round(fmFault() * 8.f) * 0.125f; break;
+							case 3: soundOut = fold(digital() + side() * voice.bodyEnv * 0.22f, 0.34f + localEdge); break;
+							case 4: soundOut = std::tanh(fm() * (3.2f + 6.f * edge)) * 0.72f; break;
+							case 5: soundOut = fmFault() * 0.78f + ghostTone() * 0.58f; break;
+							case 6: soundOut = fold(fmFault() + chirp() * 0.42f, 0.62f + localEdge) + noise * 0.18f; break;
+							default: soundOut = fold(digital() * 0.62f + cluster() * 0.44f + burstNoise() * voice.noiseEnv * noiseAmount * 0.46f, 0.74f + localEdge); break;
 						}
 						break;
 				}
@@ -1133,6 +1188,7 @@ struct Clang : Module {
 			out += soundOut;
 			activeEnergy += clamp(voice.bodyEnv + voice.noiseEnv + voice.clickEnv + voice.subEnv + voice.ghostEnv, 0.f, 1.f);
 		}
+		#undef CLANG_LAZY
 
 		// Keep dense overlaps punchy instead of letting eight tails saturate
 		// into a continuous drone when Decay is high.
