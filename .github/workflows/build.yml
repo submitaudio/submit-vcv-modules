@@ -93,6 +93,11 @@ jobs:
             - Gain — Line level booster
             - Sweep — Filter
             - Loop — Sample loop player
+            - Clang — Techno percussion synthesizer
+            - React — Four-voice rhythm sequencer
+            - Sync — Compact 1 PPQN clock
+            - Flip — Clock-synchronised stereo reverse effect
+            - Orbit — Rhythmic relationship processor
             
             ### Download
             Choose the version for your platform:
@@ -101,7 +106,7 @@ jobs:
             - `lin-x64` — Linux
             
             ### Links
-            [See Manual](https://github.com/submitaudio/submit-vcv-modules/blob/master/MANUAL.md)
+            [See Module Manuals](https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/)
             [See CHANGELOG.md for details](https://github.com/submitaudio/submit-vcv-modules/blob/master/CHANGELOG.md)
             [Visit submitaudio.nl](https://submitaudio.nl)
             [Licensed under GPL-3.0](https://github.com/submitaudio/submit-vcv-modules/blob/master/LICENSE)

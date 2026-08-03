@@ -193,7 +193,7 @@ struct Sweep : Module {
     void dataFromJson(json_t* rootJ) override { (void)rootJ; }
 };
 
-struct SweepWidget : ModuleWidget {
+struct SweepWidget : SubmitModuleWidget {
     SweepWidget(Sweep* module) {
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Panel-design-sweep.svg")));
@@ -224,6 +224,7 @@ struct SweepWidget : ModuleWidget {
         menu->addChild(createMenuItem("Report a Bug", "", []() {
             system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
         }));
+		SubmitModuleWidget::appendContextMenu(menu);
     }
 };
 

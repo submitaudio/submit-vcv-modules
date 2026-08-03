@@ -1224,7 +1224,7 @@ struct ClangDisplay : Widget {
 	}
 };
 
-struct ClangWidget : ModuleWidget {
+struct ClangWidget : SubmitModuleWidget {
 	ClangWidget(Clang* module) {
 		setModule(module);
 		setPanel(createPanel(asset::plugin(pluginInstance, "res/Clang.svg")));
@@ -1262,6 +1262,7 @@ struct ClangWidget : ModuleWidget {
 			menu->addChild(createMenuItem("Report a Bug", "", []() {
 				system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
 			}));
+			SubmitModuleWidget::appendContextMenu(menu);
 		}
 	};
 

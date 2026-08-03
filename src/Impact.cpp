@@ -429,7 +429,7 @@ struct Impact : Module {
     }
 };
 
-struct ImpactWidget : ModuleWidget {
+struct ImpactWidget : SubmitModuleWidget {
     ImpactWidget(Impact* module) {
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Impact.svg")));
@@ -520,6 +520,7 @@ struct ImpactWidget : ModuleWidget {
         menu->addChild(createMenuItem("Report a Bug", "", []() {
             system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
         }));
+		SubmitModuleWidget::appendContextMenu(menu);
     }
 };
 

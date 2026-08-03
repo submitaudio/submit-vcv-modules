@@ -345,7 +345,7 @@ struct ChainVUMeter : Widget {
     }
 };
 
-struct Mix2chWidget : ModuleWidget {
+struct Mix2chWidget : SubmitModuleWidget {
     Mix2chWidget(Mix2ch* module) {
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Chain.svg")));
@@ -428,6 +428,7 @@ struct Mix2chWidget : ModuleWidget {
         menu->addChild(createMenuItem("Report a Bug", "", []() {
             system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
         }));
+		SubmitModuleWidget::appendContextMenu(menu);
     }
 };
 

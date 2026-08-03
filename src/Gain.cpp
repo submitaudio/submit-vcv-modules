@@ -245,7 +245,7 @@ struct GainVUMeter : Widget {
 
 // ── WIDGET ────────────────────────────────────────────────────────────────────
 
-struct GainWidget : ModuleWidget {
+struct GainWidget : SubmitModuleWidget {
     GainWidget(GainModule* module) {
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Gain.svg")));
@@ -307,6 +307,7 @@ struct GainWidget : ModuleWidget {
         menu->addChild(createMenuItem("Report a Bug", "", []() {
             system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
         }));
+		SubmitModuleWidget::appendContextMenu(menu);
     }
 };
 

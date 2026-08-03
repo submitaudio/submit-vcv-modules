@@ -289,7 +289,7 @@ struct Drift13KnobSmall : SvgKnob {
         shadow->opacity = 0.f;
     }
 };
-struct Drift13Widget : ModuleWidget {
+struct Drift13Widget : SubmitModuleWidget {
     Drift13Widget(Drift13* module) {
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance,"res/Drift13.svg")));
@@ -352,6 +352,7 @@ struct Drift13Widget : ModuleWidget {
         menu->addChild(createMenuItem("Report a Bug", "", []() {
             system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
         }));
+		SubmitModuleWidget::appendContextMenu(menu);
     }
 };
 

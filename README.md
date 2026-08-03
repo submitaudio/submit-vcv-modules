@@ -1,32 +1,40 @@
 # Submit
 
-A complete live performance toolkit for VCV Rack - 10 modules designed to work together.
-
-Documentation test line - GitHub connection check.
+A live performance toolkit for VCV Rack: 15 modules designed for electronic music and clock-synchronised performance.
 
 ![Submit Modules](docs/modules.png)
 
 ## Modules
 
-**Drift** — Analog voice with DCO, wavefolder, slope generator and contour envelope
+**Drift** — West Coast voice with oscillator, wavefolder, slope and contour envelope
 
-**Chrono** — Tape machine with wow, flutter, drive and multi-head delay
+**Chrono** — Clock-synchronised stereo delay with tape movement and six rhythmic head modes
 
-**Impact** — Drum synthesizer with noise, harmonics and punch shaping
+**Impact** — Percussive drum synth with Pure and Harsh engines, pitch, punch and noise
 
-**Chain** — 2-channel stereo mixer with pre gain, 2 FX sends, HPF and sidechain CV
+**Chain** — Stereo mixer for Submit Chain with gain, pan, FX sends, HPF, mute and COMP/CV
 
-**Squeeze** — Sidechain envelope follower. Feeds Chain's compressor CV input
+**Squeeze** — Sidechain compressor control for Submit Chain and its COMP/CV input
 
-**Shape** — 6-band SSL-style EQ. Sits in the Submit signal chain
+**Shape** — Six-band SSL-inspired stereo EQ for the Submit Chain
 
-**Master** — Warm master bus processor. Final stage of the Submit chain
+**Master** — Stereo master processor for Submit Chain with glue, width and limiting
 
-**Gain** — Line level booster with soft clip and FX send
+**Gain** — MetaModule line-level utility with gain, soft clip, mute and COMP/CV
 
-**Sweep** — DJ filter with LP/HP sweep, resonance and momentary reset
+**Sweep** — DJ-style stereo filter for Submit Chain with LP, HP, resonance and reset
 
-**Loop** — Sample loop player with waveform display and BPM auto-detection
+**Loop** — Stereo sample looper with waveform, clock sync, BPM parsing, reverse and cue
+
+**Clang** — Techno percussion synth with Physical and FM engines, models and sound variations
+
+**React** — Four-voice rhythm sequencer with genres, patterns, morph, drop, variation and kits
+
+**Sync** — Compact 1 PPQN internal/external clock with ×1, ×2, ÷2 and reset outputs
+
+**Flip** — Stereo clock-synchronised reverse effect with continuous capture, instant Flip, Freeze and rhythmic Length
+
+**Orbit** — Rhythmic relationship processor with Align, Between and Gap triggers, Tension CV and clock-synchronised Hold
 
 ## Download
 
@@ -34,7 +42,7 @@ Documentation test line - GitHub connection check.
 
 ## Links
 
-- [See Manual](https://github.com/submitaudio/submit-vcv-modules/blob/master/MANUAL.md)
+- [See module manuals](https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/)
 - [See CHANGELOG for details](https://github.com/submitaudio/submit-vcv-modules/blob/master/CHANGELOG.md)
 - [Visit submitaudio.nl](https://submitaudio.nl)
 - [Licensed under GPL-3.0](https://github.com/submitaudio/submit-vcv-modules/blob/master/LICENSE)

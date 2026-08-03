@@ -3,9 +3,17 @@
 // https://github.com/submitaudio/submit-vcv-modules
 
 #include "plugin.hpp"
+#include <cmath>
 #include <cstring>
 
 static const int MAX_BUFFER = 96000 * 4;  // 4 sec @ 96kHz max
+
+static inline float wrapBufferPos(float pos) {
+    pos = std::fmod(pos, (float)MAX_BUFFER);
+    if (pos < 0.f)
+        pos += (float)MAX_BUFFER;
+    return pos;
+}
 
 // ─────────────────────────────────────────────
 //  CUSTOM WIDGETS
@@ -381,22 +389,20 @@ struct Chrono : Module {
         // Init lees posities op eerste run
         if (!headPosInit) {
             for (int i = 0; i < 3; i++) {
-                headReadPos[i] = (float)writePos - headTime[i];
-                if (headReadPos[i] < 0.f) headReadPos[i] += (float)MAX_BUFFER;
+                headReadPos[i] = wrapBufferPos((float)writePos - headTime[i]);
             }
             headPosInit = true;
         }
 
         auto readHead = [&](int idx, float offset) -> float {
             // Target: waar de head normaal zou staan
-            float target = (float)writePos - offset;
-            if (target < 0.f) target += (float)MAX_BUFFER;
+            offset = clamp(offset, 1.f, (float)MAX_BUFFER - 2.f);
+            float target = wrapBufferPos((float)writePos - offset);
 
             // Schuif lees positie op met brakeSpeedSmooth
             // 1.0 = normaal, 0.0 = stilstand
             headReadPos[idx] += brakeSpeedSmooth;
-            if (headReadPos[idx] >= (float)MAX_BUFFER)
-                headReadPos[idx] -= (float)MAX_BUFFER;
+            headReadPos[idx] = wrapBufferPos(headReadPos[idx]);
 
             // Bij normale speed: sync naar target als te ver af
             if (brakeSpeedSmooth > 0.95f) {
@@ -628,7 +634,7 @@ struct Chrono : Module {
 //  WIDGET
 // ─────────────────────────────────────────────
 
-struct ChronoWidget : ModuleWidget {
+struct ChronoWidget : SubmitModuleWidget {
     ChronoWidget(Chrono* module) {
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Chrono.svg")));
@@ -719,6 +725,7 @@ struct ChronoWidget : ModuleWidget {
         menu->addChild(createMenuItem("Report a Bug", "", []() {
             system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
         }));
+		SubmitModuleWidget::appendContextMenu(menu);
     }
 };
 

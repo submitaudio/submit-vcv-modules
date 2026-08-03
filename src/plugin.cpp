@@ -19,5 +19,8 @@ void init(Plugin* p) {
 	p->addModel(modelClang);
 	p->addModel(modelReact);
 	p->addModel(modelLoop);
+	p->addModel(modelSync);
+	p->addModel(modelFlip);
+	p->addModel(modelOrbit);
 	pluginInstance = p;
 }

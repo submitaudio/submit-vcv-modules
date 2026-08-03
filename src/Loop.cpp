@@ -508,7 +508,7 @@ struct ReelDisplay : Widget {
     }
 };
 
-struct ReelWidget : ModuleWidget {
+struct ReelWidget : SubmitModuleWidget {
     ReelWidget(Reel* module) {
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Loop.svg")));
@@ -569,6 +569,7 @@ struct ReelWidget : ModuleWidget {
                 free(pathC);
             }
         }));
+		SubmitModuleWidget::appendContextMenu(menu);
     }
 };
 

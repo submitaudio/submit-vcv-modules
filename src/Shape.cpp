@@ -176,7 +176,7 @@ struct Shape : Module {
     }
 };
 
-struct ShapeWidget : ModuleWidget {
+struct ShapeWidget : SubmitModuleWidget {
     ShapeWidget(Shape* module) {
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Shape.svg")));
@@ -208,6 +208,7 @@ struct ShapeWidget : ModuleWidget {
         menu->addChild(createMenuItem("Report a Bug", "", []() {
             system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
         }));
+		SubmitModuleWidget::appendContextMenu(menu);
     }
 };
 

@@ -119,7 +119,7 @@ struct SqueezeKnob : SvgKnob {
     }
 };
 
-struct SqueezeWidget : ModuleWidget {
+struct SqueezeWidget : SubmitModuleWidget {
     SqueezeWidget(Squeeze* module) {
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Squeeze.svg")));
@@ -147,6 +147,7 @@ struct SqueezeWidget : ModuleWidget {
         menu->addChild(createMenuItem("Report a Bug", "", []() {
             system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
         }));
+		SubmitModuleWidget::appendContextMenu(menu);
     }
 };
 

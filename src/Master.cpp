@@ -228,7 +228,7 @@ struct MasterVUMeter : Widget {
     }
 };
 
-struct MasterWidget : ModuleWidget {
+struct MasterWidget : SubmitModuleWidget {
     MasterWidget(Master* module) {
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Master.svg")));
@@ -266,6 +266,7 @@ struct MasterWidget : ModuleWidget {
         menu->addChild(createMenuItem("Report a Bug", "", []() {
             system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
         }));
+		SubmitModuleWidget::appendContextMenu(menu);
     }
 };
 

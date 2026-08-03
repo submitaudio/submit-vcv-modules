@@ -65,7 +65,7 @@ cd ~/Submit && git add . && git commit -m "Beschrijving" && git push
 
 ---
 
-## STAP 5 — Release aanmaken via tag
+## STAP 5 — Optioneel: GitHub release-artifacts maken via tag
 
 ```bash
 cd ~/Submit && git tag v2.x.x && git push origin v2.x.x
@@ -89,7 +89,16 @@ Dan publiceren!
 ---
 
 ## OFFICIELE MODULES
-Drift, Chrono, Impact, Chain, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang, React
+Drift, Chrono, Impact, Chain, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang, React, Sync, Flip, Orbit
 
 ## BETA MODULES (nooit pushen)
-Poly008, Twin, Shortwave, Void, Swell
+Poly008, Twin, Shortwave, Void, VoidV2, VoidV3, Swell
+
+## STAP 7 — Update aanmelden bij de VCV Library
+
+Plaats in de permanente Submit-pluginissue van `VCVRack/library` een reactie met:
+
+- versie `2.17.0`
+- de exacte Git-commit-hash van de releasebron
+
+Een GitHub-tag of GitHub Release is hiervoor niet verplicht; de commit moet wel naar GitHub zijn gepusht.

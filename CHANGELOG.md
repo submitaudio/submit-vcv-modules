@@ -1,10 +1,12 @@
 # Changelog
 
-## Unreleased
-- VCV Library module descriptions expanded with clearer musical descriptions.
-- Submit Chain modules are now described more consistently in `plugin.json`.
-- Gain description now mentions its MetaModule and external gear focus.
-- Local development notes removed from the public repository root.
+## v2.17.0 — 2026-08-03
+- Sync added: compact internal/external 1 PPQN clock with ×1, ×2, ÷2 and reset outputs.
+- Flip added: clock-synchronised stereo reverse effect with continuous capture, Freeze and rhythmic Length.
+- Orbit added: rhythmic relationship processor with Align, Between and Gap triggers, Tension CV and Hold.
+- React clock handling aligned with the Submit Audio 1 PPQN clock standard.
+- Clang CPU usage reduced through lighter voice processing and DSP optimisations.
+- Module descriptions and support links updated.
 
 ## v2.15.3 — 2026-05-28
 - Impact: SPREAD replaced by SNAP transient shaping.
