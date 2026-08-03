@@ -1,5 +1,7 @@
 #include "plugin.hpp"
 
+#include <array>
+
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
