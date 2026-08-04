@@ -314,10 +314,9 @@ struct ChainVUMeter : Widget {
     int channel = 0;
 
     void draw(const DrawArgs& args) override {
-        if (module == nullptr) return;
         float h = box.size.y;
         if (h < 1.f) return;
-        float level = (channel == 0) ? module->vuLevel1 : module->vuLevel2;
+        float level = module == nullptr ? 0.f : ((channel == 0) ? module->vuLevel1 : module->vuLevel2);
         if (level <= 0.f) return;
         if (level > 1.f) level = 1.f;
         float vuH = h * level;

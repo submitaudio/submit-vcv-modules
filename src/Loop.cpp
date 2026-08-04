@@ -158,7 +158,7 @@ struct Reel : Module {
         fileName = (sep != std::string::npos) ? path.substr(sep + 1) : path;
         displayName = fileName;
         if (displayName.size() > 28)
-            displayName = displayName.substr(0, 26) + "..";
+            displayName.replace(26, std::string::npos, "..");
 
         // BPM uit bestandsnaam
         fileBpm = 0.f;
@@ -426,8 +426,7 @@ struct LoopResetButton : SvgSwitch {
 
 // Waveform display
 struct ReelDisplay : Widget {
-    Reel* module;
-    ReelDisplay() {}
+    Reel* module = nullptr;
 
     void draw(const DrawArgs& args) override {
         // Achtergrond

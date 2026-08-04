@@ -197,10 +197,9 @@ struct MasterVUMeter : Widget {
     Master* module = nullptr;
 
     void draw(const DrawArgs& args) override {
-        if (module == nullptr) return;
         float h = box.size.y;
         if (h < 1.f) return;
-        float level = module->vuLevel;
+        float level = module == nullptr ? 0.f : module->vuLevel;
         if (level <= 0.f) return;
         if (level > 1.f) level = 1.f;
         float vuH = h * level;
