@@ -1,35 +1,13 @@
-## The Submit Mixer System
-
-Chain, Squeeze, Shape and Master are designed to work together as a complete mixing and mastering signal chain. Connect them via the CHAIN jacks for a seamless workflow — from individual channel mixing to final master output.
-
-**Chain** handles your stereo channels with pre gain, HPF and FX sends. You can daisy-chain multiple Chain modules together to build a larger mixer. Each channel has its own level, pan, mute and two FX send outputs that can feed shared effects processors.
-
-**Squeeze** generates sidechain CV that feeds directly into Chain's compressor input. Because all Chain modules share the same sidechain bus, you only need one Squeeze to control the dynamics of the entire mix. Connect a kick drum or master bus signal for classic pumping compression.
-
-**Shape** adds SSL-style EQ character to your mix. Connect one Shape module to the FX send of multiple Chain modules using multiple cables from the same output — one Shape for the whole mix without needing separate modules per channel.
-
-**Master** adds warmth, transient control and limiting as the final stage. It sits at the end of the chain and brings everything together before hitting the output.
-
-**Gain** is a line level booster for bringing external signals up to modular level before entering the chain. Especially useful on the 4ms MetaModule.
-
-### Signal Flow
-### Example patch
-
-1. Place two Chain modules for 4 stereo channels
-2. Feed Squeeze with a trigger or audio from a drum module and connect COMP OUT to COMP/CV on Chain for sidechain ducking
-3. Add one Shape as a shared FX send for all channels
-4. Connect everything to Master
-5. Use Gain when a signal is too low — specially made for the MetaModule
-
----
-
 # Submit Audio — User Manual
 
-> Submit Audio is a collection of modules for VCV Rack, designed for electronic music production with a focus on quality sound and intuitive workflow.
+This GitHub manual is the versioned technical reference for the Submit Audio VCV Rack plugin. The friendly, illustrated manual remains available on the [Submit Audio website](https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/).
 
----
+The public release modules are Drift, Chrono, Impact, Chain, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang and React. Sync, Flip and Orbit are documented below as the current VCV 2.17.0 candidates. Beta modules are not included until they are approved for a public release.
 
-## Table of Contents
+## Contents
+
+- [Submit Mixer System](#submit-mixer-system)
+- [Clock standard](#clock-standard)
 - [Drift](#drift)
 - [Chrono](#chrono)
 - [Impact](#impact)
@@ -40,389 +18,324 @@ Chain, Squeeze, Shape and Master are designed to work together as a complete mix
 - [Gain](#gain)
 - [Sweep](#sweep)
 - [Loop](#loop)
+- [Clang](#clang)
+- [React](#react)
+- [Sync](#sync)
+- [Flip](#flip)
+- [Orbit](#orbit)
+- [Support and bug reports](#support-and-bug-reports)
 
----
+## Submit Mixer System
+
+Chain, Squeeze, Shape, Master and Gain are designed to work together as a modular mixing system.
+
+1. Use Chain for stereo channels, pre-gain, pan, filtering, mute and FX sends.
+2. Use Squeeze to generate sidechain CV and patch it to Chain's COMP/CV input.
+3. Use Shape as a shared stereo EQ in an FX loop.
+4. Use Master as the final stereo bus processor.
+5. Use Gain to bring external line-level signals up to modular level, especially on MetaModule.
+
+Chain modules can be daisy-chained to expand the number of channels. The send and return buses allow one effect module to process several channels.
+
+## Clock standard
+
+Submit Audio uses **1 PPQN** as the standard clock: one pulse per quarter note. Modules that need faster rhythmic events derive those events internally.
+
+React and older clocked patches retain their documented legacy compatibility where applicable. Check the module's context menu for any available clock compatibility setting.
 
 ## Drift
 
-Drift is a compact all-in-one voice module combining oscillator, wavefolder, slope and contour. Inspired by the Make Noise 0-Coast, but designed with its own character and behaviour — not a clone. It generates complex, evolving waveforms that are never exactly the same twice, making it ideal for organic leads, drones, and experimental textures.
+Drift is a West Coast-inspired voice with two oscillator outputs, an overtone/multiply section, a slope generator and a contour envelope. It is inspired by the Make Noise 0-Coast while retaining its own sound and controls.
 
-The chaos parameter controls how much the oscillator deviates from its base frequency — at low settings it behaves like a regular oscillator, at high settings it produces unpredictable, glitchy sounds. The morph parameter smoothly transitions between sine, triangle, saw and square waveforms.
+### Controls
+
+- **Octave** and **Fine** set the oscillator pitch.
+- **Overtone** adds harmonic content.
+- **Multiply** expands the overtone relationship from zero to maximum.
+- **Rise**, **Fall**, **Time** and **Curve** shape the slope generator.
+- **Onset**, **Sustain**, **Decay** and **Exp** shape the contour envelope.
+- **Timbre** balances the voice; the Timbre switch enables its alternate behaviour.
+- The Rise switch selects the active Rise behaviour. Rise OFF keeps the standard voice response; Rise ON exposes the full Rise/Fall/Time interaction.
 
 ### Inputs
-| Input | Description |
-|-------|-------------|
-| V/OCT | Pitch CV (1V/oct) |
-| FM | Frequency modulation input |
-| SYNC | Hard sync — resets the phase |
+
+`V/OCT`, `FM`, `OVR`, `MLT`, `TRIG`, `GATE`, `SLP`, `DCY`, `CTR`, `DYN`, fundamental CV, overtone-balance CV, external input and Timbre CV.
 
 ### Outputs
-| Output | Description |
-|--------|-------------|
-| OUT | Main audio output |
 
-### Parameters
-| Parameter | Description |
-|-----------|-------------|
-| PITCH | Base frequency in Hz |
-| CHAOS | Amount of chaotic deviation (0 = stable, max = fully chaotic) |
-| MORPH | Waveform morph from sine to square |
+`TRI`, `SQR`, `EOC`, `EON`, `SLP`, `ENV` and `LINE OUT`.
 
-### Tips
-- Use a slow LFO on the CHAOS input for evolving, organic textures
-- Low CHAOS settings work great for classic oscillator sounds
-- SYNC input can be used to lock Drift to another oscillator
-- Enable the slope and set it to self-oscillate — play with Fall and Time for evolving textures
+### Patch ideas
 
----
+- Patch `TRIG` to start the slope and `ENV` to an external VCA for a plucked voice.
+- Patch `SLP` back to oscillator or filter modulation for evolving West Coast tones.
+- Use a slow CV on `OVR` or `MLT` for metallic movement while keeping the fundamental stable.
 
 ## Chrono
 
-Chrono is a tape delay inspired by classic tape echoes, focused on movement and character. It brings the warmth, imperfection and rhythmic flexibility of vintage tape machines into your modular setup.
+Chrono is a clock-synchronised stereo delay with tape movement, saturation and six rhythmic head modes.
 
-Six tape head combinations give you a wide range of rhythmic echo patterns. The TAPE control adds authentic tape character ranging from subtle hiss to wow and flutter with dropouts. DRIVE adds tape-style saturation for warmth and grit. SURGE freezes and blooms the delay for dramatic build-ups, while BREAK creates a tape stop effect that slows and stops the echoes.
+### Controls
 
-Clock sync with divisions and head offset keeps everything locked to your tempo. Stereo spread widens the delay image, and full CV and gate control lets you automate everything in your patch.
+- **Time**, **Feedback**, **Mix**, **Drive** and **Tape** control the delay and tape character.
+- **Heads** selects `SUB`, `DUB`, `QTR`, `DOT`, `TRP` or `ALL` rhythmic head combinations.
+- **Division** and **Offset** place the heads against the incoming clock.
+- **Spread** controls stereo width.
+- **Surge** freezes and blooms the delay; **Break** creates a tape-stop style slowdown.
 
-### Inputs
-| Input | Description |
-|-------|-------------|
-| IN L | Left stereo input |
-| IN R | Right stereo input |
-| CLK | Clock input for sync |
-| SURGE | Freeze and bloom trigger |
-| BREAK | Tape stop trigger |
+### Inputs and outputs
 
-### Outputs
-| Output | Description |
-|--------|-------------|
-| OUT L | Left stereo output |
-| OUT R | Right stereo output |
+Inputs: stereo audio, Time CV, Feedback CV, Mix CV, Drive CV, Tape CV, Heads CV, 1 PPQN Clock, Offset CV, Spread CV, Surge Gate and Break Gate.
 
-### Parameters
-| Parameter | Description |
-|-----------|-------------|
-| TIME | Delay time |
-| MIX | Dry/wet mix |
-| DRIVE | Tape saturation amount |
-| TAPE | Tape character: hiss, wow, flutter and dropouts |
-| HEADS | Tape head combination selector (6 rhythmic variations) |
-| SPREAD | Stereo spread of the delay taps |
-| SURGE | Freeze and bloom the delay |
-| BREAK | Tape stop effect |
+Outputs: `Audio Out L` and `Audio Out R`.
 
-### Tips
-- Use CLK sync for tight rhythmic delays locked to your sequencer
-- TAPE adds life and movement — even small amounts make a difference
-- SURGE is great for build-ups and transitions
-- Press SURGE for a surprising bloom effect
-- Combine different HEAD settings with SPREAD for wide stereo echoes
+### Patch ideas
 
----
+Use the 1 PPQN clock for locked rhythmic echoes. Increase Tape and Drive gradually for movement, then automate Surge or Break for transitions.
 
 ## Impact
 
-Impact is a powerful kick drum synthesizer with two distinct synthesis modes — Pure (additive synthesis) and Harsh (FM synthesis). It features a full set of controls for shaping the perfect kick drum, from deep sub hits to aggressive industrial punches.
+Impact is a stereo kick and percussion synthesizer with Pure and Harsh engines.
 
-**Pure mode** uses additive synthesis with up to 6 harmonics, giving a clean, musical kick sound. **Harsh mode** uses FM synthesis for more aggressive, metallic kick sounds.
+### Controls
 
-The PUNCH parameter controls the pitch envelope, while SNAP adds a short attack transient for extra click and definition at the start of the kick. MORPH shapes the waveform, while FOLD adds harmonic distortion. Three noise types (Dust, Crunch, Rumble) add different textural elements to the kick.
+- **Pitch**, **Decay**, **Punch**, **Morph**, **Harm**, **Fold**, **Noise**, **Snap** and **Noise Length** shape the sound.
+- **Noise Type** selects Rumble, Crunch or Dust.
+- **Mode** selects Harsh or Pure synthesis.
+- Each of Decay, Punch, Morph, Noise and Fold has an attenuverter for its CV input.
+- **Try Me** triggers the module from the panel.
 
-### Inputs
-| Input | Description |
-|-------|-------------|
-| TRIG | Trigger input — fires the kick |
-| V/OCT | Pitch CV (1V/oct) |
-| PUNCH CV | Punch envelope modulation |
-| MORPH CV | Waveform morph modulation |
-| DECAY CV | Decay time modulation |
-| NOISE CV | Noise tail length modulation |
-| FOLD CV | Wavefolder modulation |
-| ACC | Accent input — boosts volume and punch |
+### Inputs and outputs
 
-### Outputs
-| Output | Description |
-|--------|-------------|
-| OUT L | Left stereo output |
-| OUT R | Right stereo output |
+Inputs: `Trigger`, `Pitch CV (1V/oct)`, Punch CV, Morph CV, Decay CV, Noise Length CV, Fold CV and Accent.
 
-### Parameters
-| Parameter | Description |
-|-----------|-------------|
-| PITCH | Base frequency (30-100 Hz) |
-| DECAY | Amplitude envelope decay time |
-| PUNCH | Pitch envelope depth — higher = more click |
-| MORPH | Waveform morph from sine to square |
-| HARM | Harmonics amount (Pure mode) / FM ratio (Harsh mode) |
-| FOLD | Wavefolder amount — adds harmonic distortion |
-| NOISE | Noise amount mixed with the kick body |
-| SNAP | Short attack click/transient amount |
-| TAIL | Noise envelope decay time |
-| DRUM | Switch between Pure and Harsh synthesis mode |
-| NOISE TYPE | Dust (crackling), Crunch (crunchy), Rumble (low rumble) |
-| TRY ME | Built-in trigger button for testing |
+Outputs: `Audio Out L` and `Audio Out R`.
 
-### Attenuverters
-Each CV input has an attenuverter for precise modulation control. Negative values invert the modulation.
+### Patch ideas
 
-### Tips
-- Start with PUNCH around 0.6 and DECAY around 0.4 for a classic kick
-- Use ACC input from a sequencer for accented beats (808 style)
-- FOLD adds grit — great for industrial and techno kicks
-- Use SNAP for sharper front-end definition without changing the kick body too much
-- Crunch noise type works well for clicky, transient-heavy kicks
-- Try Harsh mode with high HARM values for metallic, industrial kicks
-- Impact is a stereo module — the noise is spread in stereo, experiment with different noise types to make the kick sound more organic
-
----
+Start with Pure mode, moderate Punch and short Decay for a clean kick. Switch to Harsh, raise Harm and add Fold for metallic techno percussion. Crunch adds a sharper transient; Rumble extends the low tail.
 
 ## Chain
 
-Chain is a flexible 4-channel mixer and signal router. Each channel has an individual level control and mute button, making it easy to build submixes and route signals in your patch.
+Chain is a stereo mixer and router with two channel strips and shared FX buses.
+
+### Controls
+
+Each channel has pre-gain, volume, pan, mute, a 40 Hz high-pass switch and two FX sends.
 
 ### Inputs
-| Input | Description |
-|-------|-------------|
-| IN 1-4 | Audio inputs for each channel |
-| CV 1-4 | Voltage controlled level for each channel |
+
+Channel 1 and 2 stereo inputs, COMP/CV inputs, mute CV inputs, chain inputs, send-chain inputs and return inputs.
 
 ### Outputs
-| Output | Description |
-|--------|-------------|
-| MIX L | Stereo left mix output |
-| MIX R | Stereo right mix output |
 
-### Parameters
-| Parameter | Description |
-|-----------|-------------|
-| LEVEL 1-4 | Individual channel level |
-| MUTE 1-4 | Mute button per channel |
+Stereo chain output plus left/right outputs for FX Send 1 and FX Send 2.
 
-### Tips
-- Use CV inputs with envelopes to create dynamic volume changes
-- Chain multiple Chain modules for larger mixing setups
-- Mute buttons are great for live performance — mute/unmute on the fly
+### Patch ideas
 
----
+Daisy-chain Chain modules for more channels. Connect Squeeze COMP OUT to a Chain COMP/CV input for sidechain pumping. Route a shared Shape or Sweep module through a send/return pair.
 
 ## Squeeze
 
-Squeeze is a compact sidechain envelope generator designed to work directly with Chain's COMP/CV insert. It takes a gate or audio signal and generates a control voltage envelope that drives the compressor inside Chain — perfect for classic ducking effects and rhythmic pumping.
+Squeeze generates sidechain control voltage for Chain's compressor input. It accepts either a gate or audio signal and detects the source automatically.
 
-The input is auto-detected: connect a gate for precise triggering or an audio signal like a kick drum for envelope following. Three contour curves (Linear, Exponential, Logarithmic) shape how the envelope responds, from snappy transients to smooth pumping.
+### Controls
 
-### Inputs
-| Input | Description |
-|-------|-------------|
-| GATE IN | Gate or audio input (auto-detect) |
+- **Attack**, **Release** and **Amount** set the envelope response.
+- **Contour** selects Log, Exp or Lin behaviour.
 
-### Outputs
-| Output | Description |
-|--------|-------------|
-| COMP OUT | Envelope CV output — connect to Chain COMP/CV |
+### Inputs and output
 
-### Parameters
-| Parameter | Description |
-|-----------|-------------|
-| ATTACK | Envelope attack time |
-| RELEASE | Envelope release time |
-| AMOUNT | Envelope depth |
-| CONTOUR | Curve shape: Linear, Exponential, Logarithmic |
+Inputs: Gate In and Audio In.
 
-### Tips
-- Connect a kick drum trigger to GATE IN and COMP OUT to Chain COMP/CV for classic sidechain ducking
-- Use Exponential curve for punchy, fast-release pumping
-- Use Logarithmic curve for smooth, musical compression
-- One Squeeze can drive multiple Chain modules simultaneously
-
----
+Output: `Comp Out`.
 
 ## Shape
 
-Shape is a 6-band stereo equalizer based on the classic SSL console EQ. It covers the full frequency spectrum with high pass, low shelf, two parametric mid bands, high shelf and low pass.
+Shape is a six-band SSL-inspired stereo equalizer for the Submit signal chain.
 
-### Inputs
-| Input | Description |
-|-------|-------------|
-| IN L | Left stereo input |
-| IN R | Right stereo input |
+### Controls
 
-### Outputs
-| Output | Description |
-|--------|-------------|
-| OUT L | Left stereo output |
-| OUT R | Right stereo output |
+High-pass, Low Shelf, Low Mid, High Mid, High Shelf and Low-pass controls shape the stereo spectrum.
 
-### Parameters
-| Parameter | Description |
-|-----------|-------------|
-| HIGH PASS | High pass filter cutoff frequency |
-| LOW SHELF | Low frequency shelf boost/cut in dB |
-| LOW MID | Low mid parametric band boost/cut |
-| HIGH MID | High mid parametric band boost/cut |
-| HIGH SHELF | High frequency shelf boost/cut in dB |
-| LOW PASS | Low pass filter cutoff frequency |
+### Inputs and outputs
 
-### Tips
-- Use HIGH PASS to remove low frequency rumble from pads and synths
-- Boost HIGH SHELF for air and presence on vocals and leads
-- Cut LOW MID around 300-500 Hz to reduce muddiness in a dense mix
-- Place Shape after Chain for bus EQ on your mix
+Inputs: `Audio In L` and `Audio In R`.
+
+Outputs: `Audio Out L` and `Audio Out R`.
 
 ## Master
 
-Master is a stereo master bus processor designed to sit at the end of your signal chain. It provides final level control with a built-in limiter to prevent clipping on the output.
+Master is a stereo bus processor for the final stage of the Submit chain.
 
-### Inputs
-| Input | Description |
-|-------|-------------|
-| IN L | Left stereo input |
-| IN R | Right stereo input |
+### Controls
 
-### Outputs
-| Output | Description |
-|--------|-------------|
-| OUT L | Left stereo output |
-| OUT R | Right stereo output |
+- **Output** sets the final gain.
+- **Transient** adds or removes transient emphasis.
+- **Glue** applies bus cohesion.
+- **Width** controls stereo width.
+- **Limit** controls final limiting.
 
-### Parameters
-| Parameter | Description |
-|-----------|-------------|
-| LEVEL | Master output level |
-| LIMIT | Limiter ceiling — signals above this level are limited |
+### Inputs and outputs
 
-### Tips
-- Set LIMIT to 0dB to prevent any clipping on the output
-- Use LEVEL to adjust the overall loudness of your patch
-- Always place Master at the very end of your signal chain before the audio interface
+Inputs: `Audio In L` and `Audio In R`.
 
----
+Outputs: `Audio Out L` and `Audio Out R`.
 
 ## Gain
 
-Gain is a line level booster designed to bring iPhone, laptop and external gear up to modular level. Especially useful on the 4ms MetaModule where external inputs and sample players produce signals that are too quiet for the standard mixer level. Features soft clipping to prevent harsh distortion and an FX send for routing to effects processors.
+Gain is a line-level utility with gain, volume, mute and FX routing. It is designed for external gear and MetaModule line-level connections.
 
-### Inputs
-| Input | Description |
-|-------|-------------|
-| IN | Low-level audio input |
+### Controls
 
-### Outputs
-| Output | Description |
-|--------|-------------|
-| OUT | Boosted audio output |
+- **Gain** provides up to 10x input gain.
+- **FX Send** routes signal to the shared FX bus.
+- **Volume** sets the output level.
+- **Mute** silences the channel.
 
-### Parameters
-| Parameter | Description |
-|-----------|-------------|
-| GAIN | Boost amount |
+### Inputs and outputs
 
-### Tips
-- Place Gain before Chain when using Loop or other sample players on the MetaModule
-- Use it to match signal levels between different sources
-- Do not use as a VCA as it has no CV input
+Inputs: Line Level L/R, COMP/CV, Mute CV, Chain In L/R, FX Chain In L/R and FX Return L/R.
 
----
+Outputs: Chain Out L/R and FX Chain Out L/R.
 
 ## Sweep
 
-Sweep is a state variable filter with simultaneous low pass, band pass, and high pass outputs. The resonance can be pushed into self-oscillation, turning Sweep into a sine wave oscillator.
+Sweep is a stereo DJ-style filter for the Submit chain.
 
-### Inputs
-| Input | Description |
-|-------|-------------|
-| IN | Audio input |
-| CV | Cutoff frequency modulation |
-| RES CV | Resonance modulation |
+### Controls and inputs
 
-### Outputs
-| Output | Description |
-|--------|-------------|
-| LP | Low pass output |
-| BP | Band pass output |
-| HP | High pass output |
+- **Sweep** moves the filter between low-pass and high-pass behaviour.
+- **Resonance** adds emphasis around the cutoff.
+- **Reset** returns the filter to its reset position.
 
-### Parameters
-| Parameter | Description |
-|-----------|-------------|
-| CUTOFF | Filter cutoff frequency |
-| RES | Resonance — higher values emphasize the cutoff frequency |
-| DRIVE | Input drive before the filter |
+Inputs: Sweep CV, Resonance CV, Reset CV and Chain In L/R.
 
-### Tips
-- Use an envelope on CV for classic filter sweeps
-- High RES values (near maximum) cause self-oscillation — use as a sine oscillator
-- Drive adds warmth and harmonics before filtering
-- BP output is great for isolating frequency bands in a mix
-- Use HP to remove low frequencies from pads and synths to clean up the low end
-- The RESET button is what makes Sweep special — it resets all filters back to their original state instantly, a true DJ function. Connect a gate signal to automate the reset for rhythmic filter effects
-
----
+Outputs: Chain Out L/R.
 
 ## Loop
 
-Loop is a sample loop player with a built-in waveform display. It loads WAV files into RAM for glitch-free playback, with full control over tempo, loop length, playback position, and direction.
+Loop is a stereo sample looper with waveform display, clock sync, BPM parsing, reverse playback and cue output.
 
-What makes it interesting is that it automatically reads the BPM from the filename of your WAV file (e.g. 120bpm-myloop.wav) and calculates the bar length from there. When you plug in a clock, it adjusts the playback speed to stay perfectly in sync — no manual BPM entry needed.
+### Controls
 
-For live use it has a CUE/LIVE switch with fade in and out, so you can preview a sample on your headphones before sending it to the main outputs. There is also a bar shift function that lets you jump to a different section of the sample quantized to the end of the loop, so it always lands cleanly on the beat.
+- **Bars** sets loop length; zero uses automatic detection.
+- **BPM** sets tempo; zero uses the file or clock information.
+- **Speed** controls playback speed and direction.
+- **Sync** enables clock synchronisation.
+- **Reverse** reverses playback.
+- **Cue** sends the cue signal to the mono cue output.
+- **Reset** returns playback to the start.
+- **Bar Shift** moves the playback window by bars.
 
-The display shows the waveform of the loaded sample with a yellow playhead indicator showing the current position. The filename is shown at the top and BPM/bars information at the bottom.
+### Inputs and outputs
 
-**BPM auto-detection:** Loop reads the BPM directly from the filename (e.g. 120bpm-loop.wav). When a clock is connected it adjusts playback speed automatically to stay in sync.
+Inputs: Clock, Trigger/Reset, Speed CV, Bars CV, BPM CV, Bar Shift CV and Reverse CV.
 
-**Bar shift:** Changes the loop start point without changing the loop length. With an 8-bar loop, setting SHIFT to 3 starts playback from bar 3 and loops back to bar 3. The transition always happens at the end of the current loop — perfect for live remixing.
-
-**Reverse:** When REV is enabled, Loop waits until the end of the current bar before reversing direction. This keeps the reverse synchronized to the musical grid.
-
-**CUE mode:** Routes audio to the CUE output with a smooth fade. Use it to preview loops on headphones before bringing them into the main mix.
-
-### Inputs
-| Input | Description |
-|-------|-------------|
-| CLK | Clock input for tempo sync |
-| RESET | Reset playback to the loop start point |
-| SPEED CV | Playback speed modulation |
-| BARS CV | Loop length modulation |
-| SHIFT CV | Bar shift (start position) modulation |
-| BPM CV | BPM modulation |
-| REV CV | Reverse trigger |
-
-### Outputs
-| Output | Description |
-|--------|-------------|
-| OUT L | Left stereo output |
-| OUT R | Right stereo output |
-| CUE | Cue output (active when CUE mode is on) |
-
-### Parameters
-| Parameter | Description |
-|-----------|-------------|
-| BARS | Number of bars to loop (0 = auto detect from BPM and file length) |
-| SHIFT | Bar shift — offsets the loop start point |
-| BPM | Tempo in BPM (0 = auto detect from filename) |
-| SPEED | Playback speed — center is 1x, turn right for faster, left for slower |
-| CLK | Enable/disable clock sync |
-| REV | Enable/disable reverse playback (syncs to bar boundary) |
-| CUE | Enable/disable cue mode |
-| RESET | Reset playback to loop start |
-
-### Display
-| Element | Description |
-|---------|-------------|
-| Waveform | White waveform of the loaded sample |
-| Playhead | Yellow vertical line showing current position |
-| Filename | Name of the loaded file (top of display) |
-| BPM/Bars | Tempo and loop length info (bottom of display) |
+Outputs: Main L, Main R and Cue Mono.
 
 ### Loading samples
-Right-click the module and select **Load WAV** to open a file browser.
 
-### Tips
-- Name your files with BPM for automatic tempo detection: `120bpm-myloop.wav`
-- Set BARS to 0 to let Loop calculate the number of bars automatically
-- Use CLK sync for tight timing with your sequencer or drum machine
-- SHIFT is great for creating variations — shift by 2 bars for a completely different feel
-- REV adds interest — automate it with a sequencer for rhythmic reverse effects
-- Use CUE to preview loops before switching — connect to a headphone mix
-- Loop works great on the 4ms MetaModule with full display support
+Right-click the module and choose **Load WAV...**. Loop shows the waveform and derives BPM information when it is present in the file or filename. Reverse playback is aligned to the bar boundary when synchronised.
+
+## Clang
+
+Clang is a techno percussion synthesizer with Physical and FM engines, eight models and eight sound variations.
+
+### Controls
+
+- **Engine** selects Physical or FM synthesis.
+- **Model** selects the percussion model.
+- **Sounds** selects the sound variation.
+- **Decay**, **Tune**, **Body**, **Motion**, **Noise** and **Tune Variation** shape the result.
+
+### Inputs and output
+
+Inputs: Trigger, Model CV, Sounds CV and Motion CV.
+
+Output: `Audio Out`.
+
+## React
+
+React is a four-voice rhythm sequencer for kick, snare, hihat and percussion.
+
+### Controls
+
+- **Pattern** morphs between twelve patterns.
+- **Snare**, **Hihat** and **Perc** select voice variations.
+- **Genre** selects one of eight genre variations.
+- **Drop** removes or restores pattern material.
+- **Variation** selects an alternate performance variation.
+
+### Inputs and outputs
+
+Inputs: Clock, Reset, Morph, Drop and Variation.
+
+Outputs: `Kick`, `Snare`, `Hihat` and `Perc` triggers.
+
+New instances use 1 PPQN. Existing patches retain the 4 PPQN legacy mode where stored in the patch.
+
+## Sync
+
+Sync is a compact internal/external clock for the Submit system. This module is part of the VCV 2.17.0 candidate.
+
+### Controls and inputs
+
+- **Tempo** sets the internal BPM.
+- **Run** starts and stops the internal clock.
+- **Reset** resets the clock phase.
+- `External clock` selects external timing when connected.
+- `Reset` accepts an external reset pulse.
+
+### Outputs
+
+- `Clock (x1)` — one pulse per quarter note (1 PPQN).
+- `Double-speed clock` — ×2 clock.
+- `Half-speed clock` — ÷2 clock.
+- `Reset pulse` — reset output.
+
+## Flip
+
+Flip is a stereo clock-synchronised reverse performance effect. This module is part of the VCV 2.17.0 candidate.
+
+### Controls and inputs
+
+- **Flip** triggers a rhythmic reverse action.
+- **Freeze** holds the captured material.
+- **Length** selects 1/2, 1/4 or 1/8 rhythmic length.
+- **Dry/Wet** is retained for patch compatibility.
+
+Inputs: stereo audio, 1 PPQN clock, Gate In and Freeze Gate.
+
+Outputs: stereo audio.
+
+## Orbit
+
+Orbit analyses two input rhythms and derives their musical relationship. This module is part of the VCV 2.17.0 candidate.
+
+### Controls and inputs
+
+- **Position** selects the point between Rhythm A and Rhythm B to analyse.
+- **Window** sets the relationship window.
+- **Memory** smooths the relationship analysis.
+- **Hold** freezes the current outputs.
+- **Range** scales the tension range in beats.
+
+Inputs: Rhythm A, Rhythm B, 1 PPQN Clock and Reset.
+
+### Outputs
+
+- `Aligned events` — events where A and B align.
+- `Events between A and B` — events occurring between the two rhythms.
+- `Detected rhythmic gaps` — detected gaps in the relationship.
+- `Rhythmic tension CV` — tension derived from the relationship.
+
+## Support and bug reports
+
+- [Submit Audio website](https://www.submitaudio.nl)
+- [Online manual](https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/)
+- [Per-module changelogs](CHANGELOG.md#module-changelogs)
+- [GitHub issues](https://github.com/submitaudio/submit-vcv-modules/issues)
+- [Latest GitHub release](https://github.com/submitaudio/submit-vcv-modules/releases/latest)
+
+Submit Audio is released under [GPL-3.0-only](LICENSE).

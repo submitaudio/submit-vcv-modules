@@ -10,6 +10,75 @@
 
 ## STAP 1 — Verificatie uitvoeren
 
+### Harde regel: gebruik uitsluitend officiële VCV Rack-tags
+
+De waarden in `plugin.json` onder `modules[].tags` moeten **letterlijk en exact**
+voorkomen in de officiële VCV Rack-taglijst:
+
+https://raw.githubusercontent.com/VCVRack/Rack/v2/src/tag.cpp
+
+- Verzin nooit zelf een tag, ook niet wanneer de naam technisch logisch klinkt.
+- Combineer of herformuleer bestaande tags niet.
+- Let op hoofdletters, spaties en enkelvoud/meervoud: de waarde moet exact gelijk zijn.
+- Gebruik bij twijfel een bestaande officiële tag die het dichtst bij de functie ligt.
+- Als een nieuwe tag echt nodig is, vraag deze eerst aan via `support@vcvrack.com` en
+  gebruik hem pas nadat hij officieel aan de Rack-taglijst is toegevoegd.
+
+Voorbeeld: `Clock divider` klinkt logisch, maar is geen geldige VCV-tag.
+Gebruik voor een clock divider/multiplier de officiële tag `Clock modulator`.
+
+Controleer vóór iedere release alle gebruikte tags met:
+
+```bash
+comm -23 \
+  <(jq -r '.modules[].tags[]' plugin.json | sort -u) \
+  <(curl -fsSL https://raw.githubusercontent.com/VCVRack/Rack/v2/src/tag.cpp \
+    | sed -n 's/.*{"\([^"]*\)".*/\1/p' \
+    | sort -u)
+```
+
+Geen uitvoer betekent dat alle tags geldig zijn. Iedere regel die wel wordt
+getoond is een ongeldige tag en moet vóór commit, push of VCV-aanmelding worden
+vervangen.
+
+## DOCUMENTATIE BIJ ELKE WIJZIGING
+
+Documentatie hoort bij dezelfde wijziging als de code. Werk daarom tijdens de
+ontwikkeling direct de volgende bestanden bij:
+
+- `docs/changelogs/<Module>.md`: voeg iedere gebruikersrelevante wijziging toe
+  onder `Unreleased`. Noteer minimaal wat er is veranderd, of bestaande patches
+  compatibel blijven en welke test nog nodig is.
+- `CHANGELOG.md`: houd het algemene release-overzicht en de links naar alle
+  modulechangelogs actueel. Verplaats bij een release de relevante punten van
+  `Unreleased` naar het nieuwe versienummer.
+- `MANUAL.md`: voeg een nieuwe publieke module toe aan de inhoudsopgave en geef
+  een actuele beschrijving van controls, inputs, outputs en een eerste patch.
+- `plugin.json`: controleer bij iedere publieke module de naam, slug,
+  beschrijving, `manualUrl` en tags. Laat `pluginUrl`, `manualUrl` en
+  `changelogUrl` naar de vaste publieke pagina's wijzen.
+
+### Nieuwe publieke module
+
+Een nieuwe module is pas compleet gedocumenteerd wanneer deze tegelijk in de
+volgende onderdelen staat:
+
+1. `plugin.json`
+2. `src/plugin.cpp` en `src/plugin.hpp`
+3. `MANUAL.md`
+4. `docs/changelogs/<Module>.md`
+5. de modulelijst in `README.md` wanneer de module publiek wordt uitgebracht
+6. het Rack-contextmenu met een directe `Changelog`-link
+
+Maak voor iedere nieuwe module meteen een changelogbestand aan, ook als de
+eerste versie alleen een `Unreleased`-sectie bevat. Zo raakt geen enkele
+finetuning zoek en kunnen community-updates rechtstreeks uit die punten worden
+geschreven.
+
+Beta-modules mogen lokaal een manual en changelog hebben, maar worden niet in
+de publieke GitHub-manual, release of VCV-aanmelding opgenomen totdat José ze
+expliciet heeft goedgekeurd.
+
 ### Verplicht bij iedere nieuwe module
 
 **José, vergeet niet de CPU-stresstest te doen!**
@@ -49,7 +118,8 @@ EOF
 
 ## STAP 2 — Controleer geen beta modules
 
-Beta modules (NOOIT pushen): Poly008, Twin, Shortwave, Void, Swell
+Beta/local modules (NOOIT pushen zonder expliciete goedkeuring): Poly008, Twin,
+Shortwave, Void, VoidV2, VoidV3, Swell en Circles.
 
 ---
 
@@ -92,4 +162,4 @@ Dan publiceren!
 Drift, Chrono, Impact, Chain, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang, React
 
 ## BETA MODULES (nooit pushen)
-Poly008, Twin, Shortwave, Void, Swell
+Poly008, Twin, Shortwave, Void, VoidV2, VoidV3, Swell, Circles

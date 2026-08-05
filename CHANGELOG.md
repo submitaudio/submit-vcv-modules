@@ -1,5 +1,25 @@
 # Changelog
 
+## Module changelogs
+
+Detailed, module-specific history is maintained in separate pages:
+
+- [Drift](docs/changelogs/Drift.md)
+- [Chrono](docs/changelogs/Chrono.md)
+- [Impact](docs/changelogs/Impact.md)
+- [Chain](docs/changelogs/Chain.md)
+- [Squeeze](docs/changelogs/Squeeze.md)
+- [Shape](docs/changelogs/Shape.md)
+- [Master](docs/changelogs/Master.md)
+- [Gain](docs/changelogs/Gain.md)
+- [Sweep](docs/changelogs/Sweep.md)
+- [Loop](docs/changelogs/Loop.md)
+- [Clang](docs/changelogs/Clang.md)
+- [React](docs/changelogs/React.md)
+- [Sync](docs/changelogs/Sync.md)
+- [Flip](docs/changelogs/Flip.md)
+- [Orbit](docs/changelogs/Orbit.md)
+
 ## Unreleased
 - VCV Library module descriptions expanded with clearer musical descriptions.
 - Submit Chain modules are now described more consistently in `plugin.json`.
