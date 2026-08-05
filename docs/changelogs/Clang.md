@@ -6,4 +6,4 @@
 
 ## v2.16.1
 
-- Reduced MetaModule CPU usage while retaining overlapping percussion voices.
+- Significantly reduced MetaModule CPU usage while retaining the three overlapping percussion voices.
