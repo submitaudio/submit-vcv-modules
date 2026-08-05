@@ -8,3 +8,4 @@
 
 - New instances use 1 PPQN (quarter-note clock).
 - Existing patches retain 4 PPQN legacy compatibility.
+- Corrected clock phase alignment and improved timing stability for synchronized rhythm output.

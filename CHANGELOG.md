@@ -24,6 +24,7 @@ Detailed, module-specific history is maintained in separate pages:
 - VCV Library module descriptions expanded with clearer musical descriptions.
 - Submit Chain modules are now described more consistently in `plugin.json`.
 - Gain description now mentions its MetaModule and external gear focus.
+- React clock phase alignment and synchronized rhythm timing were improved.
 - Local development notes removed from the public repository root.
 
 ## v2.15.3 — 2026-05-28
