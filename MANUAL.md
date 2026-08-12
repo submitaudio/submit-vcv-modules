@@ -2,7 +2,7 @@
 
 This GitHub manual is the versioned technical reference for the Submit Audio VCV Rack plugin. The friendly, illustrated manual remains available on the [Submit Audio website](https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/).
 
-The public release modules are Drift, Chrono, Impact, Chain, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang and React. Sync, Flip and Orbit are documented below as the current VCV 2.17.0 candidates. Beta modules are not included until they are approved for a public release.
+The public release modules are Drift, Chrono, Impact, Chain, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang, React, Sync, Flip and Orbit. Beta modules are not included until they are approved for a public release.
 
 ## Contents
 
@@ -137,12 +137,12 @@ Daisy-chain Chain modules for more channels. Connect Squeeze COMP OUT to a Chain
 
 ## Squeeze
 
-Squeeze generates sidechain control voltage for Chain's compressor input. It accepts either a gate or audio signal and detects the source automatically.
+Squeeze generates sidechain control voltage for Chain's compressor input. Gate and audio signals can be used independently or at the same time. When both are connected, Squeeze follows the stronger envelope so the two sources cooperate without doubling the control voltage.
 
 ### Controls
 
-- **Attack**, **Release** and **Amount** set the envelope response.
-- **Contour** selects Log, Exp or Lin behaviour.
+- **Attack** and **Release** shape both gate and audio detection. **Amount** sets the maximum ducking depth.
+- **Contour** selects Lin, Exp or Log behaviour.
 
 ### Inputs and output
 
@@ -152,11 +152,18 @@ Output: `Comp Out`.
 
 ## Shape
 
-Shape is a six-band SSL-inspired stereo equalizer for the Submit signal chain.
+Shape is a high-quality SSL 4K-style stereo equalizer for the Submit signal chain. It combines the classic four-band channel-EQ layout with dedicated high-pass and low-pass filters.
 
 ### Controls
 
-High-pass, Low Shelf, Low Mid, High Mid, High Shelf and Low-pass controls shape the stereo spectrum.
+- **High Pass** runs from Off to 16–350 Hz with an 18 dB/octave slope.
+- **Low Shelf** is centred at 80 Hz with ±15 dB of gain.
+- **Low Mid** is centred at 400 Hz with ±15 dB of proportional-Q gain.
+- **High Mid** is centred at 2.5 kHz with ±15 dB of proportional-Q gain.
+- **High Shelf** is centred at 10 kHz with ±15 dB of gain.
+- **Low Pass** runs from Off to 22–3 kHz with a 12 dB/octave slope.
+
+All controls are smoothed to prevent zipper noise. The right input is normalled from the left input for mono-to-stereo operation.
 
 ### Inputs and outputs
 

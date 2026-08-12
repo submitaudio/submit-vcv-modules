@@ -1,8 +1,6 @@
 # Submit
 
-A complete live performance toolkit for VCV Rack - 10 modules designed to work together.
-
-Documentation test line - GitHub connection check.
+A complete live performance toolkit for VCV Rack — 15 modules designed for sound design, rhythm and live performance.
 
 ![Submit Modules](docs/modules.png)
 
@@ -27,6 +25,16 @@ Documentation test line - GitHub connection check.
 **Sweep** — DJ filter with LP/HP sweep, resonance and momentary reset
 
 **Loop** — Sample loop player with waveform display and BPM auto-detection
+
+**Clang** — Techno percussion synthesizer with physical-modelled and FM engines
+
+**React** — Four-voice rhythm sequencer with genres, patterns and performance variation
+
+**Sync** — Compact internal/external 1 PPQN clock and related clock outputs
+
+**Flip** — Stereo clock-synchronised reverse effect with instant Flip and Freeze
+
+**Orbit** — Rhythmic relationship processor with trigger and tension outputs
 
 ## Download
 

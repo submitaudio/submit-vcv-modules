@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Laag_2" data-name="Laag 2" xmlns="http://www.w3.org/2000/svg" width="18.1" height="18.102" viewBox="0 0 18.1 18.102">
+  <g id="Laag_1-2" data-name="Laag 1">
+    <g>
+      <g>
+        <circle cx="9.05" cy="9.051" r="9.048" fill="#171717"/>
+        <circle cx="9.05" cy="9.051" r="7.273" fill="#3b3c40"/>
+        <g>
+          <rect x="9.869" y="3.083" width="2.182" height=".177" transform="translate(4.555 12.614) rotate(-71.991)" fill="#828282"/>
+          <rect x="11.593" y="3.961" width="2.182" height=".177" transform="translate(1.949 11.927) rotate(-53.981)" fill="#828282"/>
+          <polygon points="13.22 6.13 13.117 5.987 14.882 4.705 14.985 4.848 13.22 6.13" fill="#828282"/>
+          <rect x="13.838" y="7.052" width="2.182" height=".177" transform="translate(-1.475 4.956) rotate(-17.975)" fill="#828282"/>
+          <rect x="14.141" y="8.962" width="2.181" height=".177" fill="#828282"/>
+          <rect x="14.841" y="9.87" width=".177" height="2.182" transform="translate(-.109 21.773) rotate(-72.001)" fill="#828282"/>
+          <polygon points="14.882 13.397 13.117 12.115 13.22 11.971 14.985 13.254 14.882 13.397" fill="#828282"/>
+          <rect x="12.595" y="12.961" width=".177" height="2.182" transform="translate(-5.837 10.138) rotate(-35.997)" fill="#828282"/>
+          <rect x="10.872" y="13.839" width=".177" height="2.182" transform="translate(-4.077 4.117) rotate(-17.999)" fill="#828282"/>
+          <rect x="8.961" y="14.141" width=".177" height="2.182" fill="#828282"/>
+          <rect x="6.049" y="14.842" width="2.182" height=".177" transform="translate(-9.266 17.104) rotate(-71.991)" fill="#828282"/>
+          <rect x="4.326" y="13.963" width="2.182" height=".177" transform="translate(-9.134 10.17) rotate(-53.981)" fill="#828282"/>
+          <polygon points="3.218 13.397 3.115 13.254 4.88 11.971 4.984 12.115 3.218 13.397" fill="#828282"/>
+          <rect x="2.08" y="10.873" width="2.182" height=".177" transform="translate(-3.228 1.514) rotate(-17.975)" fill="#828282"/>
+          <rect x="1.778" y="8.962" width="2.181" height=".177" fill="#828282"/>
+          <rect x="3.083" y="6.05" width=".177" height="2.182" transform="translate(-4.6 7.95) rotate(-72.001)" fill="#828282"/>
+          <polygon points="4.88 6.13 3.115 4.848 3.218 4.705 4.984 5.987 4.88 6.13" fill="#828282"/>
+          <rect x="5.328" y="2.959" width=".177" height="2.182" transform="translate(-1.346 3.957) rotate(-35.997)" fill="#828282"/>
+          <rect x="7.051" y="2.081" width=".177" height="2.182" transform="translate(-.631 2.361) rotate(-17.999)" fill="#828282"/>
+        </g>
+      </g>
+      <path d="M9.05,9.108c-.196,0-.354-.159-.354-.354V2.41c0-.196.158-.354.354-.354s.354.159.354.354v6.344c0,.196-.158.354-.354.354Z" fill="#d9df00"/>
+    </g>
+  </g>
+</svg>

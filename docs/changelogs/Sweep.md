@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-- Module-specific changes will be recorded here as they are developed.
+## v2.18.0
+
+- Updated all rotary controls to the current Submit Audio knob design.
+- Smoothed the transition around the centre bypass position to prevent occasional clicks.
+- Preserved the momentary Reset behaviour that fades the output to Dry.
 
 ## v2.16.1
 

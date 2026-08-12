@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Laag_2" data-name="Laag 2" xmlns="http://www.w3.org/2000/svg" width="23.393" height="23.395" viewBox="0 0 23.393 23.395">
+  <g id="Laag_1-2" data-name="Laag 1">
+    <g>
+      <g>
+        <circle cx="11.696" cy="11.697" r="11.694" fill="#171717"/>
+        <circle cx="11.696" cy="11.697" r="9.399" fill="#3b3c40"/>
+        <g>
+          <rect x="12.755" y="3.985" width="2.82" height=".228" transform="translate(5.887 16.303) rotate(-71.991)" fill="#828282"/>
+          <rect x="14.983" y="5.12" width="2.82" height=".229" transform="translate(2.519 15.415) rotate(-53.981)" fill="#828282"/>
+          <polygon points="17.086 7.923 16.952 7.738 19.233 6.08 19.367 6.265 17.086 7.923" fill="#828282"/>
+          <rect x="17.885" y="9.114" width="2.82" height=".229" transform="translate(-1.906 6.405) rotate(-17.975)" fill="#828282"/>
+          <rect x="18.276" y="11.583" width="2.819" height=".229" fill="#828282"/>
+          <rect x="19.18" y="12.756" width=".229" height="2.82" transform="translate(-.14 28.139) rotate(-72.001)" fill="#828282"/>
+          <polygon points="19.233 17.314 16.952 15.657 17.086 15.472 19.367 17.129 19.233 17.314" fill="#828282"/>
+          <rect x="16.278" y="16.751" width=".229" height="2.82" transform="translate(-7.544 13.102) rotate(-35.997)" fill="#828282"/>
+          <rect x="14.051" y="17.886" width=".228" height="2.82" transform="translate(-5.269 5.321) rotate(-17.999)" fill="#828282"/>
+          <rect x="11.582" y="18.277" width=".229" height="2.82" fill="#828282"/>
+          <rect x="7.818" y="19.181" width="2.82" height=".228" transform="translate(-11.976 22.105) rotate(-71.991)" fill="#828282"/>
+          <rect x="5.591" y="18.046" width="2.82" height=".229" transform="translate(-11.805 13.143) rotate(-53.981)" fill="#828282"/>
+          <polygon points="4.159 17.314 4.025 17.129 6.307 15.472 6.441 15.657 4.159 17.314" fill="#828282"/>
+          <rect x="2.688" y="14.052" width="2.82" height=".229" transform="translate(-4.172 1.956) rotate(-17.975)" fill="#828282"/>
+          <rect x="2.298" y="11.583" width="2.819" height=".229" fill="#828282"/>
+          <rect x="3.984" y="7.819" width=".229" height="2.82" transform="translate(-5.945 10.275) rotate(-72.001)" fill="#828282"/>
+          <polygon points="6.307 7.923 4.025 6.265 4.159 6.08 6.441 7.738 6.307 7.923" fill="#828282"/>
+          <rect x="6.886" y="3.824" width=".229" height="2.82" transform="translate(-1.74 5.114) rotate(-35.997)" fill="#828282"/>
+          <rect x="9.113" y="2.689" width=".228" height="2.82" transform="translate(-.815 3.052) rotate(-17.999)" fill="#828282"/>
+        </g>
+      </g>
+      <path d="M11.696,11.771c-.253,0-.458-.205-.458-.458V3.114c0-.253.205-.458.458-.458s.458.205.458.458v8.199c0,.253-.205.458-.458.458Z" fill="#d9df00"/>
+    </g>
+  </g>
+</svg>

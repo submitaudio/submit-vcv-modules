@@ -21,11 +21,24 @@ Detailed, module-specific history is maintained in separate pages:
 - [Orbit](docs/changelogs/Orbit.md)
 
 ## Unreleased
-- VCV Library module descriptions expanded with clearer musical descriptions.
-- Submit Chain modules are now described more consistently in `plugin.json`.
-- Gain description now mentions its MetaModule and external gear focus.
-- React clock phase alignment and synchronized rhythm timing were improved.
-- Local development notes removed from the public repository root.
+
+## v2.18.0 — 2026-08-12
+
+- Refreshed the complete 15-module VCV Rack collection with the current Submit Audio panel and knob design.
+- Drift: refined the 0-Coast-inspired voice, slope behaviour, defaults and CV response while preserving patch compatibility.
+- Chrono: strengthened Feedback and Surge, added a smooth momentary Dry transition and optional extended clocked Time ratios.
+- Squeeze: improved combined Gate and Audio sidechain detection with smoother, more stable envelope behaviour.
+- Shape: rebuilt the equalizer around a high-quality SSL 4K-inspired topology with smoothed, double-precision stereo processing.
+- Master: rebuilt the mastering chain with improved transient shaping, glue, width handling and stereo-linked limiting.
+- Sweep: removed occasional centre/reset transition clicks while preserving its Dry reset behaviour.
+- React: improved 1 PPQN clock phase alignment and deterministic reset timing while retaining legacy patch compatibility.
+- Updated VCV Library descriptions, manuals and module-specific changelogs.
+
+## v2.17.0 — 2026-08-04
+
+- Added Sync, Flip and Orbit to the public collection.
+- Standardized the new timing modules around the Submit Audio 1 PPQN clock convention.
+- Fixed the static-analysis findings reported during VCV Library integration.
 
 ## v2.15.3 — 2026-05-28
 - Impact: SPREAD replaced by SNAP transient shaping.

@@ -158,7 +158,7 @@ struct Reel : Module {
         fileName = (sep != std::string::npos) ? path.substr(sep + 1) : path;
         displayName = fileName;
         if (displayName.size() > 28)
-            displayName = displayName.substr(0, 26) + "..";
+            displayName.replace(26, std::string::npos, "..");
 
         // BPM uit bestandsnaam
         fileBpm = 0.f;
@@ -426,8 +426,7 @@ struct LoopResetButton : SvgSwitch {
 
 // Waveform display
 struct ReelDisplay : Widget {
-    Reel* module;
-    ReelDisplay() {}
+    Reel* module = nullptr;
 
     void draw(const DrawArgs& args) override {
         // Achtergrond
@@ -435,13 +434,6 @@ struct ReelDisplay : Widget {
         nvgRoundedRect(args.vg, 0, 0, box.size.x, box.size.y, 3);
         nvgFillColor(args.vg, nvgRGB(0x45, 0x45, 0x21));
         nvgFill(args.vg);
-
-        // Border
-        nvgBeginPath(args.vg);
-        nvgRoundedRect(args.vg, 0, 0, box.size.x, box.size.y, 3);
-        nvgStrokeColor(args.vg, nvgRGB(50, 50, 70));
-        nvgStrokeWidth(args.vg, 1.0f);
-        nvgStroke(args.vg);
 
         if (!module || !module->fileLoaded) {
             nvgFontSize(args.vg, 9.f);
@@ -508,7 +500,7 @@ struct ReelDisplay : Widget {
     }
 };
 
-struct ReelWidget : ModuleWidget {
+struct ReelWidget : SubmitModuleWidget {
     ReelWidget(Reel* module) {
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Loop.svg")));
@@ -569,6 +561,7 @@ struct ReelWidget : ModuleWidget {
                 free(pathC);
             }
         }));
+		SubmitModuleWidget::appendContextMenu(menu);
     }
 };
 

@@ -2,9 +2,13 @@
 
 ## Unreleased
 
-- VCV 2.17.0 release candidate includes static-analysis fixes for VCVRack/library issue #6.
-- VCV and MetaModule clock output is standardized to 1 PPQN.
+## v2.18.0
+
+- Updated the panel and Tempo control to the current Submit Audio design.
+- Preserved the 1 PPQN timing, related clock outputs and deterministic reset behaviour.
 
 ## v2.17.0
 
-- Pending VCV Library integration and final release approval.
+- Initial public release.
+- Added the compact internal/external 1 PPQN clock with phase-related x1, x2, /2 and Reset outputs.
+- Included the static-analysis corrections requested during VCV Library integration.

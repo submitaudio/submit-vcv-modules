@@ -11,7 +11,7 @@ struct GainKnobLarge : SvgKnob {
     GainKnobLarge() {
         minAngle = -0.83 * M_PI;
         maxAngle = 0.83 * M_PI;
-        setSvg(Svg::load(asset::plugin(pluginInstance, "res/Drift13KnobMedium.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/SubmitKnobMedium.svg")));
         shadow->opacity = 0.f;
     }
 };
@@ -20,7 +20,7 @@ struct GainKnobSmall : SvgKnob {
     GainKnobSmall() {
         minAngle = -0.83 * M_PI;
         maxAngle = 0.83 * M_PI;
-        setSvg(Svg::load(asset::plugin(pluginInstance, "res/ImpactKnobMini.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/SubmitKnobMini.svg")));
         shadow->opacity = 0.f;
     }
 };
@@ -212,10 +212,9 @@ struct GainVUMeter : Widget {
     GainModule* module = nullptr;
 
     void draw(const DrawArgs& args) override {
-        if (module == nullptr) return;
         float h = box.size.y;
         if (h < 1.f) return;
-        float level = module->vuLevel;
+        float level = module == nullptr ? 0.f : module->vuLevel;
         if (level <= 0.f) return;
         if (level > 1.f) level = 1.f;
         float vuH = h * level;
@@ -245,7 +244,7 @@ struct GainVUMeter : Widget {
 
 // ── WIDGET ────────────────────────────────────────────────────────────────────
 
-struct GainWidget : ModuleWidget {
+struct GainWidget : SubmitModuleWidget {
     GainWidget(GainModule* module) {
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Gain.svg")));
@@ -307,6 +306,7 @@ struct GainWidget : ModuleWidget {
         menu->addChild(createMenuItem("Report a Bug", "", []() {
             system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
         }));
+		SubmitModuleWidget::appendContextMenu(menu);
     }
 };
 

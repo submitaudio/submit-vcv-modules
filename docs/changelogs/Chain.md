@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-- Module-specific changes will be recorded here as they are developed.
+## v2.18.0
+
+- Updated the panel and compact rotary controls to the current Submit Audio design.
+- Preserved the complete mixer routing, COMP/CV behaviour and patch compatibility.
 
 ## v2.16.1
 

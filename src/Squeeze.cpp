@@ -3,6 +3,7 @@
 // https://github.com/submitaudio/submit-vcv-modules
 
 #include "plugin.hpp"
+#include <algorithm>
 #include <cmath>
 
 struct Squeeze : Module {
@@ -26,14 +27,23 @@ struct Squeeze : Module {
         LIGHTS_LEN
     };
 
-    float envelope = 0.f;
+    float gateEnvelope = 0.f;
+    float audioEnvelope = 0.f;
+    float amountSmooth = 1.f;
+    float attackCoeff = 1.f;
+    float releaseCoeff = 1.f;
+    float amountCoeff = 1.f;
+    float cachedAttack = -1.f;
+    float cachedRelease = -1.f;
+    float cachedSampleRate = 0.f;
+    bool gateHigh = false;
 
     Squeeze() {
         config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
         configParam(ATTACK_PARAM,  0.001f, 1.f, 0.01f, "Attack", " s");
         configParam(RELEASE_PARAM, 0.01f, 2.f, 0.1f,  "Release", " s");
         configParam(AMOUNT_PARAM,  0.f, 1.f, 1.f,     "Amount");
-        configSwitch(CONTOUR_PARAM, 0.f, 2.f, 0.f, "Contour", {"Log", "Exp", "Lin"});
+        configSwitch(CONTOUR_PARAM, 0.f, 2.f, 0.f, "Contour", {"Lin", "Exp", "Log"});
         paramQuantities[CONTOUR_PARAM]->snapEnabled = true;
         configInput(GATE_INPUT,  "Gate In");
         configInput(AUDIO_INPUT, "Audio In");
@@ -51,6 +61,44 @@ struct Squeeze : Module {
         }
     }
 
+    static float smoothingCoefficient(float seconds, float sampleRate) {
+        return 1.f - std::exp(-1.f / (std::max(seconds, 1.0e-5f) * sampleRate));
+    }
+
+    static float sanitizeVoltage(float voltage) {
+        return std::isfinite(voltage) ? voltage : 0.f;
+    }
+
+    void updateCoefficients(float attack, float release, float sampleRate) {
+        if (attack == cachedAttack && release == cachedRelease && sampleRate == cachedSampleRate)
+            return;
+
+        cachedAttack = attack;
+        cachedRelease = release;
+        cachedSampleRate = sampleRate;
+        attackCoeff = smoothingCoefficient(attack, sampleRate);
+        releaseCoeff = smoothingCoefficient(release, sampleRate);
+        amountCoeff = smoothingCoefficient(0.01f, sampleRate);
+    }
+
+    static void followEnvelope(float target, float& envelope,
+                               float attackCoefficient, float releaseCoefficient) {
+        float coefficient = target > envelope ? attackCoefficient : releaseCoefficient;
+        envelope += coefficient * (target - envelope);
+        if (std::abs(envelope) < 1.0e-8f)
+            envelope = 0.f;
+    }
+
+    void onReset() override {
+        gateEnvelope = 0.f;
+        audioEnvelope = 0.f;
+        amountSmooth = 1.f;
+        cachedAttack = -1.f;
+        cachedRelease = -1.f;
+        cachedSampleRate = 0.f;
+        gateHigh = false;
+    }
+
     void process(const ProcessArgs& args) override {
         bool gateConnected  = inputs[GATE_INPUT].isConnected();
         bool audioConnected = inputs[AUDIO_INPUT].isConnected();
@@ -60,35 +108,38 @@ struct Squeeze : Module {
         float amount  = params[AMOUNT_PARAM].getValue();
         int   contour = (int)params[CONTOUR_PARAM].getValue();
 
-        float attackCoeff  = 1.f - std::exp(-1.f / (attack  * args.sampleRate));
-        float releaseCoeff = 1.f - std::exp(-1.f / (release * args.sampleRate));
+        updateCoefficients(attack, release, args.sampleRate);
+        amountSmooth += amountCoeff * (amount - amountSmooth);
 
-        float target = 0.f;
-
-        if (audioConnected) {
-            // Peak follower voor audio - instant attack, slow release
-            float audio = std::abs(inputs[AUDIO_INPUT].getVoltage()) / 5.f;
-            if (audio > 1.f) audio = 1.f;
-            // Snelle attack (direct naar piek), langzame release via release knob
-            if (audio > envelope) {
-                envelope = audio; // instant attack
-            } else {
-                envelope += releaseCoeff * (0.f - envelope);
+        float gateTarget = 0.f;
+        if (gateConnected) {
+            float gateVoltage = sanitizeVoltage(inputs[GATE_INPUT].getVoltage());
+            if (gateHigh) {
+                if (gateVoltage < 0.1f)
+                    gateHigh = false;
+            } else if (gateVoltage > 1.f) {
+                gateHigh = true;
             }
-        } else if (gateConnected) {
-            // Gate mode: attack en release via knoppen
-            float gate = inputs[GATE_INPUT].getVoltage();
-            target = (gate > 1.f) ? 1.f : 0.f;
-            if (target > envelope) {
-                envelope += attackCoeff * (target - envelope);
-            } else {
-                envelope += releaseCoeff * (target - envelope);
-            }
+            gateTarget = gateHigh ? 1.f : 0.f;
+        } else {
+            gateHigh = false;
         }
-        envelope = clamp(envelope, 0.f, 1.f);
+
+        float audioTarget = 0.f;
+        if (audioConnected) {
+            float audioVoltage = sanitizeVoltage(inputs[AUDIO_INPUT].getVoltage());
+            audioTarget = clamp(std::abs(audioVoltage) / 5.f, 0.f, 1.f);
+        }
+
+        followEnvelope(gateTarget, gateEnvelope, attackCoeff, releaseCoeff);
+        followEnvelope(audioTarget, audioEnvelope, attackCoeff, releaseCoeff);
+
+        gateEnvelope = clamp(gateEnvelope, 0.f, 1.f);
+        audioEnvelope = clamp(audioEnvelope, 0.f, 1.f);
+        float envelope = std::max(gateEnvelope, audioEnvelope);
 
         float shaped = applyContour(envelope, contour);
-        outputs[COMP_OUTPUT].setVoltage(shaped * amount * 10.f);
+        outputs[COMP_OUTPUT].setVoltage(shaped * clamp(amountSmooth, 0.f, 1.f) * 10.f);
     }
 };
 
@@ -96,7 +147,7 @@ struct SqueezeKnobSmall : SvgKnob {
     SqueezeKnobSmall() {
         minAngle = -0.83 * M_PI;
         maxAngle = 0.83 * M_PI;
-        setSvg(Svg::load(asset::plugin(pluginInstance, "res/DriftKnobSmall.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/SubmitKnobSmall.svg")));
         shadow->opacity = 0.f;
     }
 };
@@ -105,7 +156,7 @@ struct SqueezeKnobMedium : SvgKnob {
     SqueezeKnobMedium() {
         minAngle = -0.83 * M_PI;
         maxAngle = 0.83 * M_PI;
-        setSvg(Svg::load(asset::plugin(pluginInstance, "res/Drift13KnobMedium.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/SubmitKnobMedium.svg")));
         shadow->opacity = 0.f;
     }
 };
@@ -114,12 +165,12 @@ struct SqueezeKnob : SvgKnob {
     SqueezeKnob() {
         minAngle = -0.83 * M_PI;
         maxAngle = 0.83 * M_PI;
-        setSvg(Svg::load(asset::plugin(pluginInstance, "res/ImpactKnobMini.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/SubmitKnobMini.svg")));
         shadow->opacity = 0.f;
     }
 };
 
-struct SqueezeWidget : ModuleWidget {
+struct SqueezeWidget : SubmitModuleWidget {
     SqueezeWidget(Squeeze* module) {
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Squeeze.svg")));
@@ -147,6 +198,7 @@ struct SqueezeWidget : ModuleWidget {
         menu->addChild(createMenuItem("Report a Bug", "", []() {
             system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
         }));
+		SubmitModuleWidget::appendContextMenu(menu);
     }
 };
 

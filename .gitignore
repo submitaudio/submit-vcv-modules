@@ -16,5 +16,9 @@ res/Poly008.svg
 res/Twin.svg
 src/Drift13.cpp.backup_sustain
 scripts/
-src/Clang.cpp
-res/Clang.svg
+src/Shortwave.cpp
+res/Shortwave.svg
+src/Void.cpp
+res/Void.svg
+src/Swell.cpp
+res/Swell.svg

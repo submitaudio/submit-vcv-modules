@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-- Module-specific changes will be recorded here as they are developed.
+## v2.18.0
+
+- Updated the panel and rotary controls to the current Submit Audio design.
+- Preserved the established percussive engines, parameters, ports and patch behaviour.
 
 ## v2.16.1
 

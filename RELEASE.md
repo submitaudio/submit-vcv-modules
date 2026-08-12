@@ -116,10 +116,33 @@ EOF
 
 ---
 
-## STAP 2 — Controleer geen beta modules
+## STAP 2 — Controleer exact de publieke modulelijst
+
+De publieke release bevat uitsluitend: Drift, Chrono, Impact, Chain, Squeeze,
+Shape, Master, Gain, Sweep, Loop, Clang, React, Sync, Flip en Orbit.
 
 Beta/local modules (NOOIT pushen zonder expliciete goedkeuring): Poly008, Twin,
-Shortwave, Void, VoidV2, VoidV3, Swell en Circles.
+Shortwave, Void, VoidV2, VoidV3, Swell, Circles, CirclesV2, Sub en SubV2.
+
+Gebruik `scripts/verwijder_beta.py`, `scripts/herstel_beta.py` en
+`scripts/release.py` niet voor deze release. Deze oude scripts kennen de actuele
+modulelijst niet en kunnen lokaal werk verwijderen of onbedoeld committen en pushen.
+Bereid een release altijd in een aparte release-worktree voor, zodat de volledige
+lokale beta-opstelling in `~/Submit` behouden blijft.
+
+Maak en controleer eerst een veilige releasekopie:
+
+```bash
+release_dir="$(mktemp -d /private/tmp/submit-release.XXXXXX)"
+rmdir "$release_dir"
+python3 release-tools/prepare_release_copy.py "$release_dir"
+cd "$release_dir"
+export RACK_DIR=~/Rack-SDK
+make -j4 && make dist
+```
+
+Het hulpscript weigert een bestaande doelmap te overschrijven, voert geen
+Git-acties uit en controleert de publieke slugs, registraties en panel-assets.
 
 ---
 
@@ -127,10 +150,25 @@ Shortwave, Void, VoidV2, VoidV3, Swell en Circles.
 
 ---
 
-## STAP 4 — Push naar GitHub
+## STAP 4 — Maak een gecontroleerde publieke commit en push
+
+Gebruik **nooit** blind `git add .` vanuit de lokale ontwikkelmap. Daar staan ook
+beta-modules en ander lokaal werk. Maak de publieke commit alleen vanuit een
+gecontroleerde release-worktree waarin de inhoud overeenkomt met de hierboven
+geteste releasekopie. Controleer vóór de commit opnieuw dat uitsluitend de 15
+goedgekeurde modules geregistreerd zijn.
 
 ```bash
-cd ~/Submit && git add . && git commit -m "Beschrijving" && git push
+git status --short
+git diff --cached
+git commit -m "Release Submit 2.x.x"
+git push
+```
+
+Noteer na de push de volledige commit-hash:
+
+```bash
+git rev-parse HEAD
 ```
 
 ---
@@ -158,8 +196,36 @@ Dan publiceren!
 
 ---
 
+## STAP 7 — Meld de update in het permanente VCV Library-issue
+
+Voor Submit wordt altijd het bestaande issue gebruikt:
+
+https://github.com/VCVRack/library/issues/905
+
+Maak geen nieuw VCV Library-issue. Plaats na de definitieve push een comment met
+het exacte versienummer en de **volledige commit-hash**. Geef niet alleen een
+branchnaam zoals `master`. De VCV-maintainer heropent het issue, verwerkt de
+update en sluit het weer wanneer de build beschikbaar is.
+
+Bericht voor deze release:
+
+```text
+Submit 2.18.0 is ready for the VCV Library.
+
+Version: 2.18.0
+Commit: <FULL_COMMIT_HASH>
+
+This release updates the complete 15-module collection, including refreshed
+panels and controls, module-specific DSP refinements, and updated changelogs.
+```
+
+Plaats dit bericht pas wanneer de publieke commit definitief op GitHub staat en
+de drie platform-builds van dezelfde commit succesvol zijn gecontroleerd.
+
+---
+
 ## OFFICIELE MODULES
-Drift, Chrono, Impact, Chain, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang, React
+Drift, Chrono, Impact, Chain, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang, React, Sync, Flip, Orbit
 
 ## BETA MODULES (nooit pushen)
-Poly008, Twin, Shortwave, Void, VoidV2, VoidV3, Swell, Circles
+Poly008, Twin, Shortwave, Void, VoidV2, VoidV3, Swell, Circles, CirclesV2, Sub, SubV2

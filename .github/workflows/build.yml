@@ -93,6 +93,11 @@ jobs:
             - Gain — Line level booster
             - Sweep — Filter
             - Loop — Sample loop player
+            - Clang — Techno percussion synthesizer
+            - React — Four-voice rhythm sequencer
+            - Sync — Compact 1 PPQN clock
+            - Flip — Clock-synchronised stereo reverse effect
+            - Orbit — Rhythmic relationship processor
             
             ### Download
             Choose the version for your platform:

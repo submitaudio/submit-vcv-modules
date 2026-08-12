@@ -5,29 +5,29 @@
 #include "plugin.hpp"
 
 // ── Gedeelde knob structs ─────────────────────
-struct ImpactKnobMini : SvgKnob {
-    ImpactKnobMini() {
+struct SubmitImpactKnobMini : SvgKnob {
+    SubmitImpactKnobMini() {
         minAngle = -0.75 * M_PI;
         maxAngle = 0.75 * M_PI;
-        setSvg(Svg::load(asset::plugin(pluginInstance, "res/ImpactKnobMini.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/SubmitKnobMini.svg")));
         shadow->opacity = 0.f;
     }
 };
 
-struct Drift13KnobMedium : SvgKnob {
-    Drift13KnobMedium() {
+struct SubmitImpactKnobMedium : SvgKnob {
+    SubmitImpactKnobMedium() {
         minAngle = -0.83 * M_PI;
         maxAngle = 0.83 * M_PI;
-        setSvg(Svg::load(asset::plugin(pluginInstance, "res/Drift13KnobMedium.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/SubmitKnobMedium.svg")));
         shadow->opacity = 0.f;
     }
 };
 
-struct Drift13KnobSmall : SvgKnob {
-    Drift13KnobSmall() {
+struct SubmitImpactKnobSmall : SvgKnob {
+    SubmitImpactKnobSmall() {
         minAngle = -0.83 * M_PI;
         maxAngle = 0.83 * M_PI;
-        setSvg(Svg::load(asset::plugin(pluginInstance, "res/Drift13KnobSmall.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/SubmitKnobSmall.svg")));
         shadow->opacity = 0.f;
     }
 };
@@ -429,41 +429,41 @@ struct Impact : Module {
     }
 };
 
-struct ImpactWidget : ModuleWidget {
+struct ImpactWidget : SubmitModuleWidget {
     ImpactWidget(Impact* module) {
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Impact.svg")));
 
         // ── Knoppen ──────────────────────────
-        addParam(createParamCentered<Drift13KnobMedium>(
+        addParam(createParamCentered<SubmitImpactKnobMedium>(
             Vec(43.137f, 80.012f), module, Impact::PITCH_PARAM));
-        addParam(createParamCentered<Drift13KnobSmall>(
+        addParam(createParamCentered<SubmitImpactKnobSmall>(
             Vec(101.967f, 87.251f), module, Impact::DECAY_PARAM));
-        addParam(createParamCentered<Drift13KnobSmall>(
+        addParam(createParamCentered<SubmitImpactKnobSmall>(
             Vec(160.356f, 87.251f), module, Impact::PUNCH_PARAM));
-        addParam(createParamCentered<Drift13KnobSmall>(
+        addParam(createParamCentered<SubmitImpactKnobSmall>(
             Vec(43.307f, 148.697f), module, Impact::HARM_PARAM));
-        addParam(createParamCentered<Drift13KnobSmall>(
+        addParam(createParamCentered<SubmitImpactKnobSmall>(
             Vec(101.967f, 148.697f), module, Impact::SNAP_PARAM));
-        addParam(createParamCentered<Drift13KnobSmall>(
+        addParam(createParamCentered<SubmitImpactKnobSmall>(
             Vec(160.356f, 148.697f), module, Impact::FOLD_PARAM));
-        addParam(createParamCentered<Drift13KnobSmall>(
+        addParam(createParamCentered<SubmitImpactKnobSmall>(
             Vec(43.307f, 208.643f), module, Impact::MORPH_PARAM));
-        addParam(createParamCentered<Drift13KnobSmall>(
+        addParam(createParamCentered<SubmitImpactKnobSmall>(
             Vec(101.717f, 208.893f), module, Impact::NOISE_PARAM));
-        addParam(createParamCentered<Drift13KnobSmall>(
+        addParam(createParamCentered<SubmitImpactKnobSmall>(
             Vec(160.356f, 208.893f), module, Impact::NLEN_PARAM));
 
         // ── Attenuverters ─────────────────────
-        addParam(createParamCentered<ImpactKnobMini>(
+        addParam(createParamCentered<SubmitImpactKnobMini>(
             Vec(37.965f, 254.656f), module, Impact::ATT_DECAY_PARAM));
-        addParam(createParamCentered<ImpactKnobMini>(
+        addParam(createParamCentered<SubmitImpactKnobMini>(
             Vec(82.255f, 254.656f), module, Impact::ATT_PUNCH_PARAM));
-        addParam(createParamCentered<ImpactKnobMini>(
+        addParam(createParamCentered<SubmitImpactKnobMini>(
             Vec(127.755f, 254.656f), module, Impact::ATT_MORPH_PARAM));
-        addParam(createParamCentered<ImpactKnobMini>(
+        addParam(createParamCentered<SubmitImpactKnobMini>(
             Vec(172.635f, 254.656f), module, Impact::ATT_FOLD_PARAM));
-        addParam(createParamCentered<ImpactKnobMini>(
+        addParam(createParamCentered<SubmitImpactKnobMini>(
             Vec(218.598f, 254.656f), module, Impact::ATT_NOISE_PARAM));
 
         // ── Schakelaars ───────────────────────
@@ -520,6 +520,7 @@ struct ImpactWidget : ModuleWidget {
         menu->addChild(createMenuItem("Report a Bug", "", []() {
             system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
         }));
+		SubmitModuleWidget::appendContextMenu(menu);
     }
 };
 

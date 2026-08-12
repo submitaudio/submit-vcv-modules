@@ -9,7 +9,7 @@ struct Drift13KnobMedium : SvgKnob {
     Drift13KnobMedium() {
         minAngle = -0.83 * M_PI;
         maxAngle = 0.83 * M_PI;
-        setSvg(Svg::load(asset::plugin(pluginInstance, "res/Drift13KnobMedium.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/SubmitKnobMedium.svg")));
         shadow->opacity = 0.f;
     }
 };
@@ -18,7 +18,7 @@ struct Drift13KnobSmall : SvgKnob {
     Drift13KnobSmall() {
         minAngle = -0.83 * M_PI;
         maxAngle = 0.83 * M_PI;
-        setSvg(Svg::load(asset::plugin(pluginInstance, "res/Drift13KnobSmall.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/SubmitKnobSmall.svg")));
         shadow->opacity = 0.f;
     }
 };
@@ -27,7 +27,7 @@ struct SweepKnob : SvgKnob {
     SweepKnob() {
         minAngle = -0.83 * M_PI;
         maxAngle = 0.83 * M_PI;
-        setSvg(Svg::load(asset::plugin(pluginInstance, "res/ImpactKnobMini.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/SubmitKnobMini.svg")));
         shadow->opacity = 0.f;
     }
 };
@@ -157,16 +157,15 @@ struct Sweep : Module {
         float inL = inputs[CHAIN_L_INPUT].getVoltage();
         float inR = inputs[CHAIN_R_INPUT].isConnected() ? inputs[CHAIN_R_INPUT].getVoltage() : inL;
 
-        // Midden = bypass
-        float deadzone = 0.01f;
-        if (std::abs(smoothSweep - 0.5f) < deadzone) {
-            outputs[CHAIN_L_OUTPUT].setVoltage(inL);
-            outputs[CHAIN_R_OUTPUT].setVoltage(inR);
-            lights[RESET_LIGHT].setBrightness(resetActive ? 1.f : 0.f);
-            return;
-        }
-
         float q = 0.707f + smoothRes * 4.f; // 0.707=vlak, 4.7=hoge resonantie
+        constexpr float centerFadeWidth = 0.03f;
+        float distanceFromCenter = std::abs(smoothSweep - 0.5f);
+        float filterMix = clamp(distanceFromCenter / centerFadeWidth, 0.f, 1.f);
+        // Smoothstep keeps the transition into the centre bypass click-free.
+        filterMix = filterMix * filterMix * (3.f - 2.f * filterMix);
+
+        float filteredL = inL;
+        float filteredR = inR;
 
         if (smoothSweep < 0.5f) {
             // LP: 0=20Hz, 0.5=20kHz
@@ -174,17 +173,20 @@ struct Sweep : Module {
             float freq = clamp(20.f * std::pow(1000.f, t), 20.f, 20000.f);
             lpL.setLP(freq, q, args.sampleRate);
             lpR.setLP(freq, q, args.sampleRate);
-            outputs[CHAIN_L_OUTPUT].setVoltage(lpL.process(inL));
-            outputs[CHAIN_R_OUTPUT].setVoltage(lpR.process(inR));
+            filteredL = lpL.process(inL);
+            filteredR = lpR.process(inR);
         } else {
             // HP: 0.5=20Hz, 1=20kHz
             float t = (smoothSweep - 0.5f) * 2.f;
             float freq = clamp(20.f * std::pow(1000.f, t), 20.f, 20000.f);
             hpL.setHP(freq, q, args.sampleRate);
             hpR.setHP(freq, q, args.sampleRate);
-            outputs[CHAIN_L_OUTPUT].setVoltage(hpL.process(inL));
-            outputs[CHAIN_R_OUTPUT].setVoltage(hpR.process(inR));
+            filteredL = hpL.process(inL);
+            filteredR = hpR.process(inR);
         }
+
+        outputs[CHAIN_L_OUTPUT].setVoltage(inL + (filteredL - inL) * filterMix);
+        outputs[CHAIN_R_OUTPUT].setVoltage(inR + (filteredR - inR) * filterMix);
 
         lights[RESET_LIGHT].setBrightness(resetActive ? 1.f : 0.f);
     }
@@ -193,7 +195,7 @@ struct Sweep : Module {
     void dataFromJson(json_t* rootJ) override { (void)rootJ; }
 };
 
-struct SweepWidget : ModuleWidget {
+struct SweepWidget : SubmitModuleWidget {
     SweepWidget(Sweep* module) {
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Panel-design-sweep.svg")));
@@ -224,6 +226,7 @@ struct SweepWidget : ModuleWidget {
         menu->addChild(createMenuItem("Report a Bug", "", []() {
             system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
         }));
+		SubmitModuleWidget::appendContextMenu(menu);
     }
 };
 

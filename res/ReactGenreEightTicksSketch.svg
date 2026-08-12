@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#666666"/>
+
+  <text x="256" y="88"
+        fill="#f4f4f4"
+        font-family="Helvetica Neue, Arial, sans-serif"
+        font-size="64"
+        font-weight="300"
+        text-anchor="middle"
+        letter-spacing="0">GENRE</text>
+
+  <g fill="none" stroke-linecap="round">
+    <circle cx="256" cy="270" r="154" stroke="#171717" stroke-width="38"/>
+    <circle cx="256" cy="270" r="154" stroke="#404247" stroke-width="20"/>
+    <circle cx="256" cy="270" r="184" stroke="#d8d8d8" stroke-width="8"/>
+
+    <g stroke="#d8d8d8" stroke-width="9">
+      <line x1="130.1" y1="395.9" x2="99.0" y2="427.0"/>
+      <line x1="79.1" y1="289.9" x2="35.4" y2="294.9"/>
+      <line x1="105.3" y1="175.3" x2="68.0" y2="151.9"/>
+      <line x1="197.2" y1="102.0" x2="182.7" y2="60.5"/>
+      <line x1="314.8" y1="102.0" x2="329.3" y2="60.5"/>
+      <line x1="406.7" y1="175.3" x2="444.0" y2="151.9"/>
+      <line x1="432.9" y1="289.9" x2="476.6" y2="294.9"/>
+      <line x1="381.9" y1="395.9" x2="413.0" y2="427.0"/>
+    </g>
+
+    <g stroke="#ffffff" stroke-width="12">
+      <line x1="256" y1="205" x2="256" y2="270"/>
+    </g>
+  </g>
+</svg>

@@ -10,7 +10,7 @@ struct ClangReactSmallKnob : SvgKnob {
 	ClangReactSmallKnob() {
 		minAngle = -0.83 * M_PI;
 		maxAngle = 0.83 * M_PI;
-		setSvg(Svg::load(asset::plugin(pluginInstance, "res/Drift13KnobSmall.svg")));
+		setSvg(Svg::load(asset::plugin(pluginInstance, "res/SubmitKnobSmall.svg")));
 		shadow->opacity = 0.f;
 	}
 };
@@ -1224,7 +1224,7 @@ struct ClangDisplay : Widget {
 	}
 };
 
-struct ClangWidget : ModuleWidget {
+struct ClangWidget : SubmitModuleWidget {
 	ClangWidget(Clang* module) {
 		setModule(module);
 		setPanel(createPanel(asset::plugin(pluginInstance, "res/Clang.svg")));
@@ -1233,15 +1233,15 @@ struct ClangWidget : ModuleWidget {
 		display->module = module;
 		addChild(display);
 
-		addParam(createParamCentered<ClangReactSmallKnob>(Vec(34.362f, 108.772f), module, Clang::MODEL_PARAM));
+		addParam(createParamCentered<ClangReactSmallKnob>(Vec(34.361f, 108.89f), module, Clang::MODEL_PARAM));
 		addParam(createParam<CKSS>(Vec(115.317f, 103.096f), module, Clang::ENGINE_PARAM));
-		addParam(createParamCentered<ClangReactSmallKnob>(Vec(83.121f, 108.772f), module, Clang::SOUND_PARAM));
-		addParam(createParamCentered<ClangReactSmallKnob>(Vec(34.362f, 216.627f), module, Clang::TUNE_PARAM));
-		addParam(createParamCentered<ClangReactSmallKnob>(Vec(83.191f, 216.627f), module, Clang::DECAY_PARAM));
-		addParam(createParamCentered<ClangReactSmallKnob>(Vec(132.02f, 216.627f), module, Clang::NOISE_PARAM));
-		addParam(createParamCentered<ClangReactSmallKnob>(Vec(34.362f, 285.601f), module, Clang::MOTION_PARAM));
-		addParam(createParamCentered<ClangReactSmallKnob>(Vec(83.191f, 285.601f), module, Clang::BODY_PARAM));
-		addParam(createParamCentered<ClangReactSmallKnob>(Vec(132.02f, 285.601f), module, Clang::VARIATION_PARAM));
+		addParam(createParamCentered<ClangReactSmallKnob>(Vec(83.19f, 108.89f), module, Clang::SOUND_PARAM));
+		addParam(createParamCentered<ClangReactSmallKnob>(Vec(34.361f, 216.962f), module, Clang::TUNE_PARAM));
+		addParam(createParamCentered<ClangReactSmallKnob>(Vec(83.19f, 216.962f), module, Clang::DECAY_PARAM));
+		addParam(createParamCentered<ClangReactSmallKnob>(Vec(132.019f, 216.962f), module, Clang::NOISE_PARAM));
+		addParam(createParamCentered<ClangReactSmallKnob>(Vec(34.361f, 285.601f), module, Clang::MOTION_PARAM));
+		addParam(createParamCentered<ClangReactSmallKnob>(Vec(83.19f, 285.601f), module, Clang::BODY_PARAM));
+		addParam(createParamCentered<ClangReactSmallKnob>(Vec(132.019f, 285.601f), module, Clang::VARIATION_PARAM));
 
 		addInput(createInputCentered<PJ301MPort>(Vec(33.797f, 155.894f), module, Clang::MODEL_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(82.924f, 155.894f), module, Clang::SOUND_INPUT));
@@ -1262,6 +1262,7 @@ struct ClangWidget : ModuleWidget {
 			menu->addChild(createMenuItem("Report a Bug", "", []() {
 				system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
 			}));
+			SubmitModuleWidget::appendContextMenu(menu);
 		}
 	};
 

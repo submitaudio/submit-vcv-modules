@@ -7,7 +7,7 @@ struct ChainKnob : SvgKnob {
     ChainKnob() {
         minAngle = -0.83 * M_PI;
         maxAngle = 0.83 * M_PI;
-        setSvg(Svg::load(asset::plugin(pluginInstance, "res/ImpactKnobMini.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/SubmitKnobMini.svg")));
         shadow->opacity = 0.f;
     }
 };
@@ -314,10 +314,9 @@ struct ChainVUMeter : Widget {
     int channel = 0;
 
     void draw(const DrawArgs& args) override {
-        if (module == nullptr) return;
         float h = box.size.y;
         if (h < 1.f) return;
-        float level = (channel == 0) ? module->vuLevel1 : module->vuLevel2;
+        float level = module == nullptr ? 0.f : ((channel == 0) ? module->vuLevel1 : module->vuLevel2);
         if (level <= 0.f) return;
         if (level > 1.f) level = 1.f;
         float vuH = h * level;
@@ -345,7 +344,7 @@ struct ChainVUMeter : Widget {
     }
 };
 
-struct Mix2chWidget : ModuleWidget {
+struct Mix2chWidget : SubmitModuleWidget {
     Mix2chWidget(Mix2ch* module) {
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Chain.svg")));
@@ -428,6 +427,7 @@ struct Mix2chWidget : ModuleWidget {
         menu->addChild(createMenuItem("Report a Bug", "", []() {
             system::openBrowser("https://github.com/submitaudio/submit-vcv-modules/issues");
         }));
+		SubmitModuleWidget::appendContextMenu(menu);
     }
 };
 

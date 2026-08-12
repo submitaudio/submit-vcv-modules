@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-- Module-specific changes will be recorded here as they are developed.
+## v2.18.0
+
+- Updated the panel and rotary controls to the current Submit Audio design.
+- Removed the unintended outline around the display area.
+- Preserved sample playback, clock synchronisation, reverse, cue and saved patch behaviour.
 
 ## v2.16.1
 
