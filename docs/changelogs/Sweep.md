@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## v2.19.0 (2026-08-22)
+
+- Included in Submit 2.19.0 with no module-specific functional changes.
+
 ## v2.18.0
 
 - Updated all rotary controls to the current Submit Audio knob design.
