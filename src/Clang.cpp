@@ -1202,12 +1202,17 @@ struct Clang : Module {
 
 struct ClangDisplay : Widget {
 	Clang* module = nullptr;
+	std::shared_ptr<Font> font;
 
 	ClangDisplay() {
 		box.size = Vec(130.933f, 22.946f);
 	}
 
 	void draw(const DrawArgs& args) override {
+		if (!font)
+			font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
+		if (!font)
+			return;
 		int engine = module ? clamp((int)std::round(module->params[Clang::ENGINE_PARAM].getValue()), 0, 1) : 0;
 		int model = module ? clamp((int)std::round(module->params[Clang::MODEL_PARAM].getValue()), 0, 7) : 0;
 		int sound = module ? clamp((int)std::round(module->params[Clang::SOUND_PARAM].getValue()), 0, 7) : 0;
@@ -1216,7 +1221,7 @@ struct ClangDisplay : Widget {
 		std::string txt = engine == 0
 			? std::string(clangPhysicalModelNames[model]) + " -> " + clangPhysicalSoundNames[model][sound]
 			: std::string(clangFmModelNames[model]) + " -> " + clangFmSoundNames[model][sound];
-		nvgFontFaceId(args.vg, APP->window->uiFont->handle);
+		nvgFontFaceId(args.vg, font->handle);
 		nvgFontSize(args.vg, 11.f);
 		nvgFillColor(args.vg, nvgRGB(0xff, 0xff, 0xff));
 		nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);

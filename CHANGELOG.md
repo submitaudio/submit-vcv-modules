@@ -8,6 +8,11 @@ Detailed, module-specific history is maintained in separate pages:
 - [Chrono](docs/changelogs/Chrono.md)
 - [Impact](docs/changelogs/Impact.md)
 - [Chain](docs/changelogs/Chain.md)
+- [Sum M4](docs/changelogs/SumM4.md)
+- [Sum S4](docs/changelogs/SumS4.md)
+- [Set](docs/changelogs/Set.md)
+- [Pulse](docs/changelogs/Pulse.md)
+- [Tag](docs/changelogs/Tag.md)
 - [Squeeze](docs/changelogs/Squeeze.md)
 - [Shape](docs/changelogs/Shape.md)
 - [Master](docs/changelogs/Master.md)
@@ -20,7 +25,13 @@ Detailed, module-specific history is maintained in separate pages:
 - [Flip](docs/changelogs/Flip.md)
 - [Orbit](docs/changelogs/Orbit.md)
 
-## Unreleased
+## v2.19.0 (2026-08-22)
+
+- Added Sum M4, a compact four-channel mono mixer with level, pan, clickless mute and stereo Chain I/O.
+- Added Sum S4, a compact four-channel stereo mixer with mono-normalled inputs, level, clickless mute and stereo Chain I/O.
+- Added Set, a clocked performance timer with run/pause, separate timer and pulse-phase resets, and selectable musical pulse output.
+- Added Pulse, a slim visual trigger indicator and mono final-mix level and peak monitor.
+- Added Tag, an editable patch-section label with right, left or no direction arrow.
 
 ## v2.18.0 — 2026-08-12
 

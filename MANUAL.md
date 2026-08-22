@@ -2,7 +2,7 @@
 
 This GitHub manual is the versioned technical reference for the Submit Audio VCV Rack plugin. The friendly, illustrated manual remains available on the [Submit Audio website](https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/).
 
-The public release modules are Drift, Chrono, Impact, Chain, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang, React, Sync, Flip and Orbit. Beta modules are not included until they are approved for a public release.
+The public release modules are Drift, Chrono, Impact, Chain, Sum M4, Sum S4, Set, Pulse, Tag, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang, React, Sync, Flip and Orbit. Beta modules are not included until they are approved for a public release.
 
 ## Contents
 
@@ -12,6 +12,11 @@ The public release modules are Drift, Chrono, Impact, Chain, Squeeze, Shape, Mas
 - [Chrono](#chrono)
 - [Impact](#impact)
 - [Chain](#chain)
+- [Sum M4](#sum-m4)
+- [Sum S4](#sum-s4)
+- [Set](#set)
+- [Pulse](#pulse)
+- [Tag](#tag)
 - [Squeeze](#squeeze)
 - [Shape](#shape)
 - [Master](#master)
@@ -27,7 +32,7 @@ The public release modules are Drift, Chrono, Impact, Chain, Squeeze, Shape, Mas
 
 ## Submit Mixer System
 
-Chain, Squeeze, Shape, Master and Gain are designed to work together as a modular mixing system.
+Chain, Sum M4, Sum S4, Squeeze, Shape, Master and Gain are designed to work together as a modular mixing system.
 
 1. Use Chain for stereo channels, pre-gain, pan, filtering, mute and FX sends.
 2. Use Squeeze to generate sidechain CV and patch it to Chain's COMP/CV input.
@@ -35,7 +40,7 @@ Chain, Squeeze, Shape, Master and Gain are designed to work together as a modula
 4. Use Master as the final stereo bus processor.
 5. Use Gain to bring external line-level signals up to modular level, especially on MetaModule.
 
-Chain modules can be daisy-chained to expand the number of channels. The send and return buses allow one effect module to process several channels.
+Chain, Sum M4 and Sum S4 modules can be daisy-chained to expand the number of channels. The send and return buses on Chain allow one effect module to process several channels.
 
 ## Clock standard
 
@@ -134,6 +139,80 @@ Stereo chain output plus left/right outputs for FX Send 1 and FX Send 2.
 ### Patch ideas
 
 Daisy-chain Chain modules for more channels. Connect Squeeze COMP OUT to a Chain COMP/CV input for sidechain pumping. Route a shared Shape or Sweep module through a send/return pair.
+
+## Sum M4
+
+Sum M4 is a compact four-channel mono mixer and a small-format extension of the Submit Chain family.
+
+### Controls, inputs and outputs
+
+- Each channel has a level control, constant-power pan and clickless mute.
+- Inputs 1–4 accept mono audio.
+- `Chain In L/R` adds an incoming stereo Chain mix without changing its level.
+- `Out L/R` carries the combined stereo mix to another Chain-family module or a final output stage.
+
+### First patch
+
+Connect up to four mono voices, set their levels and stereo positions, and patch `Out L/R` to the next Chain-family module. Use `Chain In L/R` to extend an existing mixer chain.
+
+## Sum S4
+
+Sum S4 is a compact four-channel stereo mixer and a small-format extension of the Submit Chain family.
+
+### Controls, inputs and outputs
+
+- Each channel has a level control and clickless mute.
+- Inputs 1–4 provide left and right connections; an unpatched right input follows its left input for mono-to-stereo use.
+- `Chain In L/R` adds an incoming stereo Chain mix without changing its level.
+- `Out L/R` carries the combined stereo mix.
+
+### First patch
+
+Connect stereo sources to the four channel pairs, or use only the left input for a centred mono source. Patch `Out L/R` to another Chain-family module or the final output stage.
+
+## Set
+
+Set combines a performance timer with a clock-derived pulse output.
+
+### Controls, inputs and output
+
+- **Run** starts or pauses the timer. Press it again to continue from the stored time.
+- **Reset** resets only the displayed timer to zero.
+- The pulse selector chooses a quarter-note, half-note or whole-note pulse derived from the 1 PPQN clock.
+- `Clock` accepts the 1 PPQN source.
+- `Run` starts or resumes the timer from an external trigger.
+- `RST` resets the pulse phase and active pulse state without changing the timer.
+- `Pulse` outputs the selected musical pulse.
+
+### First patch
+
+Patch a 1 PPQN clock to `Clock`, choose a pulse interval and send `Pulse` to a rhythmic destination. Use the panel Run button as a performance stopwatch; pausing and resuming does not disturb the elapsed time.
+
+## Pulse
+
+Pulse is a slim visual utility for checking a trigger and the level of a mono final mix.
+
+### Inputs and display
+
+- `Pulse` flashes the large yellow display when a trigger arrives.
+- `Mix` drives the vertical level indication.
+- The display turns red when the monitored signal reaches the peak-warning threshold.
+
+### First patch
+
+Connect an important rhythmic trigger to `Pulse` and a mono mix or bus signal to `Mix` for an immediate visual reference during performance.
+
+## Tag
+
+Tag is an editable 2 HP label for organising larger patches.
+
+### Editing and arrow direction
+
+- Click directly in the LCD text field and type a label of up to 38 characters.
+- Click the arrow to cycle between right, no arrow and left.
+- The text and arrow direction are stored with the patch.
+
+Place Tag beside the modules or cable group it describes, then point the arrow toward that patch section.
 
 ## Squeeze
 

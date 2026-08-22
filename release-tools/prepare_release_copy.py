@@ -18,6 +18,11 @@ PUBLIC_SLUGS = [
     "Chrono",
     "Impact",
     "Chain",
+    "SumM4",
+    "SumS4",
+    "Tag",
+    "Set",
+    "Pulse",
     "Squeeze",
     "Shape",
     "Master",
@@ -46,8 +51,12 @@ def ignored(_directory: str, names: list[str]) -> set[str]:
         "dist",
         "plugin.dylib",
         "backups",
+        "samples",
+        "DONATIONS.md",
         "__pycache__",
     }
+    if Path(_directory).name == "docs":
+        ignored_names.add("CURRENT-DEVELOPMENT-HANDOFF.md")
     for name in names:
         if (
             name.endswith((".bak", ".bak2"))
@@ -61,8 +70,7 @@ def ignored(_directory: str, names: list[str]) -> set[str]:
 def discover_models(src_dir: Path) -> dict[str, tuple[str, Path]]:
     models: dict[str, tuple[str, Path]] = {}
     for cpp_path in sorted(src_dir.glob("*.cpp")):
-        match = CREATE_MODEL_RE.search(cpp_path.read_text())
-        if match:
+        for match in CREATE_MODEL_RE.finditer(cpp_path.read_text()):
             model, slug = match.groups()
             if slug in models:
                 raise RuntimeError(f"Duplicate createModel slug: {slug}")
@@ -101,9 +109,13 @@ def main() -> int:
     public_asset_refs: set[str] = set()
     beta_asset_refs: set[str] = set()
 
+    source_slugs: dict[Path, set[str]] = {}
     for slug, (_model, cpp_path) in models.items():
+        source_slugs.setdefault(cpp_path, set()).add(slug)
+
+    for cpp_path, slugs in source_slugs.items():
         refs = set(PANEL_RE.findall(cpp_path.read_text()))
-        if slug in PUBLIC_SLUGS:
+        if slugs.intersection(PUBLIC_SLUGS):
             public_asset_refs |= refs
         else:
             beta_asset_refs |= refs
@@ -114,12 +126,31 @@ def main() -> int:
         if asset_path.exists():
             asset_path.unlink()
 
+    private_orphaned_paths = [
+        "res/CirclesLcdDesign.svg",
+        "res/MachinaLfoNoise.svg",
+        "res/MachinaLfoRandom.svg",
+        "res/MachinaLfoReverseSaw.svg",
+        "res/MachinaLfoSaw.svg",
+        "res/MachinaLfoSine.svg",
+        "res/MachinaLfoSquare.svg",
+        "res/MachinaLfoTriangle.svg",
+        "res/MachinaLfoWander.svg",
+        "res/SubV2Components.svg",
+        "src/GranularEngine.hpp",
+    ]
+    for private_path in private_orphaned_paths:
+        path = destination / private_path
+        if path.exists():
+            path.unlink()
+
     plugin_cpp_path = destination / "src/plugin.cpp"
     plugin_cpp = plugin_cpp_path.read_text()
     plugin_cpp = ADD_MODEL_RE.sub(
         lambda match: match.group(0) if match.group(1) in public_models else "",
         plugin_cpp,
     )
+    plugin_cpp = re.sub(r"\n{3,}", "\n\n", plugin_cpp).rstrip() + "\n"
     plugin_cpp_path.write_text(plugin_cpp)
 
     plugin_hpp_path = destination / "src/plugin.hpp"
@@ -128,6 +159,7 @@ def main() -> int:
         lambda match: match.group(0) if match.group(1) in public_models else "",
         plugin_hpp,
     )
+    plugin_hpp = re.sub(r"\n{3,}", "\n\n", plugin_hpp).rstrip() + "\n"
     plugin_hpp_path.write_text(plugin_hpp)
 
     changelog_dir = destination / "docs/changelogs"

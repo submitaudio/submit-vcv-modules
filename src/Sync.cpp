@@ -192,9 +192,14 @@ struct Sync : Module {
 
 struct SyncDisplay : TransparentWidget {
 	Sync* module = nullptr;
+	std::shared_ptr<Font> font;
 
 	void draw(const DrawArgs& args) override {
-		nvgFontFaceId(args.vg, APP->window->uiFont->handle);
+		if (!font)
+			font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
+		if (!font)
+			return;
+		nvgFontFaceId(args.vg, font->handle);
 		nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
 		nvgFillColor(args.vg, nvgRGB(255, 255, 255));
 

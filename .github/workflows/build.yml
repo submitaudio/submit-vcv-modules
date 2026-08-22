@@ -87,6 +87,11 @@ jobs:
             - Chrono — Tape delay
             - Impact — Kick drum synthesizer
             - Chain — Stereo channel mixer
+            - Sum M4 — Compact four-channel mono Chain mixer
+            - Sum S4 — Compact four-channel stereo Chain mixer
+            - Set — Clocked performance timer and pulse utility
+            - Pulse — Trigger and final-mix visual monitor
+            - Tag — Editable patch-section label
             - Squeeze — Sidechain envelope generator
             - Shape — 6-band SSL-style EQ
             - Master — Master bus processor

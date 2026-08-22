@@ -1098,6 +1098,7 @@ struct React : Module {
 
 struct ReactDisplay : Widget {
     React* module = nullptr;
+    std::shared_ptr<Font> font;
 
     ReactDisplay() {
         box.size = Vec(151.382f, 46.256f);
@@ -1106,7 +1107,11 @@ struct ReactDisplay : Widget {
     void draw(const DrawArgs& args) override {
         NVGcolor white = nvgRGB(255, 255, 255);
 
-        nvgFontFaceId(args.vg, APP->window->uiFont->handle);
+        if (!font)
+            font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
+        if (!font)
+            return;
+        nvgFontFaceId(args.vg, font->handle);
         nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
 
         if (!module) {
@@ -1152,15 +1157,25 @@ struct ReactDisplay : Widget {
             nvgText(args.vg, 8.f, 18.f, "--- BPM", NULL);
         }
 
-        // Regel 3: KIT/Lock status
+        // Regel 3: kit/lock status. Locked parts light up yellow.
         nvgFontSize(args.vg, 9.5f);
-        nvgFillColor(args.vg, white);
-        char line3[64];
-        snprintf(line3, sizeof(line3), "SN: %s   HI: %s   PE: %s",
-            snareK == 0 ? "kit" : "lock",
-            hihatK == 0 ? "kit" : "lock",
-            percK  == 0 ? "kit" : "lock");
-        nvgText(args.vg, 8.f, 33.f, line3, NULL);
+        nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+        float statusX = 8.f;
+        const float statusY = 33.f;
+        auto drawStatusText = [&](const char* text, NVGcolor color) {
+            nvgFillColor(args.vg, color);
+            nvgText(args.vg, statusX, statusY, text, nullptr);
+            statusX += nvgTextBounds(args.vg, statusX, statusY, text, nullptr, nullptr);
+        };
+        auto drawPartStatus = [&](const char* label, bool locked, bool addSpacing) {
+            drawStatusText(label, white);
+            drawStatusText(locked ? "LOCK" : "KIT", locked ? nvgRGB(255, 255, 0) : white);
+            if (addSpacing)
+                drawStatusText("   ", white);
+        };
+        drawPartStatus("SN: ", snareK != 0, true);
+        drawPartStatus("HI: ", hihatK != 0, true);
+        drawPartStatus("PE: ", percK != 0, false);
     }
 };
 

@@ -427,6 +427,7 @@ struct LoopResetButton : SvgSwitch {
 // Waveform display
 struct ReelDisplay : Widget {
     Reel* module = nullptr;
+    std::shared_ptr<Font> font;
 
     void draw(const DrawArgs& args) override {
         // Achtergrond
@@ -434,6 +435,12 @@ struct ReelDisplay : Widget {
         nvgRoundedRect(args.vg, 0, 0, box.size.x, box.size.y, 3);
         nvgFillColor(args.vg, nvgRGB(0x45, 0x45, 0x21));
         nvgFill(args.vg);
+
+        if (!font)
+            font = APP->window->loadFont(asset::system("res/fonts/ShareTechMono-Regular.ttf"));
+        if (!font)
+            return;
+        nvgFontFaceId(args.vg, font->handle);
 
         if (!module || !module->fileLoaded) {
             nvgFontSize(args.vg, 9.f);

@@ -91,12 +91,12 @@ expliciet heeft goedgekeurd.
 ```bash
 python3 << 'EOF'
 import json
-with open('/Users/studio67/Submit/plugin.json') as f:
+with open('/Users/studio67/SubmitAudio-Development/Projects/VCV-Rack/plugin.json') as f:
     data = json.load(f)
 json_slugs = [m['slug'] for m in data.get('modules', [])]
-with open('/Users/studio67/Submit/src/plugin.cpp') as f:
+with open('/Users/studio67/SubmitAudio-Development/Projects/VCV-Rack/src/plugin.cpp') as f:
     cpp = f.read()
-with open('/Users/studio67/Submit/src/plugin.hpp') as f:
+with open('/Users/studio67/SubmitAudio-Development/Projects/VCV-Rack/src/plugin.hpp') as f:
     hpp = f.read()
 print('=== MODULE VERIFICATIE ===')
 print('plugin.json:', json_slugs)
@@ -118,17 +118,18 @@ EOF
 
 ## STAP 2 — Controleer exact de publieke modulelijst
 
-De publieke release bevat uitsluitend: Drift, Chrono, Impact, Chain, Squeeze,
-Shape, Master, Gain, Sweep, Loop, Clang, React, Sync, Flip en Orbit.
+De publieke release bevat uitsluitend: Drift, Chrono, Impact, Chain, SumM4,
+SumS4, Tag, Set, Pulse, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang,
+React, Sync, Flip en Orbit.
 
 Beta/local modules (NOOIT pushen zonder expliciete goedkeuring): Poly008, Twin,
-Shortwave, Void, VoidV2, VoidV3, Swell, Circles, CirclesV2, Sub en SubV2.
+Shortwave, Void, VoidV2, VoidV3, Swell, Circles, CirclesV2, Sub, SubV2 en Machina.
 
 Gebruik `scripts/verwijder_beta.py`, `scripts/herstel_beta.py` en
 `scripts/release.py` niet voor deze release. Deze oude scripts kennen de actuele
 modulelijst niet en kunnen lokaal werk verwijderen of onbedoeld committen en pushen.
 Bereid een release altijd in een aparte release-worktree voor, zodat de volledige
-lokale beta-opstelling in `~/Submit` behouden blijft.
+lokale beta-opstelling in `/Users/studio67/SubmitAudio-Development/Projects/VCV-Rack` behouden blijft.
 
 Maak en controleer eerst een veilige releasekopie:
 
@@ -137,7 +138,7 @@ release_dir="$(mktemp -d /private/tmp/submit-release.XXXXXX)"
 rmdir "$release_dir"
 python3 release-tools/prepare_release_copy.py "$release_dir"
 cd "$release_dir"
-export RACK_DIR=~/Rack-SDK
+export RACK_DIR=/Users/studio67/SubmitAudio-Development/Toolchains/Rack-SDK
 make -j4 && make dist
 ```
 
@@ -155,7 +156,7 @@ Git-acties uit en controleert de publieke slugs, registraties en panel-assets.
 Gebruik **nooit** blind `git add .` vanuit de lokale ontwikkelmap. Daar staan ook
 beta-modules en ander lokaal werk. Maak de publieke commit alleen vanuit een
 gecontroleerde release-worktree waarin de inhoud overeenkomt met de hierboven
-geteste releasekopie. Controleer vóór de commit opnieuw dat uitsluitend de 15
+geteste releasekopie. Controleer vóór de commit opnieuw dat uitsluitend de 20
 goedgekeurde modules geregistreerd zijn.
 
 ```bash
@@ -176,7 +177,7 @@ git rev-parse HEAD
 ## STAP 5 — Release aanmaken via tag
 
 ```bash
-cd ~/Submit && git tag v2.x.x && git push origin v2.x.x
+cd /Users/studio67/SubmitAudio-Development/Projects/VCV-Rack && git tag v2.x.x && git push origin v2.x.x
 ```
 
 ---
@@ -210,13 +211,14 @@ update en sluit het weer wanneer de build beschikbaar is.
 Bericht voor deze release:
 
 ```text
-Submit 2.18.0 is ready for the VCV Library.
+Submit 2.19.0 is ready for the VCV Library.
 
-Version: 2.18.0
+Version: 2.19.0
 Commit: <FULL_COMMIT_HASH>
 
-This release updates the complete 15-module collection, including refreshed
-panels and controls, module-specific DSP refinements, and updated changelogs.
+This release expands the Submit Audio collection to 20 modules with Sum M4,
+Sum S4, Set, Pulse and Tag, including two compact additions to the Chain mixer
+family and new timing, monitoring and patch-organising utilities.
 ```
 
 Plaats dit bericht pas wanneer de publieke commit definitief op GitHub staat en
@@ -225,7 +227,7 @@ de drie platform-builds van dezelfde commit succesvol zijn gecontroleerd.
 ---
 
 ## OFFICIELE MODULES
-Drift, Chrono, Impact, Chain, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang, React, Sync, Flip, Orbit
+Drift, Chrono, Impact, Chain, SumM4, SumS4, Tag, Set, Pulse, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang, React, Sync, Flip, Orbit
 
 ## BETA MODULES (nooit pushen)
-Poly008, Twin, Shortwave, Void, VoidV2, VoidV3, Swell, Circles, CirclesV2, Sub, SubV2
+Poly008, Twin, Shortwave, Void, VoidV2, VoidV3, Swell, Circles, CirclesV2, Sub, SubV2, Machina

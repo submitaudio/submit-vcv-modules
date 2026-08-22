@@ -1,6 +1,6 @@
 # Submit
 
-A complete live performance toolkit for VCV Rack — 15 modules designed for sound design, rhythm and live performance.
+A complete live performance toolkit for VCV Rack — 20 modules designed for sound design, rhythm and live performance.
 
 ![Submit Modules](docs/modules.png)
 
@@ -13,6 +13,16 @@ A complete live performance toolkit for VCV Rack — 15 modules designed for sou
 **Impact** — Drum synthesizer with noise, harmonics and punch shaping
 
 **Chain** — 2-channel stereo mixer with pre gain, 2 FX sends, HPF and sidechain CV
+
+**Sum M4** — Compact 4-channel mono mixer with level, pan, mute and Chain I/O
+
+**Sum S4** — Compact 4-channel stereo mixer with level, mute and Chain I/O
+
+**Set** — Clocked performance timer with run/pause and selectable musical pulse output
+
+**Pulse** — Slim visual trigger indicator and mono final-mix level/peak monitor
+
+**Tag** — Editable patch-section label with a selectable direction arrow
 
 **Squeeze** — Sidechain envelope follower. Feeds Chain's compressor CV input
 

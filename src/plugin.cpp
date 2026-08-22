@@ -11,6 +11,12 @@ void init(Plugin* p) {
 	p->addModel(modelChrono);
 	p->addModel(modelImpact);
 	p->addModel(modelChain);
+	p->addModel(modelSumM4);
+	p->addModel(modelSumS4);
+	p->addModel(modelTag);
+	p->addModel(modelSet);
+	p->addModel(modelPulse);
+
 	p->addModel(modelSqueeze);
 	p->addModel(modelShape);
 	p->addModel(modelMaster);
@@ -22,5 +28,6 @@ void init(Plugin* p) {
 	p->addModel(modelSync);
 	p->addModel(modelFlip);
 	p->addModel(modelOrbit);
+
 	pluginInstance = p;
 }
