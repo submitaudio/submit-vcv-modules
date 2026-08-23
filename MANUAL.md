@@ -324,6 +324,8 @@ Outputs: Main L, Main R and Cue Mono.
 
 Right-click the module and choose **Load WAV...**. Loop shows the waveform and derives BPM information when it is present in the file or filename. Reverse playback is aligned to the bar boundary when synchronised.
 
+When a patch is saved, Loop embeds the loaded WAV in the VCV patch so it can be reopened without relying on the original file location. This increases the patch file size. The original file path is retained as a backward-compatible fallback for older patches and presets.
+
 ## Clang
 
 Clang is a techno percussion synthesizer with Physical and FM engines, eight models and eight sound variations.

@@ -64,6 +64,8 @@ struct Reel : Module {
     float detectedBars = 0.f;
     std::string fileName = "";
     std::string displayName = "";
+    std::string filePath = "";
+    std::string loadedSamplePath = "";
 
     // Clock tracking
     float clockPrev = 0.f;
@@ -114,9 +116,15 @@ struct Reel : Module {
         configOutput(CUE_OUTPUT, "Cue Mono");
     }
 
-    void loadSample(const std::string& path) {
+    void updateDisplayName() {
+        displayName = fileName;
+        if (displayName.size() > 28)
+            displayName.replace(26, std::string::npos, "..");
+    }
+
+    bool loadSample(const std::string& path, bool rememberSourcePath = true, const std::string& preferredFileName = "") {
         drwav wav;
-        if (!drwav_init_file(&wav, path.c_str(), nullptr)) return;
+        if (!drwav_init_file(&wav, path.c_str(), nullptr)) return false;
 
         int frames = (int)wav.totalPCMFrameCount;
         int ch = wav.channels;
@@ -138,7 +146,9 @@ struct Reel : Module {
         totalFrames = frames;
         playPos = 0.0;
         fileLoaded = true;
-        filePath = path;
+        loadedSamplePath = path;
+        if (rememberSourcePath)
+            filePath = path;
         activeLoopOffset = 0.0;
         pendingBarShift = 1.f;
         lastBarShift = 1.f;
@@ -155,10 +165,10 @@ struct Reel : Module {
 
         // Bestandsnaam
         size_t sep = path.find_last_of("/\\");
-        fileName = (sep != std::string::npos) ? path.substr(sep + 1) : path;
-        displayName = fileName;
-        if (displayName.size() > 28)
-            displayName.replace(26, std::string::npos, "..");
+        fileName = preferredFileName.empty()
+            ? ((sep != std::string::npos) ? path.substr(sep + 1) : path)
+            : preferredFileName;
+        updateDisplayName();
 
         // BPM uit bestandsnaam
         fileBpm = 0.f;
@@ -184,6 +194,7 @@ struct Reel : Module {
             if (std::abs(bars - rounded) < 0.15f && rounded >= 1.f)
                 detectedBars = rounded;
         }
+        return true;
     }
 
     float getSample(std::vector<float>& buf, double pos) {
@@ -409,14 +420,10 @@ struct Reel : Module {
         lights[REVERSE_LIGHT].setBrightness(activeReverse ? 1.f : 0.f);
         lights[CUE_LIGHT].setBrightness(cue ? 1.f : 0.f);
     }
-
-
-
-    std::string filePath = "";  // volledig pad
-
     json_t* dataToJson() override {
         json_t* root = json_object();
         json_object_set_new(root, "filePath", json_string(filePath.c_str()));
+        json_object_set_new(root, "fileName", json_string(fileName.c_str()));
         return root;
     }
 
@@ -424,8 +431,44 @@ struct Reel : Module {
         json_t* fp = json_object_get(root, "filePath");
         if (fp) {
             std::string path = json_string_value(fp);
-            if (!path.empty()) loadSample(path);
+            filePath = path;
+
+            json_t* fn = json_object_get(root, "fileName");
+            if (fn)
+                fileName = json_string_value(fn);
+            if (fileName.empty() && !path.empty()) {
+                size_t sep = path.find_last_of("/\\");
+                fileName = (sep != std::string::npos) ? path.substr(sep + 1) : path;
+            }
+            updateDisplayName();
+
+            // External paths keep old patches and presets compatible. If this is
+            // a saved patch, onAdd() replaces this with the embedded copy.
+            if (!path.empty())
+                loadSample(path, true, fileName);
         }
+    }
+
+    void onAdd(const AddEvent& e) override {
+        Module::onAdd(e);
+        const std::string storageDir = getPatchStorageDirectory();
+        if (storageDir.empty())
+            return;
+
+        const std::string embeddedPath = system::join(storageDir, "sample.wav");
+        if (system::isFile(embeddedPath))
+            loadSample(embeddedPath, false, fileName);
+    }
+
+    void onSave(const SaveEvent& e) override {
+        Module::onSave(e);
+        if (!fileLoaded || loadedSamplePath.empty() || !system::isFile(loadedSamplePath))
+            return;
+
+        const std::string storageDir = createPatchStorageDirectory();
+        const std::string embeddedPath = system::join(storageDir, "sample.wav");
+        if (loadedSamplePath != embeddedPath)
+            system::copy(loadedSamplePath, embeddedPath);
     }
 };
 

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Embedded loaded WAV files in VCV patch storage so saved patches reopen without depending on the original sample location.
+- Kept external file references as a backward-compatible fallback for older patches and presets.
 - Fixed Reset and Trigger/Reset so they restart playback immediately when Sync is disabled or no Clock cable is connected.
 - Preserved clock-quantized reset on the next pulse when Sync is enabled and Clock is connected.
 
