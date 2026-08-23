@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fixed Reset and Trigger/Reset so they restart playback immediately when Sync is disabled or no Clock cable is connected.
+- Preserved clock-quantized reset on the next pulse when Sync is enabled and Clock is connected.
+
 ## v2.19.0 (2026-08-22)
 
 - Switched the display to the bundled Share Tech Mono font for consistent rendering across platforms.

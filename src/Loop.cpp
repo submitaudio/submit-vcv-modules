@@ -196,16 +196,39 @@ struct Reel : Module {
         return buf[i0] * (1.f - frac) + buf[i1] * frac;
     }
 
+    void resetPlaybackPosition() {
+        playPos = 0.0;
+        displayPos = 0.0;
+        barProgress = 0.0;
+        resetPending = false;
+    }
+
     void process(const ProcessArgs& args) override {
-        // Reset knop — quantized: wacht op volgende clock
+        // Reset is quantized only while clock synchronization is actually in use.
+        const bool quantizeReset = params[SYNC_PARAM].getValue() > 0.5f
+            && inputs[CLOCK_INPUT].isConnected();
+        auto requestReset = [&]() {
+            if (quantizeReset)
+                resetPending = true;
+            else
+                resetPlaybackPosition();
+        };
+
         float resetBtn = params[RESET_PARAM].getValue();
-        if (resetPrev < 0.5f && resetBtn >= 0.5f) resetPending = true;
+        if (resetPrev < 0.5f && resetBtn >= 0.5f)
+            requestReset();
         resetPrev = resetBtn;
 
-        // Trig input reset — ook quantized
+        // The Trigger/Reset input follows the same immediate/quantized behavior.
         float trigIn = inputs[TRIG_INPUT].getVoltage();
-        if (trigPrev < 1.f && trigIn >= 1.f) resetPending = true;
+        if (trigPrev < 1.f && trigIn >= 1.f)
+            requestReset();
         trigPrev = trigIn;
+
+        // If sync or the clock cable is removed while a reset is waiting,
+        // execute it immediately instead of leaving it pending indefinitely.
+        if (resetPending && !quantizeReset)
+            resetPlaybackPosition();
 
         if (!fileLoaded || totalFrames == 0) {
             outputs[MAIN_L_OUTPUT].setVoltage(0.f);
@@ -273,10 +296,9 @@ struct Reel : Module {
             }
             clockSampleCount = 0;
             clockReceived = true;
-            // Quantized reset — spring naar 0 op clock pulse
+            // Quantized reset: restart on the shared clock edge.
             if (resetPending) {
-                playPos = 0.0;
-                resetPending = false;
+                resetPlaybackPosition();
             }
         }
         clockSampleCount++;

@@ -311,12 +311,12 @@ Loop is a stereo sample looper with waveform display, clock sync, BPM parsing, r
 - **Sync** enables clock synchronisation.
 - **Reverse** reverses playback.
 - **Cue** sends the cue signal to the mono cue output.
-- **Reset** returns playback to the start.
+- **Reset** returns playback to the start. With Sync enabled and Clock connected, the reset occurs on the next clock pulse. Without an active clock-sync connection, it occurs immediately.
 - **Bar Shift** moves the playback window by bars.
 
 ### Inputs and outputs
 
-Inputs: Clock, Trigger/Reset, Speed CV, Bars CV, BPM CV, Bar Shift CV and Reverse CV.
+Inputs: Clock, Trigger/Reset, Speed CV, Bars CV, BPM CV, Bar Shift CV and Reverse CV. Trigger/Reset follows the same immediate or clock-quantized behaviour as the Reset button.
 
 Outputs: Main L, Main R and Cue Mono.
 
