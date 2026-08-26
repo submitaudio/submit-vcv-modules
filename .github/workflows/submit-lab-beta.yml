@@ -83,8 +83,8 @@ jobs:
           path: ${{ runner.temp }}/SubmitLab/dist/*.vcvplugin
           if-no-files-found: error
 
-  draft-prerelease:
-    name: Create draft prerelease
+  rolling-prerelease:
+    name: Update rolling prerelease
     needs: [build-win-linux, build-mac]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/submitlab-v')
@@ -96,11 +96,36 @@ jobs:
         with:
           path: artifacts
 
-      - name: Create Submit Lab draft prerelease
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: true
-          prerelease: true
-          name: Submit Lab 2.0.1 Beta 2
-          body_path: docs/changelogs/SubmitLab-2.0.1-beta.2.md
-          files: artifacts/**/*.vcvplugin
+      - name: Prepare stable download names
+        run: |
+          mkdir rolling
+          for platform in mac-arm64 win-x64 lin-x64; do
+            package="$(find artifacts -type f -name "*-${platform}.vcvplugin" -print -quit)"
+            test -n "$package"
+            cp "$package" "rolling/SubmitLab-${platform}.vcvplugin"
+          done
+
+      - name: Move rolling beta tag
+        run: |
+          git tag -f submitlab-beta "$GITHUB_SHA"
+          git push origin refs/tags/submitlab-beta --force
+
+      - name: Update rolling beta release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view submitlab-beta >/dev/null 2>&1; then
+            gh release edit submitlab-beta \
+              --title "Submit Lab 2.0.1 Beta 2" \
+              --notes-file docs/changelogs/SubmitLab-2.0.1-beta.2.md \
+              --prerelease \
+              --latest=false
+            gh release upload submitlab-beta rolling/*.vcvplugin --clobber
+          else
+            gh release create submitlab-beta rolling/*.vcvplugin \
+              --target "$GITHUB_SHA" \
+              --title "Submit Lab 2.0.1 Beta 2" \
+              --notes-file docs/changelogs/SubmitLab-2.0.1-beta.2.md \
+              --prerelease \
+              --latest=false
+          fi

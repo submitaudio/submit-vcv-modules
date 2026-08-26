@@ -36,6 +36,18 @@ make dist
 De builder voert geen Git-acties uit, weigert een bestaande doelmap te
 overschrijven en laat uitsluitend Circles, SUB en hun expliciete assets toe.
 
+## Permanente beta-links
+
+De genummerde `submitlab-v*`-tags bewaren de beta-historie. Iedere toegestane
+beta-publicatie werkt daarnaast de rolling prerelease `submitlab-beta` bij met
+vaste assetnamen. Daardoor hoeven website-downloadlinks niet per beta te worden
+aangepast.
+
+- releasepagina: `https://github.com/submitaudio/submit-vcv-modules/releases/tag/submitlab-beta`
+- macOS: `https://github.com/submitaudio/submit-vcv-modules/releases/download/submitlab-beta/SubmitLab-mac-arm64.vcvplugin`
+- Windows: `https://github.com/submitaudio/submit-vcv-modules/releases/download/submitlab-beta/SubmitLab-win-x64.vcvplugin`
+- Linux: `https://github.com/submitaudio/submit-vcv-modules/releases/download/submitlab-beta/SubmitLab-lin-x64.vcvplugin`
+
 ## Feedbackroutes
 
 - algemene informatie, klankfeedback en ideeën: bestaande VCV Community-draad;
