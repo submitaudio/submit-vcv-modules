@@ -36,6 +36,7 @@ LAB_MODULES = [
 ]
 LAB_ASSETS = [
     "res/Circles.svg",
+    "res/CirclesLab.svg",
     "res/CirclesComponents.svg",
     "res/Sub.svg",
     "res/SubmitKnobMedium.svg",
@@ -125,11 +126,16 @@ extern Model* modelSub;
 """
 
 
-def copy_file(source_root: Path, destination_root: Path, relative: str) -> None:
+def copy_file(
+    source_root: Path,
+    destination_root: Path,
+    relative: str,
+    destination_relative: str | None = None,
+) -> None:
     source = source_root / relative
     if not source.is_file():
         raise RuntimeError(f"Missing Submit Lab source dependency: {relative}")
-    destination = destination_root / relative
+    destination = destination_root / (destination_relative or relative)
     destination.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source, destination)
 
@@ -219,7 +225,15 @@ def main() -> int:
         "src/Sub.cpp",
         *LAB_ASSETS,
     ]:
-        copy_file(source, destination, relative)
+        if relative == "res/CirclesLab.svg":
+            copy_file(
+                source,
+                destination,
+                "release-tools/submit-lab-assets/CirclesLab.svg",
+                relative,
+            )
+        else:
+            copy_file(source, destination, relative)
 
     manifest = make_manifest(args.version)
     (destination / "plugin.json").write_text(json.dumps(manifest, indent=2) + "\n")

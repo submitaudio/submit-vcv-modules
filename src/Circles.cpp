@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cstdint>
 #include <cmath>
 #include <cstdio>
@@ -87,6 +88,9 @@ struct Circles : Module {
 		STEP_8_CV_INPUT,
 		FLOW_CV_INPUT,
 		NEXT_INPUT,
+#ifdef SUBMIT_LAB_BUILD
+		DICE_INPUT,
+#endif
 		INPUTS_LEN
 	};
 	enum OutputId {
@@ -167,7 +171,10 @@ struct Circles : Module {
 	dsp::PulseGenerator eocPulse;
 	dsp::PulseGenerator subGatePulse;
 	dsp::PulseGenerator clockLightPulse;
-	dsp::SchmittTrigger diceLightTrigger;
+	dsp::SchmittTrigger diceButtonTrigger;
+#ifdef SUBMIT_LAB_BUILD
+	dsp::SchmittTrigger diceInputTrigger;
+#endif
 	dsp::PulseGenerator diceLightPulse;
 
 	int currentStep = -1;
@@ -199,6 +206,15 @@ struct Circles : Module {
 	uint32_t flowRandomState = 0x6d2b79f5u;
 	int diceCharacter = 1;
 	int clockPpqn = 1;
+#ifdef SUBMIT_LAB_BUILD
+	std::array<float, 8> pendingDiceValues{};
+	bool dicePending = false;
+	bool pendingDiceFromButton = false;
+	int diceStepsUntilApply = 0;
+	std::array<float, 8> diceHistoryOldValues{};
+	std::array<float, 8> diceHistoryNewValues{};
+	std::atomic<bool> diceHistoryReady{false};
+#endif
 
 	Circles() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
@@ -257,11 +273,18 @@ struct Circles : Module {
 
 		configInput(CLOCK_INPUT, "Clock (selectable 1 or 4 PPQN)");
 		configInput(RESET_INPUT, "Reset");
+#ifdef SUBMIT_LAB_BUILD
+		configInput(TRANSPOSE_INPUT, "Quantized root transpose");
+#else
 		configInput(TRANSPOSE_INPUT, "Quantized transpose");
+#endif
 		for (int i = 0; i < 8; ++i)
 			configInput(STEP_1_CV_INPUT + i, string::f("Step %d CV", i + 1));
 		configInput(FLOW_CV_INPUT, "Flow CV");
 		configInput(NEXT_INPUT, "Advance to next enabled scale");
+#ifdef SUBMIT_LAB_BUILD
+		configInput(DICE_INPUT, "Generate musical step notes trigger");
+#endif
 		configOutput(VOCT_OUTPUT, "Quantized V/OCT");
 		configOutput(TRIG_OUTPUT, "Step trigger");
 		configOutput(GATE_OUTPUT, "Variable-length gate");
@@ -555,9 +578,15 @@ struct Circles : Module {
 		flowRandomState = 0x6d2b79f5u;
 		diceCharacter = 1;
 		clockPpqn = 1;
+#ifdef SUBMIT_LAB_BUILD
+		dicePending = false;
+		pendingDiceFromButton = false;
+		diceStepsUntilApply = 0;
+		diceHistoryReady.store(false, std::memory_order_release);
+#endif
 	}
 
-	void rollDice() {
+	void queueDice(bool fromButton) {
 		const Scale& scale = scales[getActiveScaleIndex()];
 		const int maximumIndex = scale.count * getRange();
 		if (maximumIndex <= 0)
@@ -623,9 +652,14 @@ struct Circles : Module {
 			}
 		}
 
+#ifndef SUBMIT_LAB_BUILD
 		auto* action = new history::ComplexAction;
 		action->name = "generate Circles melody";
+#endif
 		for (int i = 0; i < 8; ++i) {
+#ifdef SUBMIT_LAB_BUILD
+			pendingDiceValues[i] = noteIndices[i] / (float) maximumIndex;
+#else
 			const float oldValue = params[STEP_1_PARAM + i].getValue();
 			const float newValue = noteIndices[i] / (float) maximumIndex;
 			if (oldValue == newValue)
@@ -637,12 +671,65 @@ struct Circles : Module {
 			change->newValue = newValue;
 			action->push(change);
 			APP->engine->setParamValue(this, STEP_1_PARAM + i, newValue);
+#endif
+		}
+#ifdef SUBMIT_LAB_BUILD
+		pendingDiceFromButton = fromButton;
+		dicePending = true;
+		diceStepsUntilApply = 8;
+#else
+		if (action->isEmpty())
+			delete action;
+		else
+			APP->history->push(action);
+#endif
+	}
+
+#ifdef SUBMIT_LAB_BUILD
+	void applyPendingDice() {
+		if (!dicePending)
+			return;
+
+		const bool captureHistory = pendingDiceFromButton && !diceHistoryReady.load(std::memory_order_acquire);
+		for (int i = 0; i < 8; ++i) {
+			const float oldValue = params[STEP_1_PARAM + i].getValue();
+			const float newValue = pendingDiceValues[i];
+			if (captureHistory) {
+				diceHistoryOldValues[i] = oldValue;
+				diceHistoryNewValues[i] = newValue;
+			}
+			params[STEP_1_PARAM + i].setValue(newValue);
+		}
+		if (captureHistory)
+			diceHistoryReady.store(true, std::memory_order_release);
+		dicePending = false;
+		pendingDiceFromButton = false;
+	}
+
+	void pushPendingDiceHistory() {
+		if (!diceHistoryReady.exchange(false, std::memory_order_acq_rel))
+			return;
+
+		auto* action = new history::ComplexAction;
+		action->name = "generate Circles melody";
+		for (int i = 0; i < 8; ++i) {
+			const float oldValue = diceHistoryOldValues[i];
+			const float newValue = diceHistoryNewValues[i];
+			if (oldValue == newValue)
+				continue;
+			auto* change = new history::ParamChange;
+			change->moduleId = id;
+			change->paramId = STEP_1_PARAM + i;
+			change->oldValue = oldValue;
+			change->newValue = newValue;
+			action->push(change);
 		}
 		if (action->isEmpty())
 			delete action;
 		else
 			APP->history->push(action);
 	}
+#endif
 
 	int getNoteSemitones(int step, int scaleIndex) {
 		const Scale& scale = scales[clamp(scaleIndex, 0, 7)];
@@ -697,6 +784,9 @@ struct Circles : Module {
 		pendulumDirection = 1;
 		flowRandomState = 0x6d2b79f5u;
 		stepCvOffsets.fill(0.f);
+#ifdef SUBMIT_LAB_BUILD
+		diceStepsUntilApply = 0;
+#endif
 		trigPulse.reset();
 		gatePulse.reset();
 		eocPulse.reset();
@@ -732,6 +822,10 @@ struct Circles : Module {
 	}
 
 	void advanceMainStep(const ProcessArgs& args) {
+#ifdef SUBMIT_LAB_BUILD
+		if (dicePending && diceStepsUntilApply == 0)
+			applyPendingDice();
+#endif
 		lcdPreviousStep = currentStep;
 		if (samplesSinceMainStep > 16)
 			previousMainStepPeriod = samplesSinceMainStep;
@@ -751,6 +845,10 @@ struct Circles : Module {
 		}
 		if (currentStep == 0)
 			eocPulse.trigger(1e-3f);
+#ifdef SUBMIT_LAB_BUILD
+		if (dicePending && diceStepsUntilApply > 0)
+			--diceStepsUntilApply;
+#endif
 	}
 
 	void advanceGrid(const ProcessArgs& args) {
@@ -778,8 +876,17 @@ struct Circles : Module {
 			activeScaleSlot = getNextEnabledScale(activeScaleSlot);
 			completedBarsOnScale = 0;
 		}
-		if (diceLightTrigger.process(params[DICE_PARAM].getValue()))
+		const bool diceButtonEdge = diceButtonTrigger.process(params[DICE_PARAM].getValue());
+#ifdef SUBMIT_LAB_BUILD
+		const bool diceInputEdge = diceInputTrigger.process(inputs[DICE_INPUT].getVoltage());
+		if (diceButtonEdge || diceInputEdge) {
+			queueDice(diceButtonEdge);
 			diceLightPulse.trigger(160e-3f);
+		}
+#else
+		if (diceButtonEdge)
+			diceLightPulse.trigger(160e-3f);
+#endif
 
 		++samplesSinceClock;
 		++samplesSinceMainStep;
@@ -820,6 +927,21 @@ struct Circles : Module {
 			}
 		}
 
+		if (tempoValid && quarterPeriod > 0) {
+			const int64_t incomingClockPeriod = std::max<int64_t>(quarterPeriod / clockPpqn, 1);
+			const int64_t clockStopThreshold = incomingClockPeriod + incomingClockPeriod / 2;
+			if (samplesSinceClock > clockStopThreshold) {
+				trigPulse.reset();
+				gatePulse.reset();
+				eocPulse.reset();
+				subGatePulse.reset();
+				currentAccent = false;
+				tempoValid = false;
+				haveClockEdge = false;
+				subdivision = 0;
+			}
+		}
+
 		if (currentStep >= 0)
 			currentPitch = getPitch(currentStep, getActiveScaleIndex());
 
@@ -836,7 +958,11 @@ struct Circles : Module {
 		outputs[SUB_GATE_OUTPUT].setVoltage(subGateHigh ? 10.f : 0.f);
 		lights[CLOCK_LIGHT].setBrightness(clockLightPulse.process(args.sampleTime) ? 1.f : 0.f);
 		lights[SUB_LIGHT].setBrightness(subGateHigh ? 1.f : 0.f);
+#ifdef SUBMIT_LAB_BUILD
+		lights[DICE_LIGHT].setBrightness(dicePending || diceLightPulse.process(args.sampleTime) ? 1.f : 0.f);
+#else
 		lights[DICE_LIGHT].setBrightness(diceLightPulse.process(args.sampleTime) ? 1.f : 0.f);
+#endif
 		for (int i = 0; i < 4; ++i) {
 			const bool enabled = isScaleEnabled(i);
 			const bool active = enabled && i == activeScaleSlot;
@@ -860,15 +986,17 @@ struct Circles : Module {
 constexpr std::array<const char*, 12> Circles::rootNames;
 constexpr std::array<Circles::Scale, 8> Circles::scales;
 
+#ifndef SUBMIT_LAB_BUILD
 struct CirclesDiceButton : LEDButton {
 	Circles* circlesModule = nullptr;
 
 	void onButton(const event::Button& e) override {
 		LEDButton::onButton(e);
 		if (circlesModule && e.button == GLFW_MOUSE_BUTTON_LEFT && e.action == GLFW_PRESS)
-			circlesModule->rollDice();
+			circlesModule->queueDice(true);
 	}
 };
+#endif
 
 struct CirclesDisplay : TransparentWidget {
 	Circles* module = nullptr;
@@ -1257,7 +1385,11 @@ struct CirclesPanelLabels : TransparentWidget {
 struct CirclesWidget : SubmitModuleWidget {
 	CirclesWidget(Circles* module) {
 		setModule(module);
+#ifdef SUBMIT_LAB_BUILD
+		setPanel(createPanel(asset::plugin(pluginInstance, "res/CirclesLab.svg")));
+#else
 		setPanel(createPanel(asset::plugin(pluginInstance, "res/Circles.svg")));
+#endif
 
 #ifdef SUBMIT_LAB_BUILD
 		auto* betaBadge = new SvgWidget;
@@ -1326,10 +1458,16 @@ struct CirclesWidget : SubmitModuleWidget {
 		addParam(createParamCentered<CirclesSmallKnob>(Vec(340.773f, 265.698f), module, Circles::SUB_BARS_PARAM));
 		addParam(createParamCentered<CirclesSmallKnob>(Vec(397.935f, 289.086f), module, Circles::SUB_SHIFT_PARAM));
 
+#ifdef SUBMIT_LAB_BUILD
+		addParam(createParamCentered<LEDButton>(Vec(35.429f, 40.179f), module, Circles::DICE_PARAM));
+		addChild(createLightCentered<MediumLight<YellowLight>>(Vec(35.429f, 40.179f), module, Circles::DICE_LIGHT));
+		addInput(createInputCentered<PJ301MPort>(Vec(18.509f, 66.928f), module, Circles::DICE_INPUT));
+#else
 		auto* diceButton = createParamCentered<CirclesDiceButton>(Vec(38.429f, 40.179f), module, Circles::DICE_PARAM);
 		diceButton->circlesModule = module;
 		addParam(diceButton);
 		addChild(createLightCentered<MediumLight<YellowLight>>(Vec(38.429f, 40.179f), module, Circles::DICE_LIGHT));
+#endif
 
 		addInput(createInputCentered<PJ301MPort>(Vec(34.928f, 342.001f), module, Circles::CLOCK_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(71.921f, 342.001f), module, Circles::RESET_INPUT));
@@ -1341,6 +1479,14 @@ struct CirclesWidget : SubmitModuleWidget {
 		addOutput(createOutputCentered<PJ301MPort>(Vec(380.061f, 342.001f), module, Circles::SUB_VOCT_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(412.827f, 341.935f), module, Circles::SUB_GATE_OUTPUT));
 
+	}
+
+	void step() override {
+		SubmitModuleWidget::step();
+#ifdef SUBMIT_LAB_BUILD
+		if (auto* circlesModule = dynamic_cast<Circles*>(module))
+			circlesModule->pushPendingDiceHistory();
+#endif
 	}
 
 	void appendContextMenu(Menu* menu) override {

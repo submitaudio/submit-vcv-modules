@@ -9,7 +9,7 @@ tweede handmatig onderhouden kopie van de modulecode gemaakt.
 - pluginnaam: `Submit Lab`
 - plugin-slug: `SubmitLab`
 - eerste betaversie: `2.0.0`
-- actuele betakandidaat: `2.0.1` (Beta 2)
+- actuele betakandidaat: `2.0.1` (Beta 3)
 - modules: `Circles` en `SUB`
 - moduleslugs: `Circles` en `Sub`
 - geen automatische opname in de VCV Rack Library
