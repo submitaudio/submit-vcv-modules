@@ -25,6 +25,12 @@ Detailed, module-specific history is maintained in separate pages:
 - [Flip](docs/changelogs/Flip.md)
 - [Orbit](docs/changelogs/Orbit.md)
 
+## v2.19.1 (2026-08-26)
+
+- Loop now embeds loaded WAV files in VCV patch storage, while preserving external file paths as a backward-compatible fallback.
+- Loop Reset and Trigger/Reset now restart immediately when Sync is disabled or no Clock cable is connected.
+- Loop keeps reset clock-quantized when Sync is enabled and Clock is connected.
+
 ## v2.19.0 (2026-08-22)
 
 - Added Sum M4, a compact four-channel mono mixer with level, pan, clickless mute and stereo Chain I/O.
