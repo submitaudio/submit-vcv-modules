@@ -7,7 +7,7 @@ on:
       - 'submitlab-v*'
 
 env:
-  LAB_VERSION: 2.0.0
+  LAB_VERSION: 2.0.1
   RACK_SDK_VERSION: 2.6.6
   RACK_PLUGIN_TOOLCHAIN_DIR: /home/build/rack-plugin-toolchain
 
@@ -101,6 +101,6 @@ jobs:
         with:
           draft: true
           prerelease: true
-          name: Submit Lab 2.0.0 Beta 1
-          body_path: docs/changelogs/SubmitLab-2.0.0-beta.1.md
+          name: Submit Lab 2.0.1 Beta 2
+          body_path: docs/changelogs/SubmitLab-2.0.1-beta.2.md
           files: artifacts/**/*.vcvplugin

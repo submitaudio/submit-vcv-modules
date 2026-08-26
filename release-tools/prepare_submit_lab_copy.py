@@ -199,7 +199,7 @@ def validate_copy(destination: Path, manifest: dict) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("destination", type=Path)
-    parser.add_argument("--version", default="2.0.0")
+    parser.add_argument("--version", default="2.0.1")
     args = parser.parse_args()
 
     if not VERSION_RE.fullmatch(args.version):

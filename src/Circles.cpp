@@ -198,6 +198,7 @@ struct Circles : Module {
 	int pendulumDirection = 1;
 	uint32_t flowRandomState = 0x6d2b79f5u;
 	int diceCharacter = 1;
+	int clockPpqn = 1;
 
 	Circles() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
@@ -213,7 +214,7 @@ struct Circles : Module {
 		configSwitch(ROOT_PARAM, 0.f, 11.f, 3.f, "Root note",
 			{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"});
 		configSwitch(RANGE_PARAM, 1.f, 4.f, 2.f, "Pitch range", {"1 octave", "2 octaves", "3 octaves", "4 octaves"});
-		configParam(LENGTH_PARAM, 0.03f, 1.25f, 0.15346992015838623f, "Main gate length", "%", 0.f, 100.f);
+		configParam(LENGTH_PARAM, 0.03f, 1.25f, 0.15346992015838623f, "Gate length", "%", 0.f, 100.f);
 		configSwitch(SUB_STEP_PARAM, 1.f, 8.f, 1.f, "Sub source step (selected scale slot)", {"1", "2", "3", "4", "5", "6", "7", "8"});
 
 		configSwitch(SCALE_A_PARAM, 0.f, 7.f, 1.f, "Scale A",
@@ -254,7 +255,7 @@ struct Circles : Module {
 		getParamQuantity(FLOW_PARAM)->snapEnabled = true;
 		getParamQuantity(SPEED_PARAM)->snapEnabled = true;
 
-		configInput(CLOCK_INPUT, "Clock (1 PPQN)");
+		configInput(CLOCK_INPUT, "Clock (selectable 1 or 4 PPQN)");
 		configInput(RESET_INPUT, "Reset");
 		configInput(TRANSPOSE_INPUT, "Quantized transpose");
 		for (int i = 0; i < 8; ++i)
@@ -361,6 +362,18 @@ struct Circles : Module {
 
 	int getSpeed() {
 		return clamp((int) std::round(params[SPEED_PARAM].getValue()), 0, 3);
+	}
+
+	void setClockPpqn(int ppqn) {
+		const int nextPpqn = ppqn == 4 ? 4 : 1;
+		if (clockPpqn == nextPpqn)
+			return;
+		clockPpqn = nextPpqn;
+		samplesSinceClock = 0;
+		quarterPeriod = 0;
+		haveClockEdge = false;
+		tempoValid = false;
+		subdivision = 0;
 	}
 
 	uint32_t nextFlowRandom() {
@@ -477,6 +490,7 @@ struct Circles : Module {
 			json_array_append_new(stepEnabledJ, json_integer(stepEnabled[i] ? 1 : 0));
 		json_object_set_new(rootJ, "stepEnabled", stepEnabledJ);
 		json_object_set_new(rootJ, "diceCharacter", json_integer(diceCharacter));
+		json_object_set_new(rootJ, "clockPpqn", json_integer(clockPpqn));
 		return rootJ;
 	}
 
@@ -525,6 +539,9 @@ struct Circles : Module {
 		json_t* diceCharacterJ = json_object_get(rootJ, "diceCharacter");
 		if (json_is_integer(diceCharacterJ))
 			diceCharacter = clamp((int) json_integer_value(diceCharacterJ), 0, 2);
+
+		json_t* clockPpqnJ = json_object_get(rootJ, "clockPpqn");
+		clockPpqn = json_is_integer(clockPpqnJ) && json_integer_value(clockPpqnJ) == 4 ? 4 : 1;
 	}
 
 	void onReset() override {
@@ -537,6 +554,7 @@ struct Circles : Module {
 		pendulumDirection = 1;
 		flowRandomState = 0x6d2b79f5u;
 		diceCharacter = 1;
+		clockPpqn = 1;
 	}
 
 	void rollDice() {
@@ -707,7 +725,10 @@ struct Circles : Module {
 		sampleStepCV(subStep);
 		subPitch = getPitch(subStep, getActiveScaleIndex()) - 2.f;
 		const float barSeconds = quarterPeriod > 0 ? quarterPeriod * args.sampleTime * 4.f : 1.5f;
-		subGatePulse.trigger(std::max(barSeconds * getSubBars() * 0.75f, 1e-3f));
+		// SUB BARS controls the interval between sub notes. The panel GATE
+		// control shapes their articulation independently, against one bar,
+		// so longer sub intervals do not automatically become bass drones.
+		subGatePulse.trigger(std::max(barSeconds * params[LENGTH_PARAM].getValue(), 1e-3f));
 	}
 
 	void advanceMainStep(const ProcessArgs& args) {
@@ -765,7 +786,7 @@ struct Circles : Module {
 		if (clockTrigger.process(inputs[CLOCK_INPUT].getVoltage())) {
 			clockLightPulse.trigger(30e-3f);
 			if (haveClockEdge && samplesSinceClock > 16) {
-				quarterPeriod = samplesSinceClock;
+				quarterPeriod = samplesSinceClock * clockPpqn;
 				if (!tempoValid) {
 					currentStep = 3;
 					tempoValid = true;
@@ -777,14 +798,25 @@ struct Circles : Module {
 			advanceGrid(args);
 		}
 
-		if (tempoValid && quarterPeriod > 0 && subdivision < 7) {
-			const int64_t nextSample = (quarterPeriod * (subdivision + 1)) / 8;
-			if (samplesSinceClock >= nextSample) {
-				++subdivision;
-				if (subdivision % 2 == 0)
-					advanceGrid(args);
-				else if (getSpeed() == 3)
-					advanceMainStep(args);
+		if (tempoValid && quarterPeriod > 0) {
+			if (clockPpqn == 4) {
+				// A 4-PPQN edge already is one sixteenth-note grid event. Only
+				// derive the halfway 1/32 event between incoming pulses.
+				if (subdivision == 0 && samplesSinceClock >= quarterPeriod / 8) {
+					subdivision = 1;
+					if (getSpeed() == 3)
+						advanceMainStep(args);
+				}
+			}
+			else if (subdivision < 7) {
+				const int64_t nextSample = (quarterPeriod * (subdivision + 1)) / 8;
+				if (samplesSinceClock >= nextSample) {
+					++subdivision;
+					if (subdivision % 2 == 0)
+						advanceGrid(args);
+					else if (getSpeed() == 3)
+						advanceMainStep(args);
+				}
 			}
 		}
 
@@ -1315,6 +1347,14 @@ struct CirclesWidget : SubmitModuleWidget {
 		auto* circlesModule = dynamic_cast<Circles*>(module);
 		if (circlesModule) {
 			menu->addChild(new MenuSeparator);
+			menu->addChild(createIndexSubmenuItem("Clock input rate",
+				{"1 PPQN (Submit standard)", "4 PPQN (compatibility)"},
+				[circlesModule]() {
+					return circlesModule->clockPpqn == 4 ? 1u : 0u;
+				},
+				[circlesModule](size_t rate) {
+					circlesModule->setClockPpqn(rate == 1 ? 4 : 1);
+				}));
 			menu->addChild(createIndexSubmenuItem("Dice character",
 				{"Subtle", "Musical", "Wild"},
 				[circlesModule]() {
