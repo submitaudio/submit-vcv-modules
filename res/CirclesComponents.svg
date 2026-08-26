@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Componenets" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 450.001 380">
+  <!-- Generator: Adobe Illustrator 30.7.0, SVG Export Plug-In . SVG Version: 2.1.4 Build 114)  -->
+  <circle id="port-in-CLOCK" cx="34.928" cy="342.001" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-in-RESET" cx="71.921" cy="342.001" r="11.8" transform="translate(-272.284 402.501) rotate(-88.093)" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-in-TRANSPOSE" cx="108.913" cy="342.001" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-out-VOCT" cx="215.462" cy="342.001" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-out-TRIG" cx="249.147" cy="342.001" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-out-GATE" cx="282.832" cy="342.001" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-out-ACC" cx="316.517" cy="342.001" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-out-SUB-VOCT" cx="380.061" cy="342.001" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-STEP-1-CV" cx="115.526" cy="40.953" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-STEP-8-CV" cx="47.671" cy="93.071" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-STEP-7-CV" cx="36.779" cy="177.714" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-STEP-6-CV" cx="88.524" cy="245.449" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-STEP-2-CV" cx="199.955" cy="51.982" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-STEP-5-CV" cx="173.127" cy="256.236" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-in-FLOW" cx="64.183" cy="276.775" r="11.8" transform="translate(-214.575 331.712) rotate(-88.093)" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-in-audio-r" cx="412.971" cy="342.001" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <g id="knob-GATE">
+    <circle cx="308.705" cy="166.808" r="17.699" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-bars">
+    <circle cx="336.799" cy="209.52" r="17.7" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-SPEED">
+    <circle cx="380.397" cy="237.186" r="17.7" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-BARS">
+    <circle cx="340.773" cy="265.698" r="17.699" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-SHIFT">
+    <circle cx="397.935" cy="289.086" r="17.699" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-STEP">
+    <circle cx="279.514" cy="265.698" r="17.7" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-SCALE">
+    <circle cx="222.706" cy="288.78" r="17.7" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-STEP-D-SCALE">
+    <circle cx="409.787" cy="165.774" r="17.699" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-STEP-C-SCALE">
+    <circle cx="380.734" cy="137.17" r="17.699" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-STEP-B-SCALE">
+    <circle cx="381.346" cy="97.048" r="17.7" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-STEP-A-SCALE">
+    <circle cx="409.787" cy="68.264" r="17.7" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-FLOW">
+    <circle cx="35.633" cy="256.89" r="17.7" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-STEP-6-NOTE">
+    <circle cx="90.297" cy="202.366" r="17.699" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-STEP-4-NOTE">
+    <circle cx="198.182" cy="202.366" r="17.699" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-STEP-8-NOTE">
+    <circle cx="90.297" cy="94.672" r="17.699" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-STEP-2-NOTE">
+    <circle cx="198.182" cy="94.672" r="17.699" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-ROOT">
+    <circle cx="307.813" cy="66.322" r="17.7" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-RANGE">
+    <circle cx="298.916" cy="115.947" r="17.699" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-STEP-1-NOTE">
+    <circle cx="144.24" cy="72.62" r="17.699" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-STEP-5-NOTE">
+    <circle cx="144.24" cy="224.706" r="17.699" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-STEP-7-NOTE">
+    <circle cx="68.088" cy="148.771" r="17.7" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <g id="knob-STEP-3-NOTE">
+    <circle cx="220.391" cy="148.771" r="17.7" fill="none" stroke="#e40521" stroke-width=".25"/>
+  </g>
+  <circle id="port-out-SUB-GATE" cx="412.827" cy="341.935" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-in-NEXT" cx="429.383" cy="117.149" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="knob-SCALE-D-ENABLE-yellow" cx="396.12" cy="197.515" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="knob-SCALE-C-ENABLE-yellow" cx="348.24" cy="149.885" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="knob-STEP-2-ENABLE-yellow" cx="222.784" cy="69.655" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="knob-STEP-1-ENABLE-yellow" cx="144.291" cy="36.816" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="knob-dice" cx="38.429" cy="40.179" r="14.689" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".249"/>
+  <circle id="knob-STEP-7-ENABLE-yellow" cx="33.001" cy="148.359" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="knob-STEP-8-ENABLE-yellow" cx="65.082" cy="69.655" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="knob-STEP-6-ENABLE-yellow" cx="64.832" cy="227.39" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="knob-STEP-5-ENABLE-yellow" cx="144.115" cy="259.587" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="knob-STEP-4-ENABLE-yellow" cx="222.784" cy="227.426" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="knob-STEP-3-ENABLE-yellow" cx="255.317" cy="148.771" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-STEP-3-CV" cx="252.111" cy="119.667" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="port-STEP-4-CV" cx="240.875" cy="204.446" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="knob-SCALE-B-ENABLE-yellow" cx="348.49" cy="82.687" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <circle id="knob-SCALE-A-ENABLE-yellow" cx="395.996" cy="34.782" r="11.8" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+  <path id="Led_ring" d="M144.291,196.71h-.052c-1.025,0-2.065-.033-3.091-.098l.252-3.992c.942.06,1.897.09,2.839.09l.052,4ZM147.441,196.606l-.264-3.991c.964-.064,1.931-.159,2.874-.283l.521,3.966c-1.028.135-2.082.239-3.132.309ZM138.014,196.311c-1.04-.134-2.087-.304-3.11-.505l.773-3.925c.937.185,1.896.34,2.849.463l-.512,3.967ZM153.679,195.785l-.779-3.923c.94-.188,1.887-.408,2.812-.656l1.037,3.863c-1.01.271-2.042.512-3.069.716ZM131.836,195.097c-1.01-.268-2.024-.574-3.017-.909l1.279-3.79c.91.307,1.841.588,2.765.834l-1.027,3.865ZM159.761,194.153l-1.289-3.786c.909-.31,1.816-.652,2.697-1.018l1.535,3.693c-.962.4-1.952.773-2.943,1.111ZM125.865,193.08c-.963-.398-1.93-.835-2.874-1.3l1.766-3.589c.866.426,1.753.827,2.636,1.191l-1.527,3.697ZM165.569,191.741l-1.773-3.585c.858-.425,1.714-.884,2.542-1.363l2.006,3.461c-.904.524-1.838,1.024-2.774,1.487ZM120.211,190.296c-.906-.522-1.808-1.082-2.679-1.664l2.223-3.326c.798.533,1.624,1.046,2.454,1.525l-1.998,3.465ZM171.012,188.588l-2.227-3.323c.795-.532,1.584-1.099,2.346-1.685l2.438,3.171c-.83.639-1.69,1.256-2.557,1.837ZM114.971,186.798c-.832-.638-1.652-1.31-2.437-1.996l2.635-3.01c.719.63,1.471,1.246,2.235,1.831l-2.434,3.175ZM176.001,184.752l-2.639-3.007c.721-.632,1.43-1.296,2.106-1.974l2.83,2.826c-.738.74-1.512,1.465-2.298,2.155ZM110.235,182.652c-.738-.735-1.464-1.508-2.156-2.294l3.002-2.644c.636.722,1.302,1.43,1.979,2.105l-2.824,2.833ZM180.451,180.3l-3.006-2.639c.635-.723,1.251-1.474,1.834-2.232l3.172,2.436c-.635.828-1.308,1.647-2,2.435ZM106.076,177.927c-.636-.825-1.255-1.684-1.839-2.553l3.318-2.232c.537.798,1.105,1.587,1.688,2.344l-3.168,2.441ZM184.29,175.304l-3.326-2.222c.539-.807,1.053-1.633,1.528-2.455l3.463,2.003c-.519.896-1.078,1.796-1.665,2.674ZM102.568,172.704c-.524-.903-1.026-1.835-1.49-2.771l3.582-1.778c.427.858.887,1.713,1.367,2.541l-3.459,2.009ZM187.444,169.85l-3.588-1.769c.428-.868.83-1.754,1.194-2.634l3.695,1.531c-.397.959-.836,1.925-1.302,2.871ZM99.773,167.07c-.404-.968-.779-1.959-1.114-2.944l3.785-1.29c.308.901.65,1.807,1.021,2.694l-3.691,1.54ZM189.855,164.027l-3.787-1.285c.308-.908.589-1.838.836-2.763l3.865,1.032c-.271,1.01-.577,2.025-.914,3.016ZM97.74,161.115c-.273-1.013-.516-2.045-.72-3.067l3.922-.784c.188.936.409,1.882.659,2.811l-3.861,1.041ZM191.48,157.942l-3.924-.776c.186-.939.343-1.898.467-2.85l3.967.518c-.136,1.038-.307,2.083-.51,3.108ZM96.503,154.942c-.137-1.03-.242-2.084-.312-3.134l3.99-.267c.064.963.161,1.93.286,2.873l-3.965.527ZM192.295,151.7l-3.992-.258c.062-.95.093-1.921.093-2.888v-.206h4v.206c0,1.052-.034,2.11-.101,3.146ZM100.083,148.658h-4v-.104c0-1.016.032-2.039.095-3.039l3.992.251c-.058.917-.087,1.854-.087,2.788v.104ZM188.29,145.469c-.065-.953-.164-1.919-.293-2.872l3.965-.535c.14,1.039.247,2.093.318,3.133l-3.99.274ZM100.443,142.891l-3.967-.51c.133-1.033.301-2.079.502-3.107l3.926.765c-.184.945-.339,1.905-.461,2.853ZM187.519,139.75c-.191-.941-.415-1.887-.666-2.811l3.859-1.049c.274,1.008.519,2.039.727,3.064l-3.92.796ZM101.55,137.227l-3.867-1.024c.267-1.005.571-2.02.906-3.016l3.791,1.273c-.307.914-.586,1.845-.83,2.767ZM186.003,134.179c-.309-.899-.654-1.805-1.025-2.691l3.688-1.548c.407.968.784,1.958,1.121,2.941l-3.783,1.298ZM103.392,131.754l-3.699-1.523c.401-.973.838-1.941,1.297-2.875l3.59,1.764c-.421.856-.82,1.743-1.188,2.635ZM183.777,128.867c-.429-.858-.891-1.712-1.373-2.538l3.455-2.017c.525.901,1.029,1.832,1.496,2.768l-3.578,1.787ZM105.938,126.566l-3.467-1.994c.518-.9,1.076-1.802,1.659-2.678l3.33,2.215c-.535.805-1.047,1.632-1.522,2.458ZM180.868,123.886c-.536-.794-1.105-1.582-1.692-2.34l3.164-2.448c.64.826,1.26,1.685,1.845,2.551l-3.316,2.237ZM109.141,121.759l-3.178-2.431c.638-.833,1.31-1.654,1.995-2.438l3.012,2.633c-.629.72-1.245,1.472-1.829,2.236ZM177.336,119.322c-.638-.719-1.305-1.426-1.984-2.102l2.818-2.838c.74.735,1.467,1.505,2.16,2.288l-2.994,2.651ZM112.941,117.408l-2.836-2.821c.739-.743,1.512-1.469,2.294-2.159l2.645,3.001c-.718.632-1.425,1.298-2.103,1.979ZM173.239,115.253c-.73-.635-1.484-1.25-2.241-1.827l2.426-3.181c.825.629,1.646,1.298,2.44,1.989l-2.625,3.019ZM117.27,113.589l-2.445-3.165c.82-.634,1.678-1.253,2.551-1.842l2.236,3.316c-.802.541-1.589,1.109-2.342,1.69ZM168.644,111.749c-.803-.533-1.63-1.044-2.459-1.52l1.99-3.47c.904.519,1.807,1.077,2.682,1.658l-2.213,3.332ZM122.056,110.366l-2.012-3.457c.9-.524,1.832-1.026,2.769-1.493l1.783,3.581c-.859.428-1.714.888-2.54,1.369ZM163.633,108.874c-.866-.424-1.754-.823-2.638-1.186l1.52-3.7c.964.396,1.932.831,2.876,1.293l-1.758,3.593ZM127.218,107.798l-1.543-3.69c.965-.403,1.954-.779,2.94-1.118l1.297,3.784c-.903.31-1.811.654-2.694,1.024ZM158.286,106.679c-.905-.304-1.836-.582-2.765-.827l1.018-3.868c1.015.267,2.03.571,3.021.903l-1.273,3.792ZM132.672,105.929l-1.045-3.861c1.007-.272,2.038-.516,3.066-.722l.789,3.921c-.942.19-1.888.413-2.811.663ZM152.706,105.209c-.941-.183-1.9-.336-2.852-.457l.504-3.968c1.037.131,2.083.299,3.109.498l-.762,3.927ZM138.33,104.79l-.529-3.965c1.034-.138,2.089-.244,3.133-.315l.271,3.991c-.958.065-1.926.162-2.875.289ZM146.98,104.482c-.905-.055-1.827-.083-2.74-.083h-.155v-4h.155c.994,0,1.999.031,2.984.091l-.244,3.992Z" fill="none" stroke="#db003f" stroke-miterlimit="10" stroke-width=".2"/>
+</svg>

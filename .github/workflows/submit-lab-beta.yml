@@ -1,0 +1,106 @@
+name: Build Submit Lab Beta
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'submitlab-v*'
+
+env:
+  LAB_VERSION: 2.0.0
+  RACK_SDK_VERSION: 2.6.6
+  RACK_PLUGIN_TOOLCHAIN_DIR: /home/build/rack-plugin-toolchain
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: write
+
+jobs:
+  build-win-linux:
+    name: ${{ matrix.platform }}
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/qno/rack-plugin-toolchain-win-linux
+      options: --user root
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [win-x64, lin-x64]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare isolated Submit Lab source
+        run: |
+          python3 release-tools/prepare_submit_lab_copy.py \
+            "$RUNNER_TEMP/SubmitLab" \
+            --version "$LAB_VERSION"
+
+      - name: Build Submit Lab
+        run: |
+          export PLUGIN_DIR="$RUNNER_TEMP/SubmitLab"
+          pushd "$RACK_PLUGIN_TOOLCHAIN_DIR"
+          make "plugin-build-${{ matrix.platform }}"
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: submit-lab-${{ matrix.platform }}
+          path: ${{ env.RACK_PLUGIN_TOOLCHAIN_DIR }}/plugin-build/*.vcvplugin
+          if-no-files-found: error
+
+  build-mac:
+    name: mac-arm64
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Rack SDK
+        run: |
+          curl -L \
+            "https://vcvrack.com/downloads/Rack-SDK-${RACK_SDK_VERSION}-mac-arm64.zip" \
+            -o "$RUNNER_TEMP/Rack-SDK.zip"
+          unzip -q "$RUNNER_TEMP/Rack-SDK.zip" -d "$RUNNER_TEMP"
+
+      - name: Prepare isolated Submit Lab source
+        run: |
+          python3 release-tools/prepare_submit_lab_copy.py \
+            "$RUNNER_TEMP/SubmitLab" \
+            --version "$LAB_VERSION"
+
+      - name: Build Submit Lab
+        run: |
+          export RACK_DIR="$RUNNER_TEMP/Rack-SDK"
+          make -C "$RUNNER_TEMP/SubmitLab" -j4
+          make -C "$RUNNER_TEMP/SubmitLab" dist
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: submit-lab-mac-arm64
+          path: ${{ runner.temp }}/SubmitLab/dist/*.vcvplugin
+          if-no-files-found: error
+
+  draft-prerelease:
+    name: Create draft prerelease
+    needs: [build-win-linux, build-mac]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/submitlab-v')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Submit Lab draft prerelease
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          prerelease: true
+          name: Submit Lab 2.0.0 Beta 1
+          body_path: docs/changelogs/SubmitLab-2.0.0-beta.1.md
+          files: artifacts/**/*.vcvplugin
