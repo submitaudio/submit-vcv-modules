@@ -65,6 +65,8 @@ struct Orbit : Module {
 	float holdFallbackTensionVoltage = 0.f;
 	float smoothingCoefficient = 0.001f;
 	uint8_t controlDivider = 0;
+	int clockPpqn = 1;
+	int clockPpqnCounter = 0;
 
 	Orbit() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
@@ -75,7 +77,7 @@ struct Orbit : Module {
 		configParam(RANGE_PARAM, 0.0625f, 2.f, 1.2021f, "Tension range", " beats");
 		configInput(A_INPUT, "Rhythm A");
 		configInput(B_INPUT, "Rhythm B");
-		configInput(CLOCK_INPUT, "Clock (1 PPQN)");
+		configInput(CLOCK_INPUT, "Clock");
 		configInput(RESET_INPUT, "Reset");
 		configLight(A_LIGHT, "Rhythm A trigger");
 		configLight(B_LIGHT, "Rhythm B trigger");
@@ -84,6 +86,27 @@ struct Orbit : Module {
 		configOutput(GAP_OUTPUT, "Detected rhythmic gaps");
 		configOutput(TENSION_OUTPUT, "Rhythmic tension CV");
 		configOutput(DISTANCE_OUTPUT, "Rhythmic distance CV");
+	}
+
+	json_t* dataToJson() override {
+		json_t* root = json_object();
+		json_object_set_new(root, "clockPpqn", json_integer(clockPpqn));
+		return root;
+	}
+
+	void dataFromJson(json_t* root) override {
+		if (json_t* ppqn = json_object_get(root, "clockPpqn"))
+			clockPpqn = json_integer_value(ppqn) == 4 ? 4 : 1;
+	}
+
+	void setClockPpqn(int ppqn) {
+		const int selected = ppqn == 4 ? 4 : 1;
+		if (clockPpqn == selected)
+			return;
+		clockPpqn = selected;
+		clockPpqnCounter = 0;
+		clockTrigger.reset();
+		clearTiming();
 	}
 
 	void clearReplaySchedule() {
@@ -215,6 +238,7 @@ struct Orbit : Module {
 	}
 
 	void clearTiming() {
+		clockPpqnCounter = 0;
 		lastA = lastB = lastClock = 0;
 		periodA = periodB = clockPeriod = 0;
 		lastActivity = lastAlignOutput = 0;
@@ -375,7 +399,12 @@ struct Orbit : Module {
 			clearTiming();
 			held = false;
 		}
-		const bool clockRise = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
+		const bool rawClockRise = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
+		bool clockRise = false;
+		if (rawClockRise) {
+			clockRise = clockPpqnCounter == 0;
+			clockPpqnCounter = (clockPpqnCounter + 1) % clockPpqn;
+		}
 		const bool aRise = aTrigger.process(inputs[A_INPUT].getVoltage());
 		const bool bRise = bTrigger.process(inputs[B_INPUT].getVoltage());
 		if (!held) {
@@ -510,6 +539,21 @@ struct OrbitWidget : SubmitModuleWidget {
 		addOutput(createOutputCentered<PJ301MPort>(Vec(53.998f, 342.001f), module, Orbit::TENSION_OUTPUT));
 		// DISTANCE_OUTPUT blijft bewust intern bestaan voor oude beta-patches,
 		// maar is redundant aan TENSION en heeft geen jack op het compacte paneel.
+	}
+
+	void appendContextMenu(Menu* menu) override {
+		Orbit* orbit = dynamic_cast<Orbit*>(module);
+		menu->addChild(new MenuSeparator);
+		if (orbit) {
+			menu->addChild(createMenuLabel("Clock input rate"));
+			menu->addChild(createCheckMenuItem("1 PPQN (Submit standard)", "",
+				[=]() { return orbit->clockPpqn == 1; },
+				[=]() { orbit->setClockPpqn(1); }));
+			menu->addChild(createCheckMenuItem("4 PPQN (compatibility)", "",
+				[=]() { return orbit->clockPpqn == 4; },
+				[=]() { orbit->setClockPpqn(4); }));
+		}
+		SubmitModuleWidget::appendContextMenu(menu);
 	}
 };
 

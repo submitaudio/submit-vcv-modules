@@ -1237,8 +1237,8 @@ struct ReactWidget : SubmitModuleWidget {
         if (!module) return;
 
         menu->addChild(new MenuSeparator);
-		menu->addChild(createMenuLabel("Clock input"));
-		menu->addChild(createCheckMenuItem("1 PPQN (quarter note)", "", [=]() {
+		menu->addChild(createMenuLabel("Clock input rate"));
+		menu->addChild(createCheckMenuItem("1 PPQN (Submit standard)", "", [=]() {
 			return module->quarterNoteClock;
 		}, [=]() {
 			module->quarterNoteClock = true;
@@ -1249,7 +1249,7 @@ struct ReactWidget : SubmitModuleWidget {
 			module->quarterPeriodValid = false;
 			module->quarterResetPending = true;
 		}));
-		menu->addChild(createCheckMenuItem("4 PPQN (legacy)", "", [=]() {
+		menu->addChild(createCheckMenuItem("4 PPQN (compatibility)", "", [=]() {
 			return !module->quarterNoteClock;
 		}, [=]() {
 			module->quarterNoteClock = false;

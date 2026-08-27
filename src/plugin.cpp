@@ -29,5 +29,7 @@ void init(Plugin* p) {
 	p->addModel(modelFlip);
 	p->addModel(modelOrbit);
 
+	p->addModel(modelCircles);
+	p->addModel(modelSub);
 	pluginInstance = p;
 }

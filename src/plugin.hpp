@@ -6,7 +6,6 @@
 #define SUBMIT_SUPPORT_URL "https://ko-fi.com/submitaudio"
 #define SUBMIT_CHANGELOG_URL "https://github.com/submitaudio/submit-vcv-modules/blob/master/CHANGELOG.md"
 #define SUBMIT_CHANGELOG_BASE_URL "https://github.com/submitaudio/submit-vcv-modules/blob/master/docs/changelogs/"
-
 #include <rack.hpp>
 
 using namespace rack;
@@ -39,7 +38,7 @@ struct SubmitModuleWidget : ModuleWidget {
 				slug == "Sync" || slug == "Flip" || slug == "Orbit" ||
 				slug == "SumM4" || slug == "SumS4" || slug == "Set" ||
 				slug == "Pulse" || slug == "Tag" ||
-				slug == "Circles") {
+				slug == "Circles" || slug == "Sub") {
 				changelogUrl = std::string(SUBMIT_CHANGELOG_BASE_URL) + slug + ".md";
 			}
 		}
@@ -77,3 +76,6 @@ extern Model* modelReact;
 extern Model* modelSync;
 extern Model* modelFlip;
 extern Model* modelOrbit;
+
+extern Model* modelCircles;
+extern Model* modelSub;

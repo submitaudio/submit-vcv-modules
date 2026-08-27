@@ -1,6 +1,6 @@
 # Submit
 
-A complete live performance toolkit for VCV Rack — 20 modules designed for sound design, rhythm and live performance.
+A complete live performance toolkit for VCV Rack, with 22 modules designed for sound design, rhythm and live performance.
 
 ![Submit Modules](docs/modules.png)
 
@@ -45,6 +45,10 @@ A complete live performance toolkit for VCV Rack — 20 modules designed for sou
 **Flip** — Stereo clock-synchronised reverse effect with instant Flip and Freeze
 
 **Orbit** — Rhythmic relationship processor with trigger and tension outputs
+
+**Circles** - Circular eight-step sequencer with scale chaining, musical flow modes and a dedicated slower sub track
+
+**SUB** - Monophonic bass voice with an analog-style upper layer, octave-down FM sub layer and warm drive
 
 ## Download
 

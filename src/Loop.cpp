@@ -72,6 +72,8 @@ struct Reel : Module {
     double clockBpm = 120.0;
     int clockSampleCount = 0;
     bool clockReceived = false;
+    int clockPpqn = 1;
+    int clockPpqnCounter = 0;
 
     // Trig / Reset
     float trigPrev = 0.f;
@@ -214,6 +216,18 @@ struct Reel : Module {
         resetPending = false;
     }
 
+    void setClockPpqn(int ppqn) {
+        const int selected = ppqn == 4 ? 4 : 1;
+        if (clockPpqn == selected)
+            return;
+        clockPpqn = selected;
+        clockPpqnCounter = 0;
+        clockPrev = 0.f;
+        clockSampleCount = 0;
+        clockReceived = false;
+        clockBpm = 120.0;
+    }
+
     void process(const ProcessArgs& args) override {
         // Reset is quantized only while clock synchronization is actually in use.
         const bool quantizeReset = params[SYNC_PARAM].getValue() > 0.5f
@@ -301,14 +315,16 @@ struct Reel : Module {
         if (clockPrev < 1.f && clockIn >= 1.f) {
             if (clockReceived && clockSampleCount > 0) {
                 double interval = (double)clockSampleCount / args.sampleRate;
-                double measured = 60.0 / interval;
+                double measured = 60.0 / (interval * (double)clockPpqn);
                 if (measured > 20.0 && measured < 400.0)
                     clockBpm = clockBpm * 0.85 + measured * 0.15;
             }
             clockSampleCount = 0;
             clockReceived = true;
-            // Quantized reset: restart on the shared clock edge.
-            if (resetPending) {
+            const bool quarterEdge = clockPpqnCounter == 0;
+            clockPpqnCounter = (clockPpqnCounter + 1) % clockPpqn;
+            // Quantized reset always waits for a complete quarter-note boundary.
+            if (resetPending && quarterEdge) {
                 resetPlaybackPosition();
             }
         }
@@ -424,10 +440,13 @@ struct Reel : Module {
         json_t* root = json_object();
         json_object_set_new(root, "filePath", json_string(filePath.c_str()));
         json_object_set_new(root, "fileName", json_string(fileName.c_str()));
+        json_object_set_new(root, "clockPpqn", json_integer(clockPpqn));
         return root;
     }
 
     void dataFromJson(json_t* root) override {
+        if (json_t* ppqn = json_object_get(root, "clockPpqn"))
+            clockPpqn = json_integer_value(ppqn) == 4 ? 4 : 1;
         json_t* fp = json_object_get(root, "filePath");
         if (fp) {
             std::string path = json_string_value(fp);
@@ -620,6 +639,16 @@ struct ReelWidget : SubmitModuleWidget {
     void appendContextMenu(Menu* menu) override {
         Reel* module = dynamic_cast<Reel*>(this->module);
         menu->addChild(new MenuSeparator);
+        if (module) {
+            menu->addChild(createMenuLabel("Clock input rate"));
+            menu->addChild(createCheckMenuItem("1 PPQN (Submit standard)", "",
+                [=]() { return module->clockPpqn == 1; },
+                [=]() { module->setClockPpqn(1); }));
+            menu->addChild(createCheckMenuItem("4 PPQN (compatibility)", "",
+                [=]() { return module->clockPpqn == 4; },
+                [=]() { module->setClockPpqn(4); }));
+            menu->addChild(new MenuSeparator);
+        }
         menu->addChild(createMenuItem("submitaudio.nl", "", []() {
             system::openBrowser(SUBMIT_URL);
         }));

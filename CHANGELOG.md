@@ -24,12 +24,15 @@ Detailed, module-specific history is maintained in separate pages:
 - [Sync](docs/changelogs/Sync.md)
 - [Flip](docs/changelogs/Flip.md)
 - [Orbit](docs/changelogs/Orbit.md)
+- [Circles](docs/changelogs/Circles.md)
+- [SUB](docs/changelogs/Sub.md)
 
-## v2.19.1 (2026-08-26)
+## v2.20.0 (2026-08-27)
 
-- Loop now embeds loaded WAV files in VCV patch storage, while preserving external file paths as a backward-compatible fallback.
-- Loop Reset and Trigger/Reset now restart immediately when Sync is disabled or no Clock cable is connected.
-- Loop keeps reset clock-quantized when Sync is enabled and Clock is connected.
+- Added Circles, an always-quantized circular eight-step sequencer with scale chaining, musical flow modes and a dedicated slower sub track.
+- Added SUB, a monophonic bass voice with an analog-style upper layer, a dedicated octave-down FM sub layer and warm drive.
+- Added selectable 1 PPQN Submit-standard and 4 PPQN compatibility timing to the relevant clocked modules while preserving stored patch behaviour.
+- Updated Circles after public beta testing with clock-stop handling, bar-quantized Dice changes and a more varied Random flow mode.
 
 ## v2.19.0 (2026-08-22)
 

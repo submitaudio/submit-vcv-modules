@@ -34,6 +34,8 @@ PUBLIC_SLUGS = [
     "Sync",
     "Flip",
     "Orbit",
+    "Circles",
+    "Sub",
 ]
 
 CREATE_MODEL_RE = re.compile(
@@ -51,12 +53,14 @@ def ignored(_directory: str, names: list[str]) -> set[str]:
         "dist",
         "plugin.dylib",
         "backups",
+        "metamodule",
         "samples",
         "DONATIONS.md",
         "__pycache__",
     }
     if Path(_directory).name == "docs":
         ignored_names.add("CURRENT-DEVELOPMENT-HANDOFF.md")
+        ignored_names.add("SUBMIT-LAB-BETA.md")
     for name in names:
         if (
             name.endswith((".bak", ".bak2"))
@@ -136,7 +140,6 @@ def main() -> int:
         "res/MachinaLfoSquare.svg",
         "res/MachinaLfoTriangle.svg",
         "res/MachinaLfoWander.svg",
-        "res/SubV2Components.svg",
         "src/GranularEngine.hpp",
     ]
     for private_path in private_orphaned_paths:

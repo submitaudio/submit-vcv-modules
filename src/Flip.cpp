@@ -67,6 +67,8 @@ struct Flip : Module {
 	float lastFrozenWetRight = 0.f;
 	bool haveFrozenWet = false;
 	float mixSlewPerSample = 1.f;
+	int clockPpqn = 1;
+	int clockPpqnCounter = 0;
 
 	Flip() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
@@ -77,11 +79,34 @@ struct Flip : Module {
 		configSwitch(LENGTH_PARAM, 0.f, 2.f, 0.f, "Length", {"1/2", "1/4", "1/8"});
 		configInput(AUDIO_L_INPUT, "Audio In L");
 		configInput(AUDIO_R_INPUT, "Audio In R");
-		configInput(CLOCK_INPUT, "Clock In (1 PPQN)");
+		configInput(CLOCK_INPUT, "Clock");
 		configInput(GATE_INPUT, "Gate In");
 		configInput(FREEZE_INPUT, "Freeze Gate");
 		configOutput(AUDIO_L_OUTPUT, "Audio Out L");
 		configOutput(AUDIO_R_OUTPUT, "Audio Out R");
+	}
+
+	json_t* dataToJson() override {
+		json_t* root = json_object();
+		json_object_set_new(root, "clockPpqn", json_integer(clockPpqn));
+		return root;
+	}
+
+	void dataFromJson(json_t* root) override {
+		if (json_t* ppqn = json_object_get(root, "clockPpqn"))
+			clockPpqn = json_integer_value(ppqn) == 4 ? 4 : 1;
+	}
+
+	void setClockPpqn(int ppqn) {
+		const int selected = ppqn == 4 ? 4 : 1;
+		if (clockPpqn == selected)
+			return;
+		clockPpqn = selected;
+		clockPpqnCounter = 0;
+		clockTrigger.reset();
+		gridClock.reset();
+		alignmentGridClock.reset();
+		freezeGridClock.reset();
 	}
 
 	void onSampleRateChange(const SampleRateChangeEvent& e) override {
@@ -114,6 +139,7 @@ struct Flip : Module {
 		lastFrozenWetLeft = 0.f;
 		lastFrozenWetRight = 0.f;
 		haveFrozenWet = false;
+		clockPpqnCounter = 0;
 	}
 
 	void onReset(const ResetEvent& e) override {
@@ -139,6 +165,7 @@ struct Flip : Module {
 		lastFrozenWetLeft = 0.f;
 		lastFrozenWetRight = 0.f;
 		haveFrozenWet = false;
+		clockPpqnCounter = 0;
 	}
 
 	static void updateQuantizedState(bool requestedState, int alignmentTestMode,
@@ -165,6 +192,11 @@ struct Flip : Module {
 		const bool requestedFreezeState = params[FREEZE_PARAM].getValue() > 0.5f
 			|| inputs[FREEZE_INPUT].getVoltage() >= 1.f;
 		const bool rawClockEdge = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
+		bool quarterClockEdge = false;
+		if (rawClockEdge) {
+			quarterClockEdge = clockPpqnCounter == 0;
+			clockPpqnCounter = (clockPpqnCounter + 1) % clockPpqn;
+		}
 		const int requestedLengthIndex = clamp(static_cast<int>(std::round(
 			params[LENGTH_PARAM].getValue())), 0, 2);
 
@@ -184,9 +216,9 @@ struct Flip : Module {
 		// always capture and play a complete quarter-note cycle; otherwise a short
 		// transient such as a kick can be captured in a different window just by
 		// moving the Freeze-only timing control.
-		const bool segmentBoundary = gridClock.process(rawClockEdge, 1);
+		const bool segmentBoundary = gridClock.process(quarterClockEdge, 1);
 		const bool offbeatBoundary =
-			alignmentGridClock.process(rawClockEdge, 2) && !rawClockEdge;
+			alignmentGridClock.process(quarterClockEdge, 2) && !quarterClockEdge;
 		// The front-panel Flip switch is quantized to the same clock that drives
 		// reverse playback. A mid-cell click is remembered and takes effect only
 		// on the next boundary, so a kick is never cut in half.
@@ -225,7 +257,7 @@ struct Flip : Module {
 			freezeGridClock.reset();
 		}
 		const bool freezeBoundary = freezeGridClock.process(
-			rawClockEdge, flipGridDivision(freezeActive, activeLengthIndex))
+			quarterClockEdge, flipGridDivision(freezeActive, activeLengthIndex))
 			|| (freezeAlignmentTestMode == 2 && offbeatBoundary);
 		const std::size_t frozenCellSamples = freezeActive
 			? freezeGridClock.getCellSamples() : 0;
@@ -358,7 +390,18 @@ struct FlipWidget : SubmitModuleWidget {
 	}
 
 	void appendContextMenu(Menu* menu) override {
+		Flip* flip = dynamic_cast<Flip*>(module);
 		menu->addChild(new MenuSeparator);
+		if (flip) {
+			menu->addChild(createMenuLabel("Clock input rate"));
+			menu->addChild(createCheckMenuItem("1 PPQN (Submit standard)", "",
+				[=]() { return flip->clockPpqn == 1; },
+				[=]() { flip->setClockPpqn(1); }));
+			menu->addChild(createCheckMenuItem("4 PPQN (compatibility)", "",
+				[=]() { return flip->clockPpqn == 4; },
+				[=]() { flip->setClockPpqn(4); }));
+			menu->addChild(new MenuSeparator);
+		}
 		menu->addChild(createMenuItem("Manual", "", []() {
 			system::openBrowser("https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/flip/");
 		}));

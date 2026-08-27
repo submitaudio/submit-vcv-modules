@@ -105,6 +105,8 @@ jobs:
             - Sync — Compact 1 PPQN clock
             - Flip — Clock-synchronised stereo reverse effect
             - Orbit — Rhythmic relationship processor
+            - Circles - Circular eight-step sequencer
+            - SUB - Monophonic bass voice with octave-down sub layer
             
             ### Download
             Choose the version for your platform:

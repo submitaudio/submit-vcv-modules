@@ -1,6 +1,8 @@
 # React changelog
 
-## Unreleased
+## v2.20.0 (2026-08-27)
+
+- Standardized the context-menu names for the existing stored 1 PPQN Submit mode and 4 PPQN compatibility mode.
 
 ## v2.19.0 (2026-08-22)
 

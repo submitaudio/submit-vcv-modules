@@ -2,7 +2,7 @@
 
 This GitHub manual is the versioned technical reference for the Submit Audio VCV Rack plugin. The friendly, illustrated manual remains available on the [Submit Audio website](https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/).
 
-The public release modules are Drift, Chrono, Impact, Chain, Sum M4, Sum S4, Set, Pulse, Tag, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang, React, Sync, Flip and Orbit. Beta modules are not included until they are approved for a public release.
+The public release modules are Drift, Chrono, Impact, Chain, Sum M4, Sum S4, Set, Pulse, Tag, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang, React, Sync, Flip, Orbit, Circles and SUB. Beta modules are not included until they are approved for a public release.
 
 ## Contents
 
@@ -28,6 +28,8 @@ The public release modules are Drift, Chrono, Impact, Chain, Sum M4, Sum S4, Set
 - [Sync](#sync)
 - [Flip](#flip)
 - [Orbit](#orbit)
+- [Circles](#circles)
+- [SUB](#sub)
 - [Support and bug reports](#support-and-bug-reports)
 
 ## Submit Mixer System
@@ -311,18 +313,20 @@ Loop is a stereo sample looper with waveform display, clock sync, BPM parsing, r
 - **Sync** enables clock synchronisation.
 - **Reverse** reverses playback.
 - **Cue** sends the cue signal to the mono cue output.
-- **Reset** returns playback to the start.
+- **Reset** returns playback to the start. With Sync enabled and Clock connected, the reset occurs on the next clock pulse. Without an active clock-sync connection, it occurs immediately.
 - **Bar Shift** moves the playback window by bars.
 
 ### Inputs and outputs
 
-Inputs: Clock, Trigger/Reset, Speed CV, Bars CV, BPM CV, Bar Shift CV and Reverse CV.
+Inputs: Clock, Trigger/Reset, Speed CV, Bars CV, BPM CV, Bar Shift CV and Reverse CV. Trigger/Reset follows the same immediate or clock-quantized behaviour as the Reset button.
 
 Outputs: Main L, Main R and Cue Mono.
 
 ### Loading samples
 
 Right-click the module and choose **Load WAV...**. Loop shows the waveform and derives BPM information when it is present in the file or filename. Reverse playback is aligned to the bar boundary when synchronised.
+
+When a patch is saved, Loop embeds the loaded WAV in the VCV patch so it can be reopened without relying on the original file location. This increases the patch file size. The original file path is retained as a backward-compatible fallback for older patches and presets.
 
 ## Clang
 
@@ -415,6 +419,40 @@ Inputs: Rhythm A, Rhythm B, 1 PPQN Clock and Reset.
 - `Events between A and B` — events occurring between the two rhythms.
 - `Detected rhythmic gaps` — detected gaps in the relationship.
 - `Rhythmic tension CV` — tension derived from the relationship.
+
+## Circles
+
+Circles is an always-quantized circular eight-step sequencer. Its main sequence can move through four chained scale slots while a separate slower track supplies stable pitch and gate signals for a bass or sub voice.
+
+### Controls and inputs
+
+- The eight note controls set scale-quantized step values. The surrounding buttons enable a step or turn it into a rest.
+- **Root**, **Range** and the four scale controls define the available notes and the Scale Chain.
+- **Flow** selects Forward, Reverse, Pendulum, Drunk or Random order. **Speed** selects the main rhythmic division.
+- **Dice** creates a new musical eight-step motif. Button and trigger changes wait for a full eight-step cycle before becoming active.
+- **Gate** sets the main and slow-track articulation.
+- **Scale**, **Step**, **Bars** and **Shift** configure the dedicated slower track.
+- The context menu selects 1 PPQN Submit timing or 4 PPQN compatibility timing, plus the Dice character.
+
+Inputs: Clock, Reset, Transpose, eight Step CV inputs, Flow CV, Next and Dice Trigger.
+
+Outputs: quantized V/OCT, Trigger, Gate, Accent, slow-track V/OCT and slow-track Gate.
+
+## SUB
+
+SUB is a monophonic bass voice built from two complementary layers: an expressive analog-style upper bass voice and a pitch-stable FM/phase sub layer one octave below.
+
+### Controls and inputs
+
+- **Octave** selects one of nine octave positions from -4 to +4.
+- **Tune** adjusts only the upper layer by -100 to +100 cents, leaving the sub layer locked to pitch.
+- **Filter**, **Resonance**, **Envelope Amount** and **Decay** shape the upper bass voice.
+- **Sub** blends in the dedicated lower layer.
+- **Drive** adds compensated warm asymmetric saturation without acting as a simple volume control.
+
+Inputs: V/OCT, Gate, Accent and CV for Filter, Resonance, Envelope Amount, Decay, Sub and Drive.
+
+Output: mono audio.
 
 ## Support and bug reports
 

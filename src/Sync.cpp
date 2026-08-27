@@ -59,6 +59,7 @@ struct Sync : Module {
 	float measuredBpm = 0.f;
 	bool haveExternalEdge = false;
 	bool externalTempoValid = false;
+	int clockPpqn = 1;
 
 	Sync() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
@@ -77,6 +78,7 @@ struct Sync : Module {
 	json_t* dataToJson() override {
 		json_t* root = json_object();
 		json_object_set_new(root, "running", json_boolean(running));
+		json_object_set_new(root, "clockPpqn", json_integer(clockPpqn));
 		return root;
 	}
 
@@ -84,6 +86,22 @@ struct Sync : Module {
 		json_t* runningJson = json_object_get(root, "running");
 		if (runningJson)
 			running = json_boolean_value(runningJson);
+		if (json_t* ppqnJson = json_object_get(root, "clockPpqn"))
+			clockPpqn = json_integer_value(ppqnJson) == 4 ? 4 : 1;
+	}
+
+	void setClockPpqn(int ppqn) {
+		const int selected = ppqn == 4 ? 4 : 1;
+		if (clockPpqn == selected)
+			return;
+		clockPpqn = selected;
+		resetTiming();
+		externalTrigger.reset();
+		samplesSinceExternal = 0;
+		externalPeriod = 0;
+		measuredBpm = 0.f;
+		haveExternalEdge = false;
+		externalTempoValid = false;
 	}
 
 	void resetTiming() {
@@ -134,7 +152,8 @@ struct Sync : Module {
 			if (externalTrigger.process(inputs[EXT_INPUT].getVoltage())) {
 				if (haveExternalEdge && samplesSinceExternal > 1) {
 					externalPeriod = samplesSinceExternal;
-					const float newBpm = args.sampleRate * 60.f / static_cast<float>(externalPeriod);
+					const float newBpm = args.sampleRate * 60.f
+						/ (static_cast<float>(externalPeriod) * static_cast<float>(clockPpqn));
 					if (newBpm >= 20.f && newBpm <= 400.f) {
 						measuredBpm = externalTempoValid
 							? measuredBpm + 0.2f * (newBpm - measuredBpm)
@@ -166,7 +185,8 @@ struct Sync : Module {
 				measuredBpm = 0.f;
 			}
 		} else if (running) {
-			const double pulseRate = params[BPM_PARAM].getValue() / 60.0;
+			const double pulseRate = params[BPM_PARAM].getValue()
+				* static_cast<double>(clockPpqn) / 60.0;
 			phase += pulseRate * args.sampleTime;
 
 			if (phase >= 0.5 && phase - pulseRate * args.sampleTime < 0.5)
@@ -303,7 +323,18 @@ struct SyncWidget : SubmitModuleWidget {
 	}
 
 	void appendContextMenu(Menu* menu) override {
+		Sync* sync = dynamic_cast<Sync*>(module);
 		menu->addChild(new MenuSeparator);
+		if (sync) {
+			menu->addChild(createMenuLabel("Clock input/output rate"));
+			menu->addChild(createCheckMenuItem("1 PPQN (Submit standard)", "",
+				[=]() { return sync->clockPpqn == 1; },
+				[=]() { sync->setClockPpqn(1); }));
+			menu->addChild(createCheckMenuItem("4 PPQN (compatibility)", "",
+				[=]() { return sync->clockPpqn == 4; },
+				[=]() { sync->setClockPpqn(4); }));
+			menu->addChild(new MenuSeparator);
+		}
 		menu->addChild(createMenuItem("Manual", "", []() {
 			system::openBrowser("https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/sync/");
 		}));

@@ -135,6 +135,7 @@ struct Chrono : Module {
     bool  lastClockHigh        = false;
     int   clockSampleCount     = 0;
     int   clockInterval        = 0;
+    int   clockPpqn            = 1;
     float smoothedDelaySamples = 0.f;
     float targetDelaySamples   = 0.f;
     float smoothedSpacing      = 0.f;
@@ -245,12 +246,15 @@ struct Chrono : Module {
         json_t* rootJ = json_object();
         json_object_set_new(rootJ, "clockedTimeVersion", json_integer(1));
         json_object_set_new(rootJ, "clockedTimeEnabled", json_boolean(clockedTimeEnabled));
+        json_object_set_new(rootJ, "clockPpqn", json_integer(clockPpqn));
         return rootJ;
     }
 
     void dataFromJson(json_t* rootJ) override {
         if (json_t* enabledJ = json_object_get(rootJ, "clockedTimeEnabled"))
             clockedTimeEnabled = json_boolean_value(enabledJ);
+        if (json_t* ppqnJ = json_object_get(rootJ, "clockPpqn"))
+            clockPpqn = json_integer_value(ppqnJ) == 4 ? 4 : 1;
     }
 
     void fromJson(json_t* rootJ) override {
@@ -258,6 +262,16 @@ struct Chrono : Module {
         if (!dataJ || !json_object_get(dataJ, "clockedTimeVersion"))
             clockedTimeEnabled = false;
         Module::fromJson(rootJ);
+    }
+
+    void setClockPpqn(int ppqn) {
+        const int selected = ppqn == 4 ? 4 : 1;
+        if (clockPpqn == selected)
+            return;
+        clockPpqn = selected;
+        lastClockHigh = false;
+        clockSampleCount = 0;
+        clockInterval = 0;
     }
 
     void process(const ProcessArgs& args) override {
@@ -335,9 +349,10 @@ struct Chrono : Module {
         if (clockConnected) {
             if (clockHigh && !lastClockHigh) {
                 if (clockSampleCount > 0) {
+                    const int quarterSamples = clockSampleCount * clockPpqn;
                     int minSamples = (int)(0.1f * args.sampleRate);
-                    if (clockSampleCount >= minSamples && clockSampleCount <= MAX_BUFFER - 1) {
-                        clockInterval = clockSampleCount;
+                    if (quarterSamples >= minSamples && quarterSamples <= MAX_BUFFER - 1) {
+                        clockInterval = quarterSamples;
                     }
                 }
                 clockSampleCount = 0;
@@ -765,6 +780,14 @@ struct ChronoWidget : SubmitModuleWidget {
         menu->addChild(new MenuSeparator);
         Chrono* chrono = dynamic_cast<Chrono*>(module);
         if (chrono) {
+            menu->addChild(createMenuLabel("Clock input rate"));
+            menu->addChild(createCheckMenuItem("1 PPQN (Submit standard)", "",
+                [=]() { return chrono->clockPpqn == 1; },
+                [=]() { chrono->setClockPpqn(1); }));
+            menu->addChild(createCheckMenuItem("4 PPQN (compatibility)", "",
+                [=]() { return chrono->clockPpqn == 4; },
+                [=]() { chrono->setClockPpqn(4); }));
+            menu->addChild(new MenuSeparator);
             menu->addChild(createCheckMenuItem("Clocked Time: Extra divisions", "",
                 [=]() { return chrono->clockedTimeEnabled; },
                 [=]() { chrono->clockedTimeEnabled = !chrono->clockedTimeEnabled; }));

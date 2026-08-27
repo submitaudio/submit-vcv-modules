@@ -120,10 +120,10 @@ EOF
 
 De publieke release bevat uitsluitend: Drift, Chrono, Impact, Chain, SumM4,
 SumS4, Tag, Set, Pulse, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang,
-React, Sync, Flip en Orbit.
+React, Sync, Flip, Orbit, Circles en Sub.
 
 Beta/local modules (NOOIT pushen zonder expliciete goedkeuring): Poly008, Twin,
-Shortwave, Void, VoidV2, VoidV3, Swell, Circles, CirclesV2, Sub, SubV2 en Machina.
+Shortwave, Void, VoidV2, VoidV3, Swell en Machina.
 
 Gebruik `scripts/verwijder_beta.py`, `scripts/herstel_beta.py` en
 `scripts/release.py` niet voor deze release. Deze oude scripts kennen de actuele
@@ -156,7 +156,7 @@ Git-acties uit en controleert de publieke slugs, registraties en panel-assets.
 Gebruik **nooit** blind `git add .` vanuit de lokale ontwikkelmap. Daar staan ook
 beta-modules en ander lokaal werk. Maak de publieke commit alleen vanuit een
 gecontroleerde release-worktree waarin de inhoud overeenkomt met de hierboven
-geteste releasekopie. Controleer vóór de commit opnieuw dat uitsluitend de 20
+geteste releasekopie. Controleer vóór de commit opnieuw dat uitsluitend de 22
 goedgekeurde modules geregistreerd zijn.
 
 ```bash
@@ -211,14 +211,14 @@ update en sluit het weer wanneer de build beschikbaar is.
 Bericht voor deze release:
 
 ```text
-Submit 2.19.0 is ready for the VCV Library.
+Submit 2.20.0 is ready for the VCV Library.
 
-Version: 2.19.0
+Version: 2.20.0
 Commit: <FULL_COMMIT_HASH>
 
-This release expands the Submit Audio collection to 20 modules with Sum M4,
-Sum S4, Set, Pulse and Tag, including two compact additions to the Chain mixer
-family and new timing, monitoring and patch-organising utilities.
+This release expands the Submit Audio collection to 22 modules with Circles
+and SUB. It also adds selectable 1 PPQN Submit-standard and 4 PPQN compatibility
+timing to the relevant clocked modules.
 ```
 
 Plaats dit bericht pas wanneer de publieke commit definitief op GitHub staat en
@@ -227,7 +227,7 @@ de drie platform-builds van dezelfde commit succesvol zijn gecontroleerd.
 ---
 
 ## OFFICIELE MODULES
-Drift, Chrono, Impact, Chain, SumM4, SumS4, Tag, Set, Pulse, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang, React, Sync, Flip, Orbit
+Drift, Chrono, Impact, Chain, SumM4, SumS4, Tag, Set, Pulse, Squeeze, Shape, Master, Gain, Sweep, Loop, Clang, React, Sync, Flip, Orbit, Circles, Sub
 
 ## BETA MODULES (nooit pushen)
-Poly008, Twin, Shortwave, Void, VoidV2, VoidV3, Swell, Circles, CirclesV2, Sub, SubV2, Machina
+Poly008, Twin, Shortwave, Void, VoidV2, VoidV3, Swell, Machina

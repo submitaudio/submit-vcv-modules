@@ -1,8 +1,8 @@
 # Loop changelog
 
-## Unreleased
+## v2.20.0 (2026-08-27)
 
-## v2.19.1 (2026-08-26)
+- Added a stored clock input rate choice with 1 PPQN as the Submit default and 4 PPQN as a compatibility option.
 
 - Embedded loaded WAV files in VCV patch storage so saved patches reopen without depending on the original sample location.
 - Kept external file references as a backward-compatible fallback for older patches and presets.

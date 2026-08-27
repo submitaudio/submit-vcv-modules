@@ -1,6 +1,8 @@
 # Sync changelog
 
-## Unreleased
+## v2.20.0 (2026-08-27)
+
+- Added a stored clock input/output rate choice with 1 PPQN as the Submit default and 4 PPQN as a compatibility option.
 
 ## v2.19.0 (2026-08-22)
 
