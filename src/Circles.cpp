@@ -836,8 +836,10 @@ struct Circles : Module {
 		quarterPeriod = 0;
 		haveClockEdge = false;
 		tempoValid = false;
+#ifndef SUBMIT_LAB_BUILD
 		currentPitch = 0.f;
 		subPitch = 0.f;
+#endif
 		currentAccent = false;
 		pendulumDirection = 1;
 		flowRandomState = 0x6d2b79f5u;
