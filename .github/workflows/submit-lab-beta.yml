@@ -116,16 +116,16 @@ jobs:
         run: |
           if gh release view submitlab-beta >/dev/null 2>&1; then
             gh release edit submitlab-beta \
-              --title "Submit Lab 2.0.1 Beta 3" \
-              --notes-file docs/changelogs/SubmitLab-2.0.1-beta.3.md \
+              --title "Submit Lab 2.0.1 Beta 5" \
+              --notes-file docs/changelogs/SubmitLab-2.0.1-beta.5.md \
               --prerelease \
               --latest=false
             gh release upload submitlab-beta rolling/*.vcvplugin --clobber
           else
             gh release create submitlab-beta rolling/*.vcvplugin \
               --target "$GITHUB_SHA" \
-              --title "Submit Lab 2.0.1 Beta 3" \
-              --notes-file docs/changelogs/SubmitLab-2.0.1-beta.3.md \
+              --title "Submit Lab 2.0.1 Beta 5" \
+              --notes-file docs/changelogs/SubmitLab-2.0.1-beta.5.md \
               --prerelease \
               --latest=false
           fi

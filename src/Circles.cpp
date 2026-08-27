@@ -208,6 +208,9 @@ struct Circles : Module {
 	std::array<dsp::SchmittTrigger, 8> stepEnableTriggers;
 	int pendulumDirection = 1;
 	uint32_t flowRandomState = 0x6d2b79f5u;
+#ifdef SUBMIT_LAB_BUILD
+	int previousRandomStep = -1;
+#endif
 	int diceCharacter = 1;
 	int clockPpqn = 1;
 #ifdef SUBMIT_LAB_BUILD
@@ -487,11 +490,29 @@ struct Circles : Module {
 				if (currentStep == 7)
 					return 6;
 				return currentStep + ((nextFlowRandom() & 1u) ? 1 : -1);
-			case 4: { // Random: choose any other step, never repeat immediately
+			case 4: { // Random
+#ifdef SUBMIT_LAB_BUILD
+				// Exclude both the current and immediately previous step. This
+				// keeps Random uniform while preventing short A-B-A ping-pong runs.
+				const int previous = previousRandomStep;
+				const bool excludePrevious = previous >= 0 && previous < 8 && previous != currentStep;
+				const int choiceCount = excludePrevious ? 6 : 7;
+				int choice = (int) (nextFlowRandom() % (uint32_t) choiceCount);
+				int next = 0;
+				for (; next < 8; ++next) {
+					if (next == currentStep || (excludePrevious && next == previous))
+						continue;
+					if (choice-- == 0)
+						break;
+				}
+				previousRandomStep = currentStep;
+				return clamp(next, 0, 7);
+#else
 				int next = (int) (nextFlowRandom() % 7u);
 				if (next >= currentStep)
 					++next;
 				return next;
+#endif
 			}
 			default: // Forward
 				return (currentStep + 1) % 8;
@@ -634,6 +655,9 @@ struct Circles : Module {
 		stepEnabled.fill(true);
 		pendulumDirection = 1;
 		flowRandomState = 0x6d2b79f5u;
+#ifdef SUBMIT_LAB_BUILD
+		previousRandomStep = -1;
+#endif
 		diceCharacter = 1;
 		clockPpqn = 1;
 #ifdef SUBMIT_LAB_BUILD
@@ -843,6 +867,9 @@ struct Circles : Module {
 		currentAccent = false;
 		pendulumDirection = 1;
 		flowRandomState = 0x6d2b79f5u;
+#ifdef SUBMIT_LAB_BUILD
+		previousRandomStep = -1;
+#endif
 		stepCvOffsets.fill(0.f);
 #ifdef SUBMIT_LAB_BUILD
 		diceStepsUntilApply = 0;
