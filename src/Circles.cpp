@@ -232,6 +232,7 @@ struct Circles : Module {
 		constexpr float defaultRoot = 3.f;
 		constexpr float defaultRange = 3.f;
 		constexpr float defaultLength = 0.7722900509834290f;
+		constexpr float maximumLength = 1.f;
 		constexpr float defaultSubStep = 4.f;
 		constexpr float defaultScaleA = 5.f;
 		constexpr float defaultScaleB = 2.f;
@@ -254,6 +255,7 @@ struct Circles : Module {
 		constexpr float defaultRoot = 3.f;
 		constexpr float defaultRange = 2.f;
 		constexpr float defaultLength = 0.15346992015838623f;
+		constexpr float maximumLength = 1.25f;
 		constexpr float defaultSubStep = 1.f;
 		constexpr float defaultScaleA = 1.f;
 		constexpr float defaultScaleB = 3.f;
@@ -273,7 +275,7 @@ struct Circles : Module {
 		configSwitch(ROOT_PARAM, 0.f, 11.f, defaultRoot, "Root note",
 			{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"});
 		configSwitch(RANGE_PARAM, 1.f, 4.f, defaultRange, "Pitch range", {"1 octave", "2 octaves", "3 octaves", "4 octaves"});
-		configParam(LENGTH_PARAM, 0.03f, 1.25f, defaultLength, "Gate length", "%", 0.f, 100.f);
+		configParam(LENGTH_PARAM, 0.03f, maximumLength, defaultLength, "Gate length", "%", 0.f, 100.f);
 		configSwitch(SUB_STEP_PARAM, 1.f, 8.f, defaultSubStep, "Sub source step (selected scale slot)", {"1", "2", "3", "4", "5", "6", "7", "8"});
 
 		configSwitch(SCALE_A_PARAM, 0.f, 7.f, defaultScaleA, "Scale A",
@@ -343,6 +345,15 @@ struct Circles : Module {
 
 	int getRange() {
 		return clamp((int) std::round(params[RANGE_PARAM].getValue()), 1, 4);
+	}
+
+	float getGatePulseSeconds(float intervalSeconds) {
+		float duration = intervalSeconds * params[LENGTH_PARAM].getValue();
+#ifdef SUBMIT_LAB_BUILD
+		// Always leave a short low interval so downstream envelopes retrigger at 100%.
+		duration = std::min(duration, std::max(intervalSeconds - 1e-3f, 1e-3f));
+#endif
+		return std::max(duration, 1e-3f);
 	}
 
 	int getScaleCount() {
@@ -865,7 +876,7 @@ struct Circles : Module {
 		// SUB BARS controls the interval between sub notes. The panel GATE
 		// control shapes their articulation independently, against one bar,
 		// so longer sub intervals do not automatically become bass drones.
-		subGatePulse.trigger(std::max(barSeconds * params[LENGTH_PARAM].getValue(), 1e-3f));
+		subGatePulse.trigger(getGatePulseSeconds(barSeconds));
 	}
 
 	void advanceMainStep(const ProcessArgs& args) {
@@ -884,7 +895,7 @@ struct Circles : Module {
 		currentAccent = enabled && (currentStep == 0 || currentStep == 4);
 		if (enabled) {
 			trigPulse.trigger(1e-3f);
-			gatePulse.trigger(std::max(getMainStepSeconds(args) * params[LENGTH_PARAM].getValue(), 1e-3f));
+			gatePulse.trigger(getGatePulseSeconds(getMainStepSeconds(args)));
 		}
 		else {
 			trigPulse.reset();
