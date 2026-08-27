@@ -83,6 +83,16 @@ struct SubOctaveKnob : SvgKnob {
 
 	Sub() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
+#ifdef SUBMIT_LAB_BUILD
+		configParam(OCTAVE_PARAM, -4.f, 4.f, -1.f, "Octave", " oct");
+		configParam(TONE_PARAM, 0.f, 1.f, 0.f, "Filter");
+		configParam(RESONANCE_PARAM, 0.f, 1.f, 0.47951748967170715f, "Resonance");
+		configParam(MIX_PARAM, 0.f, 1.f, 1.f, "Sub layer");
+		configParam(ENV_AMOUNT_PARAM, 0.f, 1.f, 0.54000002145767212f, "Filter envelope amount");
+		configParam(RELEASE_PARAM, 0.03f, 4.f, 1.1440122127532959f, "Decay", " s");
+		configParam(LEVEL_PARAM, 0.f, 1.f, 0.99879515171051025f, "Drive");
+		configParam(TUNE_PARAM, -1.f, 1.f, 0.f, "Tune", " cents", 0.f, 100.f);
+#else
 		configParam(OCTAVE_PARAM, -4.f, 4.f, 1.f, "Octave", " oct");
 		configParam(TONE_PARAM, 0.f, 1.f, 0.34f, "Filter");
 		configParam(RESONANCE_PARAM, 0.f, 1.f, 0.16f, "Resonance");
@@ -91,6 +101,7 @@ struct SubOctaveKnob : SvgKnob {
 		configParam(RELEASE_PARAM, 0.03f, 4.f, 0.24f, "Decay", " s");
 		configParam(LEVEL_PARAM, 0.f, 1.f, 0.35f, "Drive");
 		configParam(TUNE_PARAM, -1.f, 1.f, 0.f, "Tune", " cents", 0.f, 100.f);
+#endif
 		getParamQuantity(OCTAVE_PARAM)->snapEnabled = true;
 
 		configInput(VOCT_INPUT, "V/OCT");

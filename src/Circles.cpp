@@ -193,7 +193,11 @@ struct Circles : Module {
 	float currentPitch = 0.f;
 	float subPitch = 0.f;
 	bool currentAccent = false;
+#ifdef SUBMIT_LAB_BUILD
+	std::array<int, 4> subSteps = {{3, 0, 3, 0}};
+#else
 	std::array<int, 4> subSteps = {{3, 0, 0, 0}};
+#endif
 	int editedSubSlot = 2;
 	bool subStepsInitialized = true;
 	bool scaleEnableInitialized = true;
@@ -218,41 +222,80 @@ struct Circles : Module {
 
 	Circles() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
+#ifdef SUBMIT_LAB_BUILD
+		const std::array<float, 8> defaultStepNotes = {{
+			0.5f, 0.5714285969734192f,
+			0.6428571939468384f, 0.7142857313156128f,
+			0.7857143282890320f, 0.8571429252624512f,
+			0.7857143282890320f, 0.5714285969734192f
+		}};
+		constexpr float defaultRoot = 3.f;
+		constexpr float defaultRange = 3.f;
+		constexpr float defaultLength = 0.7722900509834290f;
+		constexpr float defaultSubStep = 4.f;
+		constexpr float defaultScaleA = 5.f;
+		constexpr float defaultScaleB = 2.f;
+		constexpr float defaultScaleC = 6.f;
+		constexpr float defaultScaleD = 5.f;
+		constexpr float defaultScaleCount = 2.f;
+		constexpr float defaultScaleBars = 1.f;
+		constexpr float defaultSubEditSlot = 2.f;
+		constexpr float defaultSubBars = 1.f;
+		constexpr float defaultSubShift = 3.f;
+		constexpr float defaultFlow = 0.f;
+		constexpr float defaultSpeed = 2.f;
+#else
 		const std::array<float, 8> defaultStepNotes = {{
 			0.8397586941719055f, 0.5714285969734192f,
 			0.5714285969734192f, 0.6428571343421936f,
 			0.7857142686843872f, 0.7142857313156128f,
 			0.7142857313156128f, 0.5714285969734192f
 		}};
+		constexpr float defaultRoot = 3.f;
+		constexpr float defaultRange = 2.f;
+		constexpr float defaultLength = 0.15346992015838623f;
+		constexpr float defaultSubStep = 1.f;
+		constexpr float defaultScaleA = 1.f;
+		constexpr float defaultScaleB = 3.f;
+		constexpr float defaultScaleC = 6.f;
+		constexpr float defaultScaleD = 5.f;
+		constexpr float defaultScaleCount = 2.f;
+		constexpr float defaultScaleBars = 2.f;
+		constexpr float defaultSubEditSlot = 2.f;
+		constexpr float defaultSubBars = 2.f;
+		constexpr float defaultSubShift = 0.f;
+		constexpr float defaultFlow = 0.f;
+		constexpr float defaultSpeed = 1.f;
+#endif
 		for (int i = 0; i < 8; ++i)
 			configParam(STEP_1_PARAM + i, 0.f, 1.f, defaultStepNotes[i], string::f("Step %d note", i + 1));
 
-		configSwitch(ROOT_PARAM, 0.f, 11.f, 3.f, "Root note",
+		configSwitch(ROOT_PARAM, 0.f, 11.f, defaultRoot, "Root note",
 			{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"});
-		configSwitch(RANGE_PARAM, 1.f, 4.f, 2.f, "Pitch range", {"1 octave", "2 octaves", "3 octaves", "4 octaves"});
-		configParam(LENGTH_PARAM, 0.03f, 1.25f, 0.15346992015838623f, "Gate length", "%", 0.f, 100.f);
-		configSwitch(SUB_STEP_PARAM, 1.f, 8.f, 1.f, "Sub source step (selected scale slot)", {"1", "2", "3", "4", "5", "6", "7", "8"});
+		configSwitch(RANGE_PARAM, 1.f, 4.f, defaultRange, "Pitch range", {"1 octave", "2 octaves", "3 octaves", "4 octaves"});
+		configParam(LENGTH_PARAM, 0.03f, 1.25f, defaultLength, "Gate length", "%", 0.f, 100.f);
+		configSwitch(SUB_STEP_PARAM, 1.f, 8.f, defaultSubStep, "Sub source step (selected scale slot)", {"1", "2", "3", "4", "5", "6", "7", "8"});
 
-		configSwitch(SCALE_A_PARAM, 0.f, 7.f, 1.f, "Scale A",
+		configSwitch(SCALE_A_PARAM, 0.f, 7.f, defaultScaleA, "Scale A",
 			{"Minor", "Dorian", "Phrygian", "Minor pentatonic", "Harmonic minor", "Major", "Fifths", "Octaves"});
-		configSwitch(SCALE_B_PARAM, 0.f, 7.f, 3.f, "Scale B",
+		configSwitch(SCALE_B_PARAM, 0.f, 7.f, defaultScaleB, "Scale B",
 			{"Minor", "Dorian", "Phrygian", "Minor pentatonic", "Harmonic minor", "Major", "Fifths", "Octaves"});
-		configSwitch(SCALE_C_PARAM, 0.f, 7.f, 6.f, "Scale C",
+		configSwitch(SCALE_C_PARAM, 0.f, 7.f, defaultScaleC, "Scale C",
 			{"Minor", "Dorian", "Phrygian", "Minor pentatonic", "Harmonic minor", "Major", "Fifths", "Octaves"});
-		configSwitch(SCALE_D_PARAM, 0.f, 7.f, 5.f, "Scale D",
+		configSwitch(SCALE_D_PARAM, 0.f, 7.f, defaultScaleD, "Scale D",
 			{"Minor", "Dorian", "Phrygian", "Minor pentatonic", "Harmonic minor", "Major", "Fifths", "Octaves"});
-		configSwitch(SCALE_COUNT_PARAM, 1.f, 4.f, 2.f, "Scale chain length", {"1 scale", "2 scales", "3 scales", "4 scales"});
-		configSwitch(SCALE_BARS_PARAM, 1.f, 8.f, 2.f, "Bars per scale", {"1 bar", "2 bars", "3 bars", "4 bars", "5 bars", "6 bars", "7 bars", "8 bars"});
-		configSwitch(SUB_EDIT_SLOT_PARAM, 0.f, 3.f, 2.f, "Edit sub source for scale", {"Scale A", "Scale B", "Scale C", "Scale D"});
-		configSwitch(SUB_BARS_PARAM, 1.f, 8.f, 2.f, "Bars per sub note", {"1 bar", "2 bars", "3 bars", "4 bars", "5 bars", "6 bars", "7 bars", "8 bars"});
-		configSwitch(SUB_SHIFT_PARAM, 0.f, 7.f, 0.f, "Sub launch step", {"Step 1", "Step 2", "Step 3", "Step 4", "Step 5", "Step 6", "Step 7", "Step 8"});
+		configSwitch(SCALE_COUNT_PARAM, 1.f, 4.f, defaultScaleCount, "Scale chain length", {"1 scale", "2 scales", "3 scales", "4 scales"});
+		configSwitch(SCALE_BARS_PARAM, 1.f, 8.f, defaultScaleBars, "Bars per scale", {"1 bar", "2 bars", "3 bars", "4 bars", "5 bars", "6 bars", "7 bars", "8 bars"});
+		configSwitch(SUB_EDIT_SLOT_PARAM, 0.f, 3.f, defaultSubEditSlot, "Edit sub source for scale", {"Scale A", "Scale B", "Scale C", "Scale D"});
+		configSwitch(SUB_BARS_PARAM, 1.f, 8.f, defaultSubBars, "Bars per sub note", {"1 bar", "2 bars", "3 bars", "4 bars", "5 bars", "6 bars", "7 bars", "8 bars"});
+		configSwitch(SUB_SHIFT_PARAM, 0.f, 7.f, defaultSubShift, "Sub launch step", {"Step 1", "Step 2", "Step 3", "Step 4", "Step 5", "Step 6", "Step 7", "Step 8"});
 		configButton(SCALE_A_ENABLE_PARAM, "Include Scale A");
 		configButton(SCALE_B_ENABLE_PARAM, "Include Scale B");
 		configButton(SCALE_C_ENABLE_PARAM, "Include Scale C");
 		configButton(SCALE_D_ENABLE_PARAM, "Include Scale D");
-		configSwitch(FLOW_PARAM, 0.f, 4.f, 0.f, "Flow",
+		configSwitch(FLOW_PARAM, 0.f, 4.f, defaultFlow, "Flow",
 			{"Forward", "Reverse", "Pendulum", "Drunk", "Random"});
-		configSwitch(SPEED_PARAM, 0.f, 3.f, 1.f, "Main sequence speed",
+		configSwitch(SPEED_PARAM, 0.f, 3.f, defaultSpeed, "Main sequence speed",
 			{"1/4", "1/8", "1/16", "1/32"});
 		configButton(DICE_PARAM, "Generate musical step notes");
 		for (int i = 0; i < 8; ++i)
@@ -568,7 +611,11 @@ struct Circles : Module {
 	}
 
 	void onReset() override {
+#ifdef SUBMIT_LAB_BUILD
+		subSteps = {{3, 0, 3, 0}};
+#else
 		subSteps = {{3, 0, 0, 0}};
+#endif
 		editedSubSlot = 2;
 		subStepsInitialized = true;
 		scaleEnableInitialized = true;
