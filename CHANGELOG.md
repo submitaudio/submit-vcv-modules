@@ -27,6 +27,12 @@ Detailed, module-specific history is maintained in separate pages:
 - [Circles](docs/changelogs/Circles.md)
 - [SUB](docs/changelogs/Sub.md)
 
+## v2.21.0 (2026-08-30)
+
+- Added dedicated Tune, Decay and Noise CV inputs to Clang while preserving existing patch connections.
+- Added dedicated Start and Stop trigger inputs to Sync while preserving its stored 1 PPQN and 4 PPQN timing choice.
+- Expanded the Loop display with separate BPM and Bars status fields.
+
 ## v2.20.0 (2026-08-27)
 
 - Added Circles, an always-quantized circular eight-step sequencer with scale chaining, musical flow modes and a dedicated slower sub track.

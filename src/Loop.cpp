@@ -577,17 +577,24 @@ struct ReelDisplay : Widget {
         nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
         nvgText(args.vg, 3, 2, module->displayName.c_str(), nullptr);
 
-        // BPM + Bars info
-        if (module->fileBpm > 0.f) {
-            char info[64];
-            float bars = (module->params[Reel::BARS_PARAM].getValue() > 0.f)
-                ? module->params[Reel::BARS_PARAM].getValue()
-                : module->detectedBars;
-            snprintf(info, sizeof(info), "%.0f BPM  %.0f bars", module->fileBpm, bars);
-            nvgFontSize(args.vg, 10.f);
-            nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_BOTTOM);
-            nvgText(args.vg, 3, h - 2, info, nullptr);
-        }
+        // BPM and Bars fields from the Loop panel design.
+        char bpmValue[16] = "---";
+        if (module->inputs[Reel::CLOCK_INPUT].isConnected() && module->clockReceived)
+            snprintf(bpmValue, sizeof(bpmValue), "%.0f", module->clockBpm);
+
+        float barsParam = module->params[Reel::BARS_PARAM].getValue();
+        char barsValue[16] = "AUTO";
+        if (barsParam > 0.f)
+            snprintf(barsValue, sizeof(barsValue), "%.0f", barsParam);
+
+        nvgFontSize(args.vg, 10.f);
+        nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_BOTTOM);
+        nvgFillColor(args.vg, nvgRGB(255, 255, 255));
+        nvgText(args.vg, 8.f, h - 2.f, "BPM:", nullptr);
+        nvgText(args.vg, 66.f, h - 2.f, "BARS:", nullptr);
+        nvgFillColor(args.vg, nvgRGB(255, 255, 0));
+        nvgText(args.vg, 35.f, h - 2.f, bpmValue, nullptr);
+        nvgText(args.vg, 98.f, h - 2.f, barsValue, nullptr);
     }
 };
 
@@ -597,8 +604,8 @@ struct ReelWidget : SubmitModuleWidget {
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Loop.svg")));
 
         // Waveform display
-        ReelDisplay* disp = createWidget<ReelDisplay>(mm2px(Vec(7.199f, 13.856f)));
-        disp->box.size = mm2px(Vec(51.191f, 27.477f));
+        ReelDisplay* disp = createWidget<ReelDisplay>(Vec(21.288f, 40.975f));
+        disp->box.size = Vec(151.382f, 81.256f);
         disp->module = module;
         addChild(disp);
 

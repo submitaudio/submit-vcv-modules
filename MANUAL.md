@@ -303,7 +303,7 @@ Outputs: Chain Out L/R.
 
 ## Loop
 
-Loop is a stereo sample looper with waveform display, clock sync, BPM parsing, reverse playback and cue output.
+Loop is a stereo sample looper with waveform display, clock sync, BPM parsing, reverse playback and cue output. Its expanded display shows the measured external clock BPM and whether the loop length uses a manual Bars setting or automatic detection.
 
 ### Controls
 
@@ -341,7 +341,7 @@ Clang is a techno percussion synthesizer with Physical and FM engines, eight mod
 
 ### Inputs and output
 
-Inputs: Trigger, Model CV, Sounds CV and Motion CV.
+Inputs: Trigger, Pitch (1V/oct), Decay CV, Noise CV, Model CV, Sounds CV and Motion CV.
 
 Output: `Audio Out`.
 
@@ -367,13 +367,15 @@ New instances use 1 PPQN. Existing patches retain the 4 PPQN legacy mode where s
 
 ## Sync
 
-Sync is a compact internal/external clock for the Submit system. This module is part of the VCV 2.17.0 candidate.
+Sync is a compact internal/external clock for the Submit system.
 
 ### Controls and inputs
 
 - **Tempo** sets the internal BPM.
 - **Run** starts and stops the internal clock.
 - **Reset** resets the clock phase.
+- `Start` starts the clock and resets its timing phase.
+- `Stop` stops the clock and resets its timing phase. Stop takes priority when Start and Stop arrive together.
 - `External clock` selects external timing when connected.
 - `Reset` accepts an external reset pulse.
 

@@ -300,6 +300,9 @@ struct Clang : Module {
 		MODEL_INPUT,
 		SOUND_INPUT,
 		MOTION_INPUT,
+		TUNE_INPUT,
+		DECAY_INPUT,
+		NOISE_INPUT,
 		INPUTS_LEN
 	};
 	enum OutputId {
@@ -336,6 +339,9 @@ struct Clang : Module {
 		configInput(MODEL_INPUT, "Model CV");
 		configInput(SOUND_INPUT, "Sounds CV");
 		configInput(MOTION_INPUT, "Motion CV");
+		configInput(TUNE_INPUT, "Pitch (1V/oct)");
+		configInput(DECAY_INPUT, "Decay CV");
+		configInput(NOISE_INPUT, "Noise CV");
 		configOutput(OUT_OUTPUT, "Audio Out");
 	}
 
@@ -463,7 +469,8 @@ struct Clang : Module {
 		voice.hpX = 0.f;
 		voice.hpY = 0.f;
 
-		float tune = std::pow(2.f, params[TUNE_PARAM].getValue());
+		float tuneOctaves = params[TUNE_PARAM].getValue() + inputs[TUNE_INPUT].getVoltage();
+		float tune = std::pow(2.f, tuneOctaves);
 		float variation = params[VARIATION_PARAM].getValue();
 		// Tune Variation widens a centered low-to-high pitch range per hit.
 		// At zero every trigger keeps the exact mapped pitch; higher settings
@@ -651,13 +658,13 @@ struct Clang : Module {
 		triggerLightEnv *= std::exp(-args.sampleTime / 0.080f);
 		lights[TRIGGER_LIGHT].setBrightness(triggerLightEnv);
 
-		float decay = params[DECAY_PARAM].getValue();
+		float decay = clamp(params[DECAY_PARAM].getValue() + inputs[DECAY_INPUT].getVoltage() / 10.f, 0.f, 1.f);
 		// Preserve the tight low end, then open up the tail progressively near
 		// the top of the control instead of making the whole range feel slow.
 		float lateDecay = std::max(0.f, decay - 0.50f);
 		float decayCurve = decay + 5.0f * lateDecay * lateDecay;
 		float bodyControl = params[BODY_PARAM].getValue();
-		float noiseAmount = params[NOISE_PARAM].getValue();
+		float noiseAmount = clamp(params[NOISE_PARAM].getValue() + inputs[NOISE_INPUT].getVoltage() / 10.f, 0.f, 1.f);
 		float motion = params[MOTION_PARAM].getValue();
 		if (inputs[MOTION_INPUT].isConnected())
 			motion = clamp(motion + inputs[MOTION_INPUT].getVoltage() / 10.f, 0.f, 1.f);
@@ -1238,22 +1245,25 @@ struct ClangWidget : SubmitModuleWidget {
 		display->module = module;
 		addChild(display);
 
-		addParam(createParamCentered<ClangReactSmallKnob>(Vec(34.361f, 108.89f), module, Clang::MODEL_PARAM));
-		addParam(createParam<CKSS>(Vec(115.317f, 103.096f), module, Clang::ENGINE_PARAM));
-		addParam(createParamCentered<ClangReactSmallKnob>(Vec(83.19f, 108.89f), module, Clang::SOUND_PARAM));
-		addParam(createParamCentered<ClangReactSmallKnob>(Vec(34.361f, 216.962f), module, Clang::TUNE_PARAM));
-		addParam(createParamCentered<ClangReactSmallKnob>(Vec(83.19f, 216.962f), module, Clang::DECAY_PARAM));
-		addParam(createParamCentered<ClangReactSmallKnob>(Vec(132.019f, 216.962f), module, Clang::NOISE_PARAM));
-		addParam(createParamCentered<ClangReactSmallKnob>(Vec(34.361f, 285.601f), module, Clang::MOTION_PARAM));
-		addParam(createParamCentered<ClangReactSmallKnob>(Vec(83.19f, 285.601f), module, Clang::BODY_PARAM));
-		addParam(createParamCentered<ClangReactSmallKnob>(Vec(132.019f, 285.601f), module, Clang::VARIATION_PARAM));
+		addParam(createParamCentered<ClangReactSmallKnob>(Vec(34.362f, 104.772f), module, Clang::MODEL_PARAM));
+		addParam(createParam<CKSS>(Vec(115.317f, 96.846f), module, Clang::ENGINE_PARAM));
+		addParam(createParamCentered<ClangReactSmallKnob>(Vec(83.121f, 104.772f), module, Clang::SOUND_PARAM));
+		addParam(createParamCentered<ClangReactSmallKnob>(Vec(34.362f, 198.627f), module, Clang::TUNE_PARAM));
+		addParam(createParamCentered<ClangReactSmallKnob>(Vec(83.191f, 198.627f), module, Clang::DECAY_PARAM));
+		addParam(createParamCentered<ClangReactSmallKnob>(Vec(132.020f, 198.627f), module, Clang::NOISE_PARAM));
+		addParam(createParamCentered<ClangReactSmallKnob>(Vec(34.362f, 289.851f), module, Clang::MOTION_PARAM));
+		addParam(createParamCentered<ClangReactSmallKnob>(Vec(83.191f, 289.851f), module, Clang::BODY_PARAM));
+		addParam(createParamCentered<ClangReactSmallKnob>(Vec(132.020f, 289.851f), module, Clang::VARIATION_PARAM));
 
-		addInput(createInputCentered<PJ301MPort>(Vec(33.797f, 155.894f), module, Clang::MODEL_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(82.924f, 155.894f), module, Clang::SOUND_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(33.797f, 141.144f), module, Clang::MODEL_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(82.924f, 141.144f), module, Clang::SOUND_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(33.797f, 234.472f), module, Clang::TUNE_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(82.924f, 234.472f), module, Clang::DECAY_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(131.290f, 234.472f), module, Clang::NOISE_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(33.797f, 342.132f), module, Clang::MOTION_INPUT));
-			addInput(createInputCentered<PJ301MPort>(Vec(82.924f, 342.132f), module, Clang::TRIG_INPUT));
-			addOutput(createOutputCentered<PJ301MPort>(Vec(133.912f, 342.132f), module, Clang::OUT_OUTPUT));
-			addChild(createLightCentered<SmallLight<YellowLight>>(Vec(63.41f, 321.463f), module, Clang::TRIGGER_LIGHT));
+		addInput(createInputCentered<PJ301MPort>(Vec(82.924f, 342.132f), module, Clang::TRIG_INPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(131.912f, 342.132f), module, Clang::OUT_OUTPUT));
+		addChild(createLightCentered<SmallLight<YellowLight>>(Vec(63.410f, 321.463f), module, Clang::TRIGGER_LIGHT));
 		}
 
 		void appendContextMenu(Menu* menu) override {

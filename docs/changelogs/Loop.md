@@ -1,5 +1,11 @@
 # Loop changelog
 
+## v2.21.0 (2026-08-30)
+
+- Expanded the display with separate BPM and Bars status fields.
+- Added a measured external-clock BPM readout and clear manual or automatic Bars status.
+- Enlarged the display area while preserving the existing looper controls and patch behaviour.
+
 ## v2.20.0 (2026-08-27)
 
 - Added a stored clock input rate choice with 1 PPQN as the Submit default and 4 PPQN as a compatibility option.

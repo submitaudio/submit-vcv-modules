@@ -22,6 +22,8 @@ struct Sync : Module {
 	enum InputId {
 		EXT_INPUT,
 		RST_INPUT,
+		START_INPUT,
+		STOP_INPUT,
 		INPUTS_LEN
 	};
 	enum OutputId {
@@ -42,6 +44,8 @@ struct Sync : Module {
 	dsp::SchmittTrigger runTrigger;
 	dsp::SchmittTrigger resetTrigger;
 	dsp::SchmittTrigger resetInputTrigger;
+	dsp::SchmittTrigger startInputTrigger;
+	dsp::SchmittTrigger stopInputTrigger;
 	dsp::SchmittTrigger externalTrigger;
 	dsp::PulseGenerator clockPulse;
 	dsp::PulseGenerator div2Pulse;
@@ -69,6 +73,8 @@ struct Sync : Module {
 		configButton(RESET_PARAM, "Reset phase");
 		configInput(EXT_INPUT, "External clock");
 		configInput(RST_INPUT, "Reset");
+		configInput(START_INPUT, "Start");
+		configInput(STOP_INPUT, "Stop");
 		configOutput(CLOCK_OUTPUT, "Clock (x1)");
 		configOutput(DIV2_OUTPUT, "Half-speed clock");
 		configOutput(MULT2_OUTPUT, "Double-speed clock");
@@ -125,6 +131,17 @@ struct Sync : Module {
 	void process(const ProcessArgs& args) override {
 		if (runTrigger.process(params[RUN_PARAM].getValue())) {
 			running = !running;
+			resetTiming();
+		}
+
+		const bool startReceived = startInputTrigger.process(inputs[START_INPUT].getVoltage());
+		const bool stopReceived = stopInputTrigger.process(inputs[STOP_INPUT].getVoltage());
+		if (startReceived && !stopReceived) {
+			running = true;
+			resetTiming();
+		}
+		if (stopReceived) {
+			running = false;
 			resetTiming();
 		}
 
@@ -308,12 +325,14 @@ struct SyncWidget : SubmitModuleWidget {
 		display->module = module;
 		addChild(display);
 
-		addParam(createParamCentered<SyncTempoKnob>(Vec(37.599f, 122.310f), module, Sync::BPM_PARAM));
-		addParam(createParamCentered<LEDButton>(Vec(20.685f, 186.312f), module, Sync::RUN_PARAM));
-		addChild(createLightCentered<MediumLight<GreenLight>>(Vec(20.685f, 186.312f), module, Sync::RUN_LIGHT));
-		addParam(createParamCentered<LEDButton>(Vec(54.023f, 186.312f), module, Sync::RESET_PARAM));
-		addChild(createLightCentered<MediumLight<RedLight>>(Vec(54.023f, 186.312f), module, Sync::RESET_LIGHT));
+		addParam(createParamCentered<SyncTempoKnob>(Vec(37.599f, 117.810f), module, Sync::BPM_PARAM));
+		addParam(createParamCentered<LEDButton>(Vec(20.685f, 169.312f), module, Sync::RUN_PARAM));
+		addChild(createLightCentered<MediumLight<GreenLight>>(Vec(20.685f, 169.312f), module, Sync::RUN_LIGHT));
+		addParam(createParamCentered<LEDButton>(Vec(54.023f, 169.312f), module, Sync::RESET_PARAM));
+		addChild(createLightCentered<MediumLight<RedLight>>(Vec(54.023f, 169.312f), module, Sync::RESET_LIGHT));
 
+		addInput(createInputCentered<PJ301MPort>(Vec(21.594f, 210.550f), module, Sync::START_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(53.998f, 210.550f), module, Sync::STOP_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(21.594f, 249.791f), module, Sync::EXT_INPUT));
 		addInput(createInputCentered<PJ301MPort>(Vec(53.998f, 249.791f), module, Sync::RST_INPUT));
 		addOutput(createOutputCentered<PJ301MPort>(Vec(21.594f, 302.037f), module, Sync::CLOCK_OUTPUT));

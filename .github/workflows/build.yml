@@ -99,10 +99,10 @@ jobs:
             - Master — Master bus processor
             - Gain — Line level booster
             - Sweep — Filter
-            - Loop — Sample loop player
-            - Clang — Techno percussion synthesizer
+            - Loop - Sample loop player with expanded BPM and Bars display
+            - Clang - Techno percussion synthesizer with additional CV inputs
             - React — Four-voice rhythm sequencer
-            - Sync — Compact 1 PPQN clock
+            - Sync - Compact 1 PPQN clock with Start and Stop inputs
             - Flip — Clock-synchronised stereo reverse effect
             - Orbit — Rhythmic relationship processor
             - Circles - Circular eight-step sequencer

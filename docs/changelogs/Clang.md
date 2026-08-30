@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## v2.21.0 (2026-08-30)
+
+- Added dedicated Tune, Decay and Noise CV inputs.
+- Appended the new inputs after the existing ports to preserve patch compatibility.
+- Updated the panel layout for the additional CV connections.
+
 ## v2.19.0 (2026-08-22)
 
 - Switched the LCD model and sound display to the bundled Share Tech Mono font for consistent rendering across platforms.
