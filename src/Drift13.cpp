@@ -1,5 +1,5 @@
 // Copyright (c) 2025 Submit Audio (submitaudio.nl)
-// Licensed under GPL v3 — see LICENSE file for details
+// SPDX-License-Identifier: GPL-3.0-or-later
 // https://github.com/submitaudio/submit-vcv-modules
 
 #include "plugin.hpp"

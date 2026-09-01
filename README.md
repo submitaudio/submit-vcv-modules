@@ -59,9 +59,9 @@ A complete live performance toolkit for VCV Rack, with 22 modules designed for s
 - [See Manual](https://github.com/submitaudio/submit-vcv-modules/blob/master/MANUAL.md)
 - [See CHANGELOG for details](https://github.com/submitaudio/submit-vcv-modules/blob/master/CHANGELOG.md)
 - [Visit submitaudio.nl](https://submitaudio.nl)
-- [Licensed under GPL-3.0](https://github.com/submitaudio/submit-vcv-modules/blob/master/LICENSE)
+- [Licensed under GPL-3.0-or-later](https://github.com/submitaudio/submit-vcv-modules/blob/master/LICENSE)
 - [Report a bug](https://github.com/submitaudio/submit-vcv-modules/issues)
 
 ## License
 
-GPL-3.0 — see [LICENSE](LICENSE)
+Submit Audio source code and original artwork are licensed under GPL-3.0-or-later. Third-party components retain their original licenses. See [LICENSE](LICENSE).

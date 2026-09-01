@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Submit Audio (submitaudio.nl)
-// Licensed under GPL v3 - see LICENSE file for details
+// SPDX-License-Identifier: GPL-3.0-or-later
 // Clang V3 - techno micro-percussion, ticks, dust and short noise hits
 
 #include "plugin.hpp"

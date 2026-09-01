@@ -464,4 +464,4 @@ Output: mono audio.
 - [GitHub issues](https://github.com/submitaudio/submit-vcv-modules/issues)
 - [Latest GitHub release](https://github.com/submitaudio/submit-vcv-modules/releases/latest)
 
-Submit Audio is released under [GPL-3.0-only](LICENSE).
+Submit Audio is released under [GPL-3.0-or-later](LICENSE).

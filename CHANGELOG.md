@@ -27,6 +27,10 @@ Detailed, module-specific history is maintained in separate pages:
 - [Circles](docs/changelogs/Circles.md)
 - [SUB](docs/changelogs/Sub.md)
 
+## Unreleased
+
+- Relicensed Submit Audio source code and original artwork from GPL-3.0-only to GPL-3.0-or-later for compatibility with GPLv3-or-later projects. Third-party components retain their original licenses.
+
 ## v2.21.0 (2026-08-30)
 
 - Added dedicated Tune, Decay and Noise CV inputs to Clang while preserving existing patch connections.
