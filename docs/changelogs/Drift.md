@@ -1,6 +1,6 @@
 # Drift changelog
 
-## v2.22.0 (release candidate)
+## v2.22.0 (2026-09-07)
 
 - Jose approved replacing the original implementation with the revised voice
   under the existing name and slug `Drift` (2026-09-07). The separate `DriftV2`
@@ -14,7 +14,7 @@
   identical sound is not guaranteed. Local patches saved as `DriftV2` require
   explicit conversion to `Drift`; there is no remaining `DriftV2` model.
 - Approved starting values and removal of the Beta V2 panel label are retained.
-  The update is prepared as 2.22.0; publication is pending.
+  Released as part of Submit 2.22.0 in the VCV Library.
 
 ## v2.19.0 (2026-08-22)
 
