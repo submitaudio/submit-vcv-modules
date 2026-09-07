@@ -6,7 +6,7 @@ A complete live performance toolkit for VCV Rack, with 22 modules designed for s
 
 ## Modules
 
-**Drift** — Analog voice with DCO, wavefolder, slope generator and contour envelope
+**Drift** - West Coast voice for percussion and drones, with wavefolding, audio-rate Slope, modulation amount controls and Contour CV
 
 **Chrono** — Tape machine with wow, flutter, drive and multi-head delay
 

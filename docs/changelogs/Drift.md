@@ -1,6 +1,20 @@
 # Drift changelog
 
-## Unreleased
+## v2.22.0 (release candidate)
+
+- Jose approved replacing the original implementation with the revised voice
+  under the existing name and slug `Drift` (2026-09-07). The separate `DriftV2`
+  registration and original `src/Drift13.cpp` implementation are removed.
+- The implementation and V9 panel retain their development filenames
+  `src/DriftV2.cpp` and `res/DriftV2.svg`: revised Overtone/Multiply,
+  audio-rate CV, AC-coupled FM,
+  audio-rate Slope, Contour CV, panel amount controls and Drone.
+- All original parameter and port IDs are retained, with new IDs appended.
+  Old Drift patches resolve to the new voice, but DSP and timing changes mean
+  identical sound is not guaranteed. Local patches saved as `DriftV2` require
+  explicit conversion to `Drift`; there is no remaining `DriftV2` model.
+- Approved starting values and removal of the Beta V2 panel label are retained.
+  The update is prepared as 2.22.0; publication is pending.
 
 ## v2.19.0 (2026-08-22)
 

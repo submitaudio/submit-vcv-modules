@@ -52,31 +52,60 @@ React and older clocked patches retain their documented legacy compatibility whe
 
 ## Drift
 
-Drift is a West Coast-inspired voice with two oscillator outputs, an overtone/multiply section, a slope generator and a contour envelope. It is inspired by the Make Noise 0-Coast while retaining its own sound and controls.
+Drift is a West Coast-inspired voice for percussion, sustained tones and drones.
+Its oscillator, Overtone/Multiply section, cycling Slope and Contour envelope
+support slow movement and audio-rate modulation. It has its own sound and is
+not a circuit-accurate hardware emulation.
 
 ### Controls
 
 - **Octave** and **Fine** set the oscillator pitch.
-- **Overtone** adds harmonic content.
-- **Multiply** expands the overtone relationship from zero to maximum.
-- **Rise**, **Fall**, **Time** and **Curve** shape the slope generator.
-- **Onset**, **Sustain**, **Decay** and **Exp** shape the contour envelope.
-- **Timbre** balances the voice; the Timbre switch enables its alternate behaviour.
-- The Rise switch selects the active Rise behaviour. Rise OFF keeps the standard voice response; Rise ON exposes the full Rise/Fall/Time interaction.
+- **Overtone** moves between harmonic textures and a Slope ring-modulation region.
+- **Multiply** controls wavefolding in the overtone branch.
+- **MLT AMT** sets bipolar modulation depth from the MLT input, or internal Slope
+  when MLT is unpatched. Negative amounts invert the modulation.
+- **FM AMT** sets the depth of AC-coupled linear FM. Zero disables FM modulation.
+- **Rise**, **Fall**, **Time** and **Curve** shape Slope from slow cycles to audio rates.
+  The Slope switch enables cycling. TRIG can also start a one-shot Slope.
+- **Onset**, **Sustain**, **Decay** and **Exp** shape Contour. At zero Sustain,
+  short triggers produce a complete attack/decay envelope.
+- **Timbre** mixes the fundamental and overtone branches; its switch enables
+  the overtone branch.
+- **Drone** holds Dynamics open for a continuous voice.
 
 ### Inputs
 
-`V/OCT`, `FM`, `OVR`, `MLT`, `TRIG`, `GATE`, `SLP`, `DCY`, `CTR`, `DYN`, fundamental CV, overtone-balance CV, external input and Timbre CV.
+- **V/OCT**: oscillator pitch. **FM**: AC-coupled linear FM, controlled by FM AMT.
+- **OVR**: Overtone CV. **MLT**: Multiply CV, controlled by MLT AMT.
+- **TRIG**: Slope trigger. Triggers during Rise are ignored.
+- **GATE**: fallback trigger for Slope and gate for Contour when their dedicated
+  TRIG and CTR inputs are unpatched.
+- **SLP**: Rise/Fall time CV; positive voltage shortens both times.
+- **ONS**: Onset time CV; +1 V halves the time, -1 V doubles it.
+- **SUS**: Sustain level CV, added to the knob at 8 V per full scale.
+- **DCY**: Decay time CV. **CTR**: dedicated Contour gate.
+- **DYN**: Dynamics CV; replaces the internal envelope at Dynamics when patched.
+- **TMBR**: Timbre mix CV.
 
 ### Outputs
 
-`TRI`, `SQR`, `EOC`, `EON`, `SLP`, `ENV` and `LINE OUT`.
+**TRI** and **SQR** provide oscillator waveforms. **SLP** and **ENV** provide
+0-8 V Slope and Contour signals. **EOC** pulses at the end of Slope Fall;
+**EON** pulses at the end of Contour Onset. **LINE OUT** is the final voice output.
 
-### Patch ideas
+### First patches
 
-- Patch `TRIG` to start the slope and `ENV` to an external VCA for a plucked voice.
-- Patch `SLP` back to oscillator or filter modulation for evolving West Coast tones.
-- Use a slow CV on `OVR` or `MLT` for metallic movement while keeping the fundamental stable.
+- For percussion, send a trigger to GATE, keep Drone off, set Sustain to zero,
+  and connect LINE OUT to your audio output. Adjust Decay, Overtone and Multiply.
+- For a drone, enable Drone. Enable Slope cycling and use MLT AMT to add movement.
+- Patch TRI to FM and raise FM AMT gradually for audio-rate FM. Patch TRI to OVR
+  for audio-rate timbre modulation.
+
+### Existing patches
+
+The module remains **Drift**, with the existing parameter and port IDs retained.
+The updated DSP and time curves can change the sound of older patches. Local
+beta patches using the separate `DriftV2` slug need conversion to `Drift`.
 
 ## Chrono
 
@@ -303,7 +332,7 @@ Outputs: Chain Out L/R.
 
 ## Loop
 
-Loop is a stereo sample looper with waveform display, clock sync, BPM parsing, reverse playback and cue output. Its expanded display shows the measured external clock BPM and whether the loop length uses a manual Bars setting or automatic detection.
+Loop is a stereo sample looper with waveform display, clock sync, BPM parsing, reverse playback and cue output.
 
 ### Controls
 
@@ -341,7 +370,7 @@ Clang is a techno percussion synthesizer with Physical and FM engines, eight mod
 
 ### Inputs and output
 
-Inputs: Trigger, Pitch (1V/oct), Decay CV, Noise CV, Model CV, Sounds CV and Motion CV.
+Inputs: Trigger, Model CV, Sounds CV and Motion CV.
 
 Output: `Audio Out`.
 
@@ -367,15 +396,13 @@ New instances use 1 PPQN. Existing patches retain the 4 PPQN legacy mode where s
 
 ## Sync
 
-Sync is a compact internal/external clock for the Submit system.
+Sync is a compact internal/external clock for the Submit system. This module is part of the VCV 2.17.0 candidate.
 
 ### Controls and inputs
 
 - **Tempo** sets the internal BPM.
 - **Run** starts and stops the internal clock.
 - **Reset** resets the clock phase.
-- `Start` starts the clock and resets its timing phase.
-- `Stop` stops the clock and resets its timing phase. Stop takes priority when Start and Stop arrive together.
 - `External clock` selects external timing when connected.
 - `Reset` accepts an external reset pulse.
 

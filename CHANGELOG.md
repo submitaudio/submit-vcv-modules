@@ -27,15 +27,23 @@ Detailed, module-specific history is maintained in separate pages:
 - [Circles](docs/changelogs/Circles.md)
 - [SUB](docs/changelogs/Sub.md)
 
-## Unreleased
+## v2.22.0 (release candidate)
 
-- Relicensed Submit Audio source code and original artwork from GPL-3.0-only to GPL-3.0-or-later for compatibility with GPLv3-or-later projects. Third-party components retain their original licenses.
+- Includes the previously committed switch to GPL-3.0-or-later for Submit Audio
+  source code and original artwork. Third-party components retain their licenses.
+- Updated Drift within the existing 22-module collection, keeping the `Drift` slug.
+- Reworked Overtone and Multiply, separated knob smoothing from audio-rate CV,
+  and added AC-coupled linear FM and audio-rate Slope timing.
+- Added MLT AMT, FM AMT, Drone, Onset CV and Sustain CV with the V9 panel.
+- Updated Drift's starting settings and manual. Existing parameter and port IDs
+  remain stable, but the revised DSP can change the sound of existing patches.
 
 ## v2.21.0 (2026-08-30)
 
-- Added dedicated Tune, Decay and Noise CV inputs to Clang while preserving existing patch connections.
-- Added dedicated Start and Stop trigger inputs to Sync while preserving its stored 1 PPQN and 4 PPQN timing choice.
-- Expanded the Loop display with separate BPM and Bars status fields.
+- Clang: added Tune 1V/oct, Decay CV and Noise CV inputs.
+- Sync: added Start and Stop trigger inputs, with Stop taking priority.
+- Loop: expanded the display with separate BPM and Bars information.
+- Retained the existing 22-module collection and appended new input IDs.
 
 ## v2.20.0 (2026-08-27)
 
@@ -43,6 +51,11 @@ Detailed, module-specific history is maintained in separate pages:
 - Added SUB, a monophonic bass voice with an analog-style upper layer, a dedicated octave-down FM sub layer and warm drive.
 - Added selectable 1 PPQN Submit-standard and 4 PPQN compatibility timing to the relevant clocked modules while preserving stored patch behaviour.
 - Updated Circles after public beta testing with clock-stop handling, bar-quantized Dice changes and a more varied Random flow mode.
+
+## v2.19.1 (2026-08-26)
+
+- Loop: embedded loaded WAV files in patch storage and retained support for
+  external paths. Reset is immediate when Sync is disabled or Clock is unpatched.
 
 ## v2.19.0 (2026-08-22)
 
