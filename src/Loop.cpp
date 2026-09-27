@@ -21,6 +21,7 @@ struct Reel : Module {
         CUE_PARAM,
         RESET_PARAM,
         BARSHIFT_PARAM,
+        PLAY_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
@@ -31,6 +32,7 @@ struct Reel : Module {
         BPM_CV_INPUT,
         BARSHIFT_CV_INPUT,
         REVERSE_CV_INPUT,
+        PLAY_INPUT,
         NUM_INPUTS
     };
     enum OutputIds {
@@ -43,6 +45,7 @@ struct Reel : Module {
         SYNC_LIGHT,
         REVERSE_LIGHT,
         CUE_LIGHT,
+        PLAY_LIGHT,
         NUM_LIGHTS
     };
 
@@ -58,6 +61,13 @@ struct Reel : Module {
     double displayPos = 0.0;  // voor waveform display
     double playSpeed = 1.0;
     bool fileLoaded = false;
+
+    // Toggle transport. Keep legacy patches playing by default.
+    bool playing = true;
+    bool playPending = false;
+    float transportGain = 1.f;
+    dsp::SchmittTrigger playInputTrigger;
+    dsp::SchmittTrigger playButtonTrigger;
 
     // Sample info
     float fileBpm = 0.f;
@@ -105,6 +115,7 @@ struct Reel : Module {
         configParam(CUE_PARAM, 0.f, 1.f, 0.f, "Cue");
         configParam(RESET_PARAM, 0.f, 1.f, 0.f, "Reset");
         configParam(BARSHIFT_PARAM, 1.f, 8.f, 1.f, "Bar Shift");
+        configButton(PLAY_PARAM, "Play/Stop");
         getParamQuantity(BARSHIFT_PARAM)->snapEnabled = true;
         configInput(CLOCK_INPUT, "Clock");
         configInput(TRIG_INPUT, "Trigger/Reset");
@@ -113,6 +124,7 @@ struct Reel : Module {
         configInput(BPM_CV_INPUT, "BPM CV");
         configInput(BARSHIFT_CV_INPUT, "Bar Shift CV");
         configInput(REVERSE_CV_INPUT, "Reverse CV");
+        configInput(PLAY_INPUT, "Play/Stop (toggle on each pulse)");
         configOutput(MAIN_L_OUTPUT, "Main L");
         configOutput(MAIN_R_OUTPUT, "Main R");
         configOutput(CUE_OUTPUT, "Cue Mono");
@@ -229,6 +241,22 @@ struct Reel : Module {
     }
 
     void process(const ProcessArgs& args) override {
+        const bool quantizeTransport = params[SYNC_PARAM].getValue() > 0.5f
+            && inputs[CLOCK_INPUT].isConnected();
+        // Evaluate both detectors, even while the other control is held high.
+        const bool playEdge = playInputTrigger.process(inputs[PLAY_INPUT].getVoltage(), 0.1f, 1.f);
+        const bool buttonEdge = playButtonTrigger.process(params[PLAY_PARAM].getValue(), 0.1f, 0.5f);
+        if (playEdge || buttonEdge) {
+            if (quantizeTransport)
+                playPending = !playPending;
+            else
+                playing = !playing;
+        }
+        if (playPending && !quantizeTransport) {
+            playing = !playing;
+            playPending = false;
+        }
+
         // Reset is quantized only while clock synchronization is actually in use.
         const bool quantizeReset = params[SYNC_PARAM].getValue() > 0.5f
             && inputs[CLOCK_INPUT].isConnected();
@@ -327,16 +355,16 @@ struct Reel : Module {
             if (resetPending && quarterEdge) {
                 resetPlaybackPosition();
             }
+            if (playPending && !playing && quarterEdge) {
+                playing = true;
+                playPending = false;
+            }
         }
         clockSampleCount++;
         clockPrev = clockIn;
 
-        // BPM bepalen
-        float bpmOverride = params[BPM_PARAM].getValue();
-        if (inputs[BPM_CV_INPUT].isConnected())
-            bpmOverride = clamp(bpmOverride + inputs[BPM_CV_INPUT].getVoltage() * 30.f, 0.f, 300.f);
-        float sourceBpm = (bpmOverride > 0.f) ? bpmOverride : fileBpm;
-        if (sourceBpm <= 0.f) sourceBpm = 120.f;
+        // Acknowledge the requested state immediately, before quantized execution.
+        lights[PLAY_LIGHT].setBrightness(playing != playPending ? 1.f : 0.f);
 
         // Bars bepalen
         float barsParam = params[BARS_PARAM].getValue();
@@ -371,12 +399,30 @@ struct Reel : Module {
 
         if (activeReverse) playSpeed = -playSpeed;
 
+        // Fade only at the end of the requested final cycle, never on the click.
+        const double framesRemaining = activeReverse ? playPos + 1.0 : totalFrames - playPos;
+        const double samplesRemaining = framesRemaining / std::max(std::abs(playSpeed), 1e-9);
+        const float transportStep = args.sampleTime / 0.002f;
+        const bool ending = playing && playPending && samplesRemaining <= 0.002 * args.sampleRate;
+        transportGain = clamp(transportGain + ((playing && !ending) ? transportStep : -transportStep), 0.f, 1.f);
+
+        // Keep clock tracking and controls alive while the playhead is paused.
+        lights[SYNC_LIGHT].setBrightness(sync ? 1.f : 0.f);
+        lights[REVERSE_LIGHT].setBrightness(activeReverse ? 1.f : 0.f);
+        lights[CUE_LIGHT].setBrightness(activeCue ? 1.f : 0.f);
+        if (!playing && transportGain == 0.f) {
+            outputs[MAIN_L_OUTPUT].setVoltage(0.f);
+            outputs[MAIN_R_OUTPUT].setVoltage(0.f);
+            outputs[CUE_OUTPUT].setVoltage(0.f);
+            return;
+        }
+
         // Audio lezen
         double readPos = std::fmod(playPos + activeLoopOffset, (double)totalFrames);
         if (readPos < 0.0) readPos += totalFrames;
         displayPos = readPos;
-        float outL = getSample(bufferL, readPos) * 5.f;
-        float outR = getSample(bufferR, readPos) * 5.f;
+        float outL = getSample(bufferL, readPos) * 5.f * transportGain;
+        float outR = getSample(bufferR, readPos) * 5.f * transportGain;
         float outMono = (outL + outR) * 0.5f;
 
         // CUE of LIVE
@@ -429,6 +475,13 @@ struct Reel : Module {
             }
             if (playPos >= totalFrames) playPos -= totalFrames;
             if (playPos < 0.0) playPos += totalFrames;
+            if (playing && playPending) {
+                playing = false;
+                playPending = false;
+                transportGain = 0.f;
+                resetPlaybackPosition();
+                lights[PLAY_LIGHT].setBrightness(0.f);
+            }
         }
 
         // Lights
@@ -441,10 +494,18 @@ struct Reel : Module {
         json_object_set_new(root, "filePath", json_string(filePath.c_str()));
         json_object_set_new(root, "fileName", json_string(fileName.c_str()));
         json_object_set_new(root, "clockPpqn", json_integer(clockPpqn));
+        json_object_set_new(root, "playing", json_boolean(playing));
         return root;
     }
 
     void dataFromJson(json_t* root) override {
+        json_t* savedPlaying = json_object_get(root, "playing");
+        playing = !json_is_boolean(savedPlaying) || json_is_true(savedPlaying);
+        playPending = false;
+        transportGain = playing ? 1.f : 0.f;
+        // A gate already high at patch load must not flip the saved state.
+        playInputTrigger.reset();
+        playButtonTrigger.reset();
         if (json_t* ppqn = json_object_get(root, "clockPpqn"))
             clockPpqn = json_integer_value(ppqn) == 4 ? 4 : 1;
         json_t* fp = json_object_get(root, "filePath");
@@ -500,11 +561,26 @@ struct Drift13KnobSmall : SvgKnob {
     }
 };
 
-struct LoopResetButton : SvgSwitch {
-    LoopResetButton() {
+// Same compact momentary button as React's DROP; shared by PLAY and RESET.
+struct LoopTransportButton : SvgSwitch {
+    LoopTransportButton() {
         momentary = true;
-        addFrame(Svg::load(asset::plugin(pluginInstance, "res/knob-reset-off.svg")));
-        addFrame(Svg::load(asset::plugin(pluginInstance, "res/knob-reset-on.svg")));
+        addFrame(Svg::load(asset::plugin(pluginInstance, "res/ChainMuteButton_0.svg")));
+        addFrame(Svg::load(asset::plugin(pluginInstance, "res/ChainMuteButton_1.svg")));
+    }
+};
+
+struct LoopPlayButton : LoopTransportButton {
+    void step() override {
+        LoopTransportButton::step();
+        // Show the requested transport state, including gate input requests.
+        if (module) {
+            const int frame = module->lights[Reel::PLAY_LIGHT].getBrightness() > 0.5f ? 1 : 0;
+            if (sw->svg != frames[frame]) {
+                sw->setSvg(frames[frame]);
+                fb->setDirty();
+            }
+        }
     }
 };
 
@@ -620,8 +696,9 @@ struct ReelWidget : SubmitModuleWidget {
         addParam(createParamCentered<CKSS>(mm2px(Vec(55.657f, 86.832f)), module, Reel::REVERSE_PARAM));
         addParam(createParamCentered<CKSS>(mm2px(Vec(55.657f, 110.431f)), module, Reel::CUE_PARAM));
 
-        // Reset knop
-        addParam(createParamCentered<LoopResetButton>(mm2px(Vec(38.985f, 103.789f)), module, Reel::RESET_PARAM));
+        // V4 component centers in SVG/Rack pixels; original button aspect ratio.
+        addParam(createParamCentered<LoopPlayButton>(Vec(96.8805f, 311.9055f), module, Reel::PLAY_PARAM));
+        addParam(createParamCentered<LoopTransportButton>(Vec(129.0145f, 311.9055f), module, Reel::RESET_PARAM));
 
         // LEDs
         addChild(createLightCentered<SmallLight<YellowLight>>(mm2px(Vec(51.795f, 57.076f)), module, Reel::SYNC_LIGHT));
@@ -630,7 +707,9 @@ struct ReelWidget : SubmitModuleWidget {
 
         // Inputs
         addInput(createInputCentered<PJ301MPort>(mm2px(Vec(55.657f, 50.566f)), module, Reel::CLOCK_INPUT));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(38.866f, 116.074f)), module, Reel::TRIG_INPUT));
+        // The supplied port IDs are swapped; follow the visible PLAY/RESET labels.
+        addInput(createInputCentered<PJ301MPort>(Vec(96.415f, 343.254f), module, Reel::PLAY_INPUT));
+        addInput(createInputCentered<PJ301MPort>(Vec(128.684f, 343.254f), module, Reel::TRIG_INPUT));
         addInput(createInputCentered<PJ301MPort>(mm2px(Vec(30.219f, 74.177f)), module, Reel::SPEED_CV_INPUT));
         addInput(createInputCentered<PJ301MPort>(mm2px(Vec(9.885f, 50.566f)), module, Reel::BARS_CV_INPUT));
         addInput(createInputCentered<PJ301MPort>(mm2px(Vec(30.219f, 50.566f)), module, Reel::BARSHIFT_CV_INPUT));
@@ -639,7 +718,7 @@ struct ReelWidget : SubmitModuleWidget {
 
         // Outputs
         addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(9.885f, 116.074f)), module, Reel::MAIN_L_OUTPUT));
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(22.886f, 116.074f)), module, Reel::MAIN_R_OUTPUT));
+        addOutput(createOutputCentered<PJ301MPort>(Vec(60.678f, 343.254f), module, Reel::MAIN_R_OUTPUT));
         addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(55.657f, 97.877f)), module, Reel::CUE_OUTPUT));
     }
 

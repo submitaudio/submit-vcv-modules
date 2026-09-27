@@ -134,11 +134,13 @@ struct Sweep : Module {
         if (inputs[RESET_CV_INPUT].isConnected() && inputs[RESET_CV_INPUT].getVoltage() > 1.f)
             resetActive = true;
 
-        if (resetActive) resetTimer = 0.30f;
+        if (resetActive) resetTimer = 0.08f;
         if (resetTimer > 0.f) {
             resetTimer -= args.sampleTime;
             float cur = params[SWEEP_KNOB_PARAM].getValue();
-            float spd = 8.f * args.sampleTime;
+            // Reach the centre in about 38 ms from either end; the existing
+            // sweep smoothing and centre crossfade finish the audible return.
+            float spd = 60.f * args.sampleTime;
             float next = cur + spd * (0.5f - cur);
             if (std::abs(next - 0.5f) < 0.05f) next = 0.5f;
             params[SWEEP_KNOB_PARAM].setValue(next);
@@ -151,21 +153,34 @@ struct Sweep : Module {
 
         // Smoothing
         smoothSweep += 0.002f * (sweepVal - smoothSweep);
+        // Float rounding can stall the slew just beside centre. Finish this
+        // inaudibly small remainder so twelve o'clock is truly unfiltered.
+        if (sweepVal == .5f && std::abs(sweepVal - smoothSweep) < 2e-5f) smoothSweep = .5f;
         smoothRes   += 0.002f * (resVal   - smoothRes);
 
         // Input
         float inL = inputs[CHAIN_L_INPUT].getVoltage();
         float inR = inputs[CHAIN_R_INPUT].isConnected() ? inputs[CHAIN_R_INPUT].getVoltage() : inL;
 
-        float q = 0.707f + smoothRes * 4.f; // 0.707=vlak, 4.7=hoge resonantie
+        // Keep the left-side LP behaviour. On the right, use a non-resonant
+        // low-cut until 1 o'clock, then gradually restore RES by 2 o'clock.
+        // The panel knob travels 298.8 degrees; one clock hour is 30 degrees.
+        float q = 0.707f + smoothRes * 0.293f;
+        if (smoothSweep >= .5f) {
+            constexpr float oneOClock = .5f + 1.f / 9.96f;
+            constexpr float twoOClock = .5f + 2.f / 9.96f;
+            float resonanceMix = clamp((smoothSweep - oneOClock) / (twoOClock - oneOClock), 0.f, 1.f);
+            resonanceMix = resonanceMix * resonanceMix * (3.f - 2.f * resonanceMix);
+            q = .707f + smoothRes * 4.f * resonanceMix;
+        }
         constexpr float centerFadeWidth = 0.03f;
         float distanceFromCenter = std::abs(smoothSweep - 0.5f);
         float filterMix = clamp(distanceFromCenter / centerFadeWidth, 0.f, 1.f);
         // Smoothstep keeps the transition into the centre bypass click-free.
         filterMix = filterMix * filterMix * (3.f - 2.f * filterMix);
 
-        float filteredL = inL;
-        float filteredR = inR;
+        float filteredL;
+        float filteredR;
 
         if (smoothSweep < 0.5f) {
             // LP: 0=20Hz, 0.5=20kHz

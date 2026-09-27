@@ -1,5 +1,11 @@
 # Sync changelog
 
+## v2.23.0 (release candidate)
+
+- Added patch-stored START CV Mode (Trigger / Gate) in the context menu. Trigger remains the default, including for older patches.
+- In Gate mode, a connected START input follows HIGH/LOW to run/stop the clock. Manual Run and Stop overrides last until the next gate transition; Stop takes priority for simultaneous events.
+- Kept the front panel, port IDs and Trigger-mode behaviour unchanged.
+
 ## v2.21.0 (2026-08-30)
 
 - Added dedicated Start and Stop trigger inputs.

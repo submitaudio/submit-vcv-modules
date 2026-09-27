@@ -3,6 +3,7 @@
 // https://github.com/submitaudio/submit-vcv-modules
 
 #include "plugin.hpp"
+#include <atomic>
 struct ChainKnob : SvgKnob {
     ChainKnob() {
         minAngle = -0.83 * M_PI;
@@ -88,6 +89,50 @@ struct Mix2ch : Module {
     float peakLevel1 = 0.f, peakLevel2 = 0.f;
     static constexpr float PEAK_DECAY = 0.9995f;
 
+    struct MuteFade {
+        float position = 1.f;
+        bool initialized = false;
+        float process(bool muted, float sampleTime) {
+            const float target = muted ? 0.f : 1.f;
+            // Respect a saved mute immediately when the module first starts.
+            if (!initialized) { position = target; initialized = true; }
+            const float step = sampleTime / .010f;
+            position += clamp(target - position, -step, step);
+            // Smooth endpoints, exact silence/unity, continuous on reversal.
+            return position * position * (3.f - 2.f * position);
+        }
+    };
+    MuteFade channelMute1, channelMute2, returnMute1, returnMute2;
+    std::atomic<bool> muteCvToggle{false};
+    bool previousToggleMode = false;
+    bool muteCvInitialized = false;
+    bool muteCvHigh[2] = {false, false};
+
+    void processMuteCv(bool toggleMode) {
+        const int ports[2] = {CH1_MUTE_CV_INPUT, CH2_MUTE_CV_INPUT};
+        const int buttons[2] = {CH1_MUTE_PARAM, CH2_MUTE_PARAM};
+        const bool synchronize = !muteCvInitialized || toggleMode != previousToggleMode;
+        for (int ch = 0; ch < 2; ++ch) {
+            const float voltage = inputs[ports[ch]].isConnected() ? inputs[ports[ch]].getVoltage() : 0.f;
+            // Loading or changing mode while high must not toggle a saved mute.
+            if (synchronize) muteCvHigh[ch] = voltage >= 1.f;
+            else if (voltage <= .1f) muteCvHigh[ch] = false;
+            else if (voltage >= 1.f && !muteCvHigh[ch]) {
+                muteCvHigh[ch] = true;
+                if (toggleMode)
+                    params[buttons[ch]].setValue(params[buttons[ch]].getValue() > .5f ? 0.f : 1.f);
+            }
+        }
+        muteCvInitialized = true;
+        previousToggleMode = toggleMode;
+    }
+
+    void onReset(const ResetEvent& e) override {
+        Module::onReset(e);
+        muteCvToggle.store(false);
+        muteCvInitialized = false;
+    }
+
     Mix2ch() {
         config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
 
@@ -166,6 +211,17 @@ struct Mix2ch : Module {
 
     void process(const ProcessArgs& args) override {
         float hpfAlpha = 1.f - std::exp(-2.f * float(M_PI) * 40.f / args.sampleRate);
+        const bool toggleMode = muteCvToggle.load();
+        processMuteCv(toggleMode);
+        const bool buttonMute1 = params[CH1_MUTE_PARAM].getValue() > .5f;
+        const bool buttonMute2 = params[CH2_MUTE_PARAM].getValue() > .5f;
+        const bool cvMute1 = !toggleMode && inputs[CH1_MUTE_CV_INPUT].isConnected() && inputs[CH1_MUTE_CV_INPUT].getVoltage() > 1.f;
+        const bool cvMute2 = !toggleMode && inputs[CH2_MUTE_CV_INPUT].isConnected() && inputs[CH2_MUTE_CV_INPUT].getVoltage() > 1.f;
+        const float muteGain1 = channelMute1.process(buttonMute1 || cvMute1, args.sampleTime);
+        const float muteGain2 = channelMute2.process(buttonMute2 || cvMute2, args.sampleTime);
+        // Keep the existing button-only return routing independent of mute CV.
+        const float returnGain1 = returnMute1.process(buttonMute1, args.sampleTime);
+        const float returnGain2 = returnMute2.process(buttonMute2, args.sampleTime);
 
         // ── KANAAL 1 ──────────────────────────────
         float ch1L = inputs[CH1_L_INPUT].getVoltage();
@@ -187,9 +243,7 @@ struct Mix2ch : Module {
             float compCV1 = clamp(inputs[CH1_COMP_INPUT].getVoltage(), 0.f, 10.f);
             vol1 *= (1.f - compCV1 / 10.f);
         }
-        if (params[CH1_MUTE_PARAM].getValue() > 0.5f) vol1 = 0.f;
-        if (inputs[CH1_MUTE_CV_INPUT].isConnected() && inputs[CH1_MUTE_CV_INPUT].getVoltage() > 1.f) vol1 = 0.f;
-        if (inputs[CH1_MUTE_CV_INPUT].isConnected() && inputs[CH1_MUTE_CV_INPUT].getVoltage() > 1.f) vol1 = 0.f;
+        vol1 *= muteGain1;
         ch1L *= vol1; ch1R *= vol1;
 
         float panL1, panR1;
@@ -223,9 +277,7 @@ struct Mix2ch : Module {
             float compCV2 = clamp(inputs[CH2_COMP_INPUT].getVoltage(), 0.f, 10.f);
             vol2 *= (1.f - compCV2 / 10.f);
         }
-        if (params[CH2_MUTE_PARAM].getValue() > 0.5f) vol2 = 0.f;
-        if (inputs[CH2_MUTE_CV_INPUT].isConnected() && inputs[CH2_MUTE_CV_INPUT].getVoltage() > 1.f) vol2 = 0.f;
-        if (inputs[CH2_MUTE_CV_INPUT].isConnected() && inputs[CH2_MUTE_CV_INPUT].getVoltage() > 1.f) vol2 = 0.f;
+        vol2 *= muteGain2;
         ch2L *= vol2; ch2R *= vol2;
 
         float panL2, panR2;
@@ -248,16 +300,14 @@ struct Mix2ch : Module {
         float ret2L = inputs[RETURN2_L_INPUT].getVoltage();
         float ret2R = inputs[RETURN2_R_INPUT].isConnected() ? inputs[RETURN2_R_INPUT].getVoltage() : ret2L;
 
-        bool mute1 = params[CH1_MUTE_PARAM].getValue() > 0.5f;
-        bool mute2 = params[CH2_MUTE_PARAM].getValue() > 0.5f;
         // FX return schalen op basis van send niveau per kanaal
-        float ch1send1 = mute1 ? 0.f : params[CH1_SEND1_PARAM].getValue();
-        float ch2send1 = mute2 ? 0.f : params[CH2_SEND1_PARAM].getValue();
+        float ch1send1 = returnGain1 * params[CH1_SEND1_PARAM].getValue();
+        float ch2send1 = returnGain2 * params[CH2_SEND1_PARAM].getValue();
         float fx1scale = std::max(ch1send1, ch2send1);
         ret1L *= fx1scale; ret1R *= fx1scale;
 
-        float ch1send2 = mute1 ? 0.f : params[CH1_SEND2_PARAM].getValue();
-        float ch2send2 = mute2 ? 0.f : params[CH2_SEND2_PARAM].getValue();
+        float ch1send2 = returnGain1 * params[CH1_SEND2_PARAM].getValue();
+        float ch2send2 = returnGain2 * params[CH2_SEND2_PARAM].getValue();
         float fx2scale = std::max(ch1send2, ch2send2);
         ret2L *= fx2scale; ret2R *= fx2scale;
 
@@ -288,8 +338,15 @@ struct Mix2ch : Module {
         if (vuLevel2 > 1.f) vuLevel2 = 1.f;
     }
 
-    json_t* dataToJson() override { return json_object(); }
-    void dataFromJson(json_t* rootJ) override { (void)rootJ; }
+    json_t* dataToJson() override {
+        json_t* rootJ = json_object();
+        json_object_set_new(rootJ, "muteCvToggle", json_boolean(muteCvToggle.load()));
+        return rootJ;
+    }
+    void dataFromJson(json_t* rootJ) override {
+        muteCvToggle.store(json_is_true(json_object_get(rootJ, "muteCvToggle")));
+        muteCvInitialized = false;
+    }
 };
 
 struct ChainSlider : SvgSlider {
@@ -417,6 +474,13 @@ struct Mix2chWidget : SubmitModuleWidget {
     }
 
     void appendContextMenu(Menu* menu) override {
+        auto* chain = dynamic_cast<Mix2ch*>(module);
+        if (chain) {
+            menu->addChild(new MenuSeparator);
+            menu->addChild(createIndexSubmenuItem("Mute CV mode", {"Gate", "Toggle"},
+                [chain]() { return chain->muteCvToggle.load() ? 1 : 0; },
+                [chain](int mode) { chain->muteCvToggle.store(mode == 1); }));
+        }
         menu->addChild(new MenuSeparator);
         menu->addChild(createMenuItem("Manual", "", []() {
             system::openBrowser("https://www.submitaudio.nl/vcv-rack-modules-metamodule-plugins/chain/");

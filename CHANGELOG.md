@@ -27,7 +27,27 @@ Detailed, module-specific history is maintained in separate pages:
 - [Circles](docs/changelogs/Circles.md)
 - [SUB](docs/changelogs/Sub.md)
 
-## v2.22.0 (release candidate)
+## v2.23.0 (release candidate)
+
+The existing collection remains at 22 modules; no local beta modules are included.
+
+- Chain: added Gate/Toggle Mute CV modes and smooth 10 ms mute transitions.
+- Chrono: routed the selected three-head mix to the stereo wet output and corrected
+  selector/tooltips to match the panel. Offset, Spread and tape movement affect
+  the audible heads even with Feedback at zero and Surge off.
+- Sweep: restored passband level, refined resonance near the centre and shortened
+  the smooth Reset movement to approximately 38 ms.
+- Loop: added the V4 panel and Play/Stop button and gate input. Clocked STOP finishes
+  the current loop; START waits for a quarter-note edge. Unclocked transport pauses
+  and resumes immediately, with short audio fades and patch-saved playing state.
+- Sync: added a patch-saved START CV Trigger/Gate mode with manual overrides.
+- SUB: smoothed low-note transitions and oscillator frequency changes.
+- Existing slugs and parameter/port IDs are retained; Loop appends its new controls.
+  Chrono's corrected head mapping and Sweep's filter response can change the sound
+  of existing patches. Legacy Loop patches keep automatic playback; Sync defaults
+  to Trigger and Chain defaults to Gate.
+
+## v2.22.0 (2026-09-07)
 
 - Includes the previously committed switch to GPL-3.0-or-later for Submit Audio
   source code and original artwork. Third-party components retain their licenses.

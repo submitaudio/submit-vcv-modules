@@ -1,4 +1,4 @@
-# If RACK_DIR is not defined when calling the Makefile, default to two directories above
+# Default to the central SDK; an explicit RACK_DIR still takes precedence.
 RACK_DIR ?= ../..
 
 # FLAGS will be passed to both the C and C++ compiler

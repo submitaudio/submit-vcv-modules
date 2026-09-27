@@ -64,6 +64,10 @@ struct Sync : Module {
 	bool haveExternalEdge = false;
 	bool externalTempoValid = false;
 	int clockPpqn = 1;
+	enum StartCvMode { START_TRIGGER, START_GATE };
+	StartCvMode startCvMode = START_TRIGGER;
+	bool startGateActive = false;
+	bool startGateHigh = false;
 
 	Sync() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
@@ -85,6 +89,7 @@ struct Sync : Module {
 		json_t* root = json_object();
 		json_object_set_new(root, "running", json_boolean(running));
 		json_object_set_new(root, "clockPpqn", json_integer(clockPpqn));
+		json_object_set_new(root, "startCvMode", json_integer(startCvMode));
 		return root;
 	}
 
@@ -94,6 +99,9 @@ struct Sync : Module {
 			running = json_boolean_value(runningJson);
 		if (json_t* ppqnJson = json_object_get(root, "clockPpqn"))
 			clockPpqn = json_integer_value(ppqnJson) == 4 ? 4 : 1;
+		startCvMode = json_integer_value(json_object_get(root, "startCvMode")) == START_GATE
+			? START_GATE : START_TRIGGER;
+		startGateActive = false;
 	}
 
 	void setClockPpqn(int ppqn) {
@@ -129,14 +137,27 @@ struct Sync : Module {
 	}
 
 	void process(const ProcessArgs& args) override {
-		if (runTrigger.process(params[RUN_PARAM].getValue())) {
+		const bool runPressed = runTrigger.process(params[RUN_PARAM].getValue());
+		if (runPressed) {
 			running = !running;
 			resetTiming();
 		}
 
 		const bool startReceived = startInputTrigger.process(inputs[START_INPUT].getVoltage());
 		const bool stopReceived = stopInputTrigger.process(inputs[STOP_INPUT].getVoltage());
-		if (startReceived && !stopReceived) {
+		const bool gateActive = startCvMode == START_GATE && inputs[START_INPUT].isConnected();
+		const bool gateHigh = startInputTrigger.isHigh();
+		if (gateActive && (!startGateActive || gateHigh != startGateHigh) && !runPressed) {
+			// Follow the gate on connection, mode entry and level changes.
+			// Manual Run/Stop remains effective until the next gate transition.
+			if (running != gateHigh) {
+				running = gateHigh;
+				resetTiming();
+			}
+		}
+		startGateActive = gateActive;
+		startGateHigh = gateHigh;
+		if (startCvMode == START_TRIGGER && startReceived && !stopReceived) {
 			running = true;
 			resetTiming();
 		}
@@ -345,6 +366,16 @@ struct SyncWidget : SubmitModuleWidget {
 		Sync* sync = dynamic_cast<Sync*>(module);
 		menu->addChild(new MenuSeparator);
 		if (sync) {
+			menu->addChild(createSubmenuItem("START CV Mode",
+				sync->startCvMode == Sync::START_GATE ? "Gate" : "Trigger", [=](Menu* submenu) {
+				submenu->addChild(createCheckMenuItem("Trigger", "",
+					[=]() { return sync->startCvMode == Sync::START_TRIGGER; },
+					[=]() { sync->startCvMode = Sync::START_TRIGGER; }));
+				submenu->addChild(createCheckMenuItem("Gate", "",
+					[=]() { return sync->startCvMode == Sync::START_GATE; },
+					[=]() { sync->startCvMode = Sync::START_GATE; }));
+			}));
+			menu->addChild(new MenuSeparator);
 			menu->addChild(createMenuLabel("Clock input/output rate"));
 			menu->addChild(createCheckMenuItem("1 PPQN (Submit standard)", "",
 				[=]() { return sync->clockPpqn == 1; },

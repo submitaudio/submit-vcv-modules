@@ -114,20 +114,22 @@ Chrono is a clock-synchronised stereo delay with tape movement, saturation and s
 ### Controls
 
 - **Time**, **Feedback**, **Mix**, **Drive** and **Tape** control the delay and tape character.
-- **Heads** selects `SUB`, `DUB`, `QTR`, `DOT`, `TRP` or `ALL` rhythmic head combinations.
+- **Heads** selects `ALL`, `TRP`, `DOT`, `QTR`, `DUB` or `SUB` from top to bottom. All six are weighted three-head combinations and affect the stereo wet output even at zero Feedback with Surge off. Selection changes are smoothed over approximately 5 ms.
 - **Division** and **Offset** place the heads against the incoming clock.
 - **Spread** controls stereo width.
-- **Surge** freezes and blooms the delay; **Break** creates a tape-stop style slowdown.
+- **Surge** blooms the delay; **Dry** momentarily fades to the dry signal and returns smoothly when released.
 
 ### Inputs and outputs
 
-Inputs: stereo audio, Time CV, Feedback CV, Mix CV, Drive CV, Tape CV, Heads CV, 1 PPQN Clock, Offset CV, Spread CV, Surge Gate and Break Gate.
+Inputs: stereo audio, Time CV, Feedback CV, Mix CV, Drive CV, Tape CV, Heads CV, 1 PPQN Clock, Offset CV, Spread CV, Surge Gate and Dry Gate.
 
 Outputs: `Audio Out L` and `Audio Out R`.
 
 ### Patch ideas
 
-Use the 1 PPQN clock for locked rhythmic echoes. Increase Tape and Drive gradually for movement, then automate Surge or Break for transitions.
+Use the 1 PPQN clock for locked rhythmic echoes. Increase Tape and Drive gradually for movement, then use Surge or Dry for transitions.
+
+The corrected Heads mapping keeps stored parameter values, but existing patches at SUB, DUB, TRP and ALL can select different combinations. QTR and DOT retain their combinations; all positions now affect the normal wet output.
 
 ## Impact
 
@@ -157,7 +159,9 @@ Chain is a stereo mixer and router with two channel strips and shared FX buses.
 
 ### Controls
 
-Each channel has pre-gain, volume, pan, mute, a 40 Hz high-pass switch and two FX sends.
+Each channel has pre-gain, volume, pan, mute, a 40 Hz high-pass switch and two FX sends. Mute transitions use a 10 ms fade.
+
+The patch-saved **Mute CV mode** menu selects **Gate** (the default) or **Toggle**. Gate follows the input level. Toggle changes the channel mute state once per rising edge; a held gate does not repeatedly switch it. Loading a patch or changing modes while the input is high does not toggle the saved state. The existing button-controlled FX return behavior is retained.
 
 ### Inputs
 
@@ -324,7 +328,9 @@ Sweep is a stereo DJ-style filter for the Submit chain.
 
 - **Sweep** moves the filter between low-pass and high-pass behaviour.
 - **Resonance** adds emphasis around the cutoff.
-- **Reset** returns the filter to its reset position.
+- **Reset** smoothly returns to the unfiltered centre in approximately 38 ms.
+
+Exactly 12 o'clock is unfiltered. Clockwise, a non-resonant low-cut fades in and remains independent of RES through 1 o'clock; resonance then increases smoothly to its full range at 2 o'clock. Left-side low-pass resonance is limited to Q=1. The passband retains unity gain. This is not a speaker-protection limiter.
 
 Inputs: Sweep CV, Resonance CV, Reset CV and Chain In L/R.
 
@@ -344,10 +350,13 @@ Loop is a stereo sample looper with waveform display, clock sync, BPM parsing, r
 - **Cue** sends the cue signal to the mono cue output.
 - **Reset** returns playback to the start. With Sync enabled and Clock connected, the reset occurs on the next clock pulse. Without an active clock-sync connection, it occurs immediately.
 - **Bar Shift** moves the playback window by bars.
+- **Play/Stop** toggles playback once per button press or rising edge at the PLAY input. With Sync enabled and Clock connected, STOP finishes the current loop, including reverse playback; START waits for the next quarter-note edge. A second request cancels a queued action. The PLAY light shows the requested state immediately. With Sync off or Clock disconnected, STOP pauses and START resumes immediately. Both MAIN and CUE use short 2 ms audio fades.
+
+Playing state is saved with the patch. Older patches retain automatic playback, and a gate already high when loading does not override the saved state. Clock tracking continues while stopped. The V4 panel places PLAY left and RESET right.
 
 ### Inputs and outputs
 
-Inputs: Clock, Trigger/Reset, Speed CV, Bars CV, BPM CV, Bar Shift CV and Reverse CV. Trigger/Reset follows the same immediate or clock-quantized behaviour as the Reset button.
+Inputs: Clock, Trigger/Reset, Speed CV, Bars CV, BPM CV, Bar Shift CV, Reverse CV and Play/Stop gate. Trigger/Reset follows the same immediate or clock-quantized behaviour as the Reset button.
 
 Outputs: Main L, Main R and Cue Mono.
 
@@ -401,10 +410,16 @@ Sync is a compact internal/external clock for the Submit system. This module is 
 ### Controls and inputs
 
 - **Tempo** sets the internal BPM.
-- **Run** starts and stops the internal clock.
+- **Run** manually starts and stops the clock in both START CV modes.
 - **Reset** resets the clock phase.
 - `External clock` selects external timing when connected.
 - `Reset` accepts an external reset pulse.
+- `Start` starts the clock on a rising trigger in the default **Trigger** mode.
+- `Stop` stops the clock on a rising trigger and takes priority over simultaneous Start or Run events.
+
+Right-click Sync and select **START CV Mode → Trigger / Gate**. The selection is saved with the patch; older patches use Trigger. In **Gate** mode, connecting START or selecting Gate adopts the current CV level: HIGH runs the clock, LOW stops it. Subsequent HIGH/LOW changes update Run. The Run button and Stop input can override this state until the next gate transition. With START disconnected, manual Run and Stop remain available.
+
+For the OP-XY / RK-006 setup, connect Gate 1 to `EXT` for clock and Gate 2 to `START`, then select **Gate**. Match the external clock rate to Sync's clock input/output rate setting (1 PPQN by default).
 
 ### Outputs
 

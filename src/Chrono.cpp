@@ -163,6 +163,8 @@ struct Chrono : Module {
     // Drijvende lees posities per head
     float headReadPos[3] = {0.f, 0.f, 0.f};
     bool  headPosInit    = false;
+    float wetHeadWeights[3] = {1.f, 1.f, 1.f};
+    bool wetHeadsInitialized = false;
 
     // ── Dry brake buffer ──────────────────────
     static const int DRY_BUFFER = 48000; // 1 sec buffer
@@ -194,14 +196,16 @@ struct Chrono : Module {
 
     // ── Head combinaties ──────────────────────
     // [positie][head] = volume factor
-    // 3 heads: triplet(1/3), dotted(1/2), quarter(1/1)
+    // Columns: triplet (2/3), quarter (1x), dotted (3/2).
+    // Parameter values increase bottom-to-top. Panel positions 1 through 6
+    // run top-to-bottom: ALL, TRP, DOT, QTR, DUB, SUB.
     const float headMix[6][3] = {
-        {1.0f, 1.0f, 1.0f},  // 0: ALL  — gelijk/gelijk/gelijk
-        {1.0f, 0.5f, 0.5f},  // 1: TRP  — hoog/laag/laag
-        {0.5f, 1.0f, 0.5f},  // 2: DOT  — laag/hoog/laag
-        {0.5f, 0.5f, 1.0f},  // 3: QTR  — laag/laag/hoog
-        {1.0f, 1.0f, 0.5f},  // 4: DUB  — hoog/hoog/laag
-        {0.5f, 1.0f, 1.0f},  // 5: SUB  — laag/hoog/hoog
+        {0.5f, 1.0f, 1.0f},  // 0: SUB (panel position 6)
+        {1.0f, 1.0f, 0.5f},  // 1: DUB (panel position 5)
+        {0.5f, 1.0f, 0.5f},  // 2: QTR (panel position 4)
+        {0.5f, 0.5f, 1.0f},  // 3: DOT (panel position 3)
+        {1.0f, 0.5f, 0.5f},  // 4: TRP (panel position 2)
+        {1.0f, 1.0f, 1.0f},  // 5: ALL (panel position 1)
     };
 
     Chrono() {
@@ -212,6 +216,7 @@ struct Chrono : Module {
         configParam(MIX_PARAM,      0.f, 1.f, 0.318f, "Mix");
         configParam(DRIVE_PARAM,    0.f, 1.f, 0.128f, "Drive");
         configParam(TAPE_PARAM,     0.f, 1.f, 0.324f, "Tape");
+        // The vertical slider increases bottom-to-top; labels follow the panel.
         configSwitch(HEADS_PARAM, 0.f, 5.f, 0.f, "Heads", {"SUB", "DUB", "QTR", "DOT", "TRP", "ALL"});
         paramQuantities[HEADS_PARAM]->snapEnabled = true;
         configParam(DIVISION_PARAM, 0.f, 4.f, 2.f,  "Division");
@@ -635,11 +640,26 @@ struct Chrono : Module {
             return buffer[pos];
         };
 
-        // Wobble pitch effect — delayed leestijd schommelt
-        float wobbleTimeL = delaySamples * (1.f + wobble * damageStage * 2.f);
-        float wobbleTimeR = delaySamples * (1.f + wobble * damageStage * 2.f);
-        float delayedL = readSpread(clamp(wobbleTimeL - spreadSamples, 1.f, (float)(MAX_BUFFER-1)));
-        float delayedR = readSpread(clamp(wobbleTimeR + spreadSamples, 1.f, (float)(MAX_BUFFER-1)));
+        // Read the selected heads into both wet outputs, including Offset,
+        // Tape wobble and stereo Spread. Smooth selection changes over 5 ms.
+        const float headBlend = args.sampleTime / (0.005f + args.sampleTime);
+        float delayedL = 0.f;
+        float delayedR = 0.f;
+        float wetWeightTotal = 0.f;
+        for (int i = 0; i < 3; ++i) {
+            const float targetWeight = headMix[headIndex][i];
+            if (!wetHeadsInitialized)
+                wetHeadWeights[i] = targetWeight;
+            else
+                wetHeadWeights[i] += headBlend * (targetWeight - wetHeadWeights[i]);
+            const float wobbleTime = headTime[i] * (1.f + wobble * damageStage * 2.f);
+            delayedL += wetHeadWeights[i] * readSpread(wobbleTime - spreadSamples);
+            delayedR += wetHeadWeights[i] * readSpread(wobbleTime + spreadSamples);
+            wetWeightTotal += wetHeadWeights[i];
+        }
+        wetHeadsInitialized = true;
+        delayedL /= wetWeightTotal;
+        delayedR /= wetWeightTotal;
 
         // Tape blend op L en R
         // Tape karakter toepassen op delayedL/R — flutter, saturatie en hiss

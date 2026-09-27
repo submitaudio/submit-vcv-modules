@@ -1,5 +1,11 @@
 # SUB changelog
 
+## v2.23.0 (release candidate)
+
+- Smoothed the pitch-dependent fundamental level to prevent abrupt waveform jumps when a low bass note changes during a long decay.
+- Added a short 1 ms frequency smoothing time constant to both continuously running oscillators; parameter IDs, ranges and panel settings remain unchanged.
+- Verified both reported filter settings at 44.1, 48 and 96 kHz, sustained and retriggered note changes, rapid-note stability and settled bass tuning. José approved Rack listening and CPU stress testing on 2026-09-27.
+
 ## v2.20.0 (2026-08-27)
 
 - Promoted the selected beta implementation to the canonical `Sub` module and removed the older local SUB implementations.

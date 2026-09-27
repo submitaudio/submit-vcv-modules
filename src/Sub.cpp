@@ -66,6 +66,11 @@ struct SubOctaveKnob : SvgKnob {
 
 	float phase = 0.f;
 	float subPhase = 0.f;
+	float smoothedFrequency = 0.f;
+	float smoothedSubFrequency = 0.f;
+	float fundamentalWeightStage = 1.f;
+	float smoothedFundamentalWeight = 1.f;
+	bool pitchInitialized = false;
 	float amplitudeEnv = 0.f;
 	float subAmplitudeEnv = 0.f;
 	float accentEnv = 0.f;
@@ -147,10 +152,31 @@ struct SubOctaveKnob : SvgKnob {
 		const float octave = std::round(params[OCTAVE_PARAM].getValue());
 		const float basePitch = inputs[VOCT_INPUT].getVoltage() + octave;
 		const float tune = params[TUNE_PARAM].getValue() / 12.f;
-		const float frequency = clamp(261.6256f * std::pow(2.f, basePitch + tune), 12.f, 5000.f);
+		const float targetFrequency = clamp(261.6256f * std::pow(2.f, basePitch + tune), 12.f, 5000.f);
 		// The lower layer follows V/OCT and OCTAVE, but deliberately ignores
 		// TUNE so the upper layer can be detuned around a stable sub pitch.
-		const float subFrequency = clamp(261.6256f * std::pow(2.f, basePitch - 1.f), 5.f, 2500.f);
+		const float targetSubFrequency = clamp(261.6256f * std::pow(2.f, basePitch - 1.f), 5.f, 2500.f);
+		const float targetFundamentalWeight = clamp((targetSubFrequency - 12.f) / 18.f, 0.35f, 1.f);
+		if (!pitchInitialized) {
+			smoothedFrequency = targetFrequency;
+			smoothedSubFrequency = targetSubFrequency;
+			fundamentalWeightStage = targetFundamentalWeight;
+			smoothedFundamentalWeight = targetFundamentalWeight;
+			pitchInitialized = true;
+		}
+		// Keep both oscillators running through note changes. A 1 ms time
+		// constant rounds the frequency step without a long portamento.
+		const float pitchCoefficient = 1.f - std::exp(-args.sampleTime / 0.001f);
+		smoothedFrequency += (targetFrequency - smoothedFrequency) * pitchCoefficient;
+		smoothedSubFrequency += (targetSubFrequency - smoothedSubFrequency) * pitchCoefficient;
+		const float frequency = smoothedFrequency;
+		const float subFrequency = smoothedSubFrequency;
+		// This pitch-dependent gain must not jump during an audible tail.
+		// In the low register it previously caused a large waveform step.
+		// Two short stages also round the start of the gain change itself.
+		const float weightCoefficient = 1.f - std::exp(-args.sampleTime / 0.002f);
+		fundamentalWeightStage += (targetFundamentalWeight - fundamentalWeightStage) * weightCoefficient;
+		smoothedFundamentalWeight += (fundamentalWeightStage - smoothedFundamentalWeight) * weightCoefficient;
 		const float dt = clamp(frequency * args.sampleTime, 0.f, 0.45f);
 
 		const float decay = clamp(
@@ -253,7 +279,7 @@ struct SubOctaveKnob : SvgKnob {
 		const float subThird = std::sin(3.f * subRadians);
 		// Below the normal audible bass range, reduce speaker-pumping energy
 		// in the fundamental while retaining harmonics that communicate pitch.
-		const float fundamentalWeight = clamp((subFrequency - 12.f) / 18.f, 0.35f, 1.f);
+		const float fundamentalWeight = smoothedFundamentalWeight;
 		const float subRaw = fundamentalWeight * subFundamental + 0.16f * subSecond + 0.045f * subThird;
 		const float subWarm = std::tanh(subRaw * 1.25f) / std::tanh(1.25f);
 		// Keep the fundamental layer level stable when a fast main-sequence
